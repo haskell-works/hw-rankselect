@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+[ -f ~/.nix-profile/etc/profile.d/nix.sh ] || {
+  bash <(curl https://nixos.org/nix/install)
+}
+
+. ~/.nix-profile/etc/profile.d/nix.sh
+
+export PATH="~/.cabal/bin:$PATH"
+
+"$@"
