@@ -46,7 +46,7 @@ patch)
   _new_version="$_major.$_minor.$_point.$(($_patch + 1))"
   ;;
 *)
-  echo "./upversion.sh (major|minor|point|patch)"
+  echo "./scripts/up (major|minor|point|patch)"
   exit 1
 esac
 
