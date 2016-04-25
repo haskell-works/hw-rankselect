@@ -4,24 +4,18 @@ machine:
 
 dependencies:
   cache_directories:
-    - "~/.ambiata"
     - "~/.cabal"
     - "~/.ghc"
   pre:
     - cp ./scripts/* ~/bin/
-    - nox when deps nix-env -i ghc-7.10.3
-    - nox when deps nix-env -i cabal-install-1.22.9.0
-    - nox when deps ./mafia lock
-    - nox when deps ./mafia unlock
-    - nox when deps ./mafia install hspec-discover
-    - nox when deps ln -sf ~/.ambiata/mafia/bin/hspec-discover/bin/hspec-discover ~/bin/hspec-discover
+    - nox when deps nix-mk
+    - nox when deps nix-deps
   override:
     - echo "Suppress default Circle CI dependencies"
 
 test:
   override:
-    - nox when build ./mafia build
-    - nox when test  ./mafia test
+    - nox when build nix-build
 
 deployment:
   release_branch:

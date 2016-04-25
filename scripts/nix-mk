@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+repo_name="$(basename `git rev-parse --show-toplevel`)"
+
+nix-env -i cabal2nix
+
+cabal2nix . > "$repo_name".nix
+
+cat > default.nix <<EOF
+{ nixpkgs ? import <nixpkgs> {}, compiler ? "ghc7103" }:
+nixpkgs.pkgs.haskell.packages.\${compiler}.callPackage ./$repo_name.nix { }
+EOF
+
+cat > shell.nix <<EOF
+{ nixpkgs ? import <nixpkgs> {}, compiler ? "ghc7103" }:
+(import ./default.nix { inherit nixpkgs compiler; }).env
+EOF
