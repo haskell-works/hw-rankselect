@@ -8,10 +8,9 @@ dependencies:
     - "~/.ghc"
   pre:
     - cp ./scripts/* ~/bin/
+  override:
     - nox when deps nix-mk
     - nox when deps nix-deps
-  override:
-    - echo "Suppress default Circle CI dependencies"
 
 test:
   override:
