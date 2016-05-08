@@ -1,8 +1,5 @@
 module HaskellWorks.Data.Succinct.BalancedParens.Internal
   ( BalancedParens(..)
-  , firstChild
-  , nextSibling
-  , parent
   , depth
   , subtreeSize
   ) where
@@ -15,15 +12,9 @@ class BalancedParens v where
   findOpen :: v -> Count -> Count
   findClose :: v -> Count -> Count
   enclose :: v -> Count -> Count
-
-firstChild :: v -> Count -> Count
-firstChild _ = (+ 1)
-
-nextSibling :: BalancedParens v => v -> Count -> Count
-nextSibling v p = findClose v p + 1
-
-parent :: BalancedParens v => v -> Count -> Count
-parent = enclose
+  firstChild :: v -> Count -> Maybe Count
+  nextSibling :: v -> Count -> Maybe Count
+  parent :: v -> Count -> Maybe Count
 
 depth :: (BalancedParens v, Rank0 v, Rank1 v) => v -> Count -> Count
 depth v p = let q = findOpen v p in rank1 v q - rank0 v q

@@ -66,73 +66,127 @@ findClose' c v p =
 {-# INLINABLE findClose' #-}
 
 instance BalancedParens (SimpleBalancedParens [Bool]) where
-  findOpen  v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
-  findClose v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
-  enclose       = findOpen' (Count 1)
-  {-# INLINABLE findOpen  #-}
-  {-# INLINABLE findClose #-}
-  {-# INLINABLE enclose   #-}
+  findOpen    v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
+  findClose   v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
+  enclose         = findOpen' (Count 1)
+  firstChild  v p = if openAt v p && openAt v (p + 1) then Just (p + 1) else Nothing
+  nextSibling v p = let q = findClose v p in if p == q then Nothing else Just (q + 1)
+  parent      v p = Just (enclose v p)
+  {-# INLINABLE findOpen    #-}
+  {-# INLINABLE findClose   #-}
+  {-# INLINABLE enclose     #-}
+  {-# INLINABLE firstChild  #-}
+  {-# INLINABLE nextSibling #-}
+  {-# INLINABLE parent      #-}
 
 instance BalancedParens (SimpleBalancedParens (DVS.Vector Word8)) where
-  findOpen  v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
-  findClose v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
-  enclose       = findOpen' (Count 1)
-  {-# INLINABLE findOpen  #-}
-  {-# INLINABLE findClose #-}
-  {-# INLINABLE enclose   #-}
+  findOpen    v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
+  findClose   v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
+  enclose         = findOpen' (Count 1)
+  firstChild  v p = if openAt v p && openAt v (p + 1) then Just (p + 1) else Nothing
+  nextSibling v p = let q = findClose v p in if p == q then Nothing else Just (q + 1)
+  parent      v p = Just (enclose v p)
+  {-# INLINABLE findOpen    #-}
+  {-# INLINABLE findClose   #-}
+  {-# INLINABLE enclose     #-}
+  {-# INLINABLE firstChild  #-}
+  {-# INLINABLE nextSibling #-}
+  {-# INLINABLE parent      #-}
 
 instance BalancedParens (SimpleBalancedParens (DVS.Vector Word16)) where
   findOpen  v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
   findClose v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
   enclose       = findOpen' (Count 1)
-  {-# INLINABLE findOpen  #-}
-  {-# INLINABLE findClose #-}
-  {-# INLINABLE enclose   #-}
+  firstChild  v p = if openAt v p && openAt v (p + 1) then Just (p + 1) else Nothing
+  nextSibling v p = let q = findClose v p in if p == q then Nothing else Just (q + 1)
+  parent      v p = Just (enclose v p)
+  {-# INLINABLE findOpen    #-}
+  {-# INLINABLE findClose   #-}
+  {-# INLINABLE enclose     #-}
+  {-# INLINABLE firstChild  #-}
+  {-# INLINABLE nextSibling #-}
+  {-# INLINABLE parent      #-}
 
 instance BalancedParens (SimpleBalancedParens (DVS.Vector Word32)) where
   findOpen  v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
   findClose v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
   enclose       = findOpen' (Count 1)
-  {-# INLINABLE findOpen  #-}
-  {-# INLINABLE findClose #-}
-  {-# INLINABLE enclose   #-}
+  firstChild  v p = if openAt v p && openAt v (p + 1) then Just (p + 1) else Nothing
+  nextSibling v p = let q = findClose v p in if p == q then Nothing else Just (q + 1)
+  parent      v p = Just (enclose v p)
+  {-# INLINABLE findOpen    #-}
+  {-# INLINABLE findClose   #-}
+  {-# INLINABLE enclose     #-}
+  {-# INLINABLE firstChild  #-}
+  {-# INLINABLE nextSibling #-}
+  {-# INLINABLE parent      #-}
 
 instance BalancedParens (SimpleBalancedParens (DVS.Vector Word64)) where
-  findOpen  v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
-  findClose v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
-  enclose       = findOpen' (Count 1)
-  {-# INLINABLE findOpen  #-}
-  {-# INLINABLE findClose #-}
-  {-# INLINABLE enclose   #-}
+  findOpen    v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
+  findClose   v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
+  enclose         = findOpen' (Count 1)
+  firstChild  v p = if openAt v p && openAt v (p + 1) then Just (p + 1) else Nothing
+  nextSibling v p = let q = findClose v p in if p == q then Nothing else Just (q + 1)
+  parent      v p = Just (enclose v p)
+  {-# INLINABLE findOpen    #-}
+  {-# INLINABLE findClose   #-}
+  {-# INLINABLE enclose     #-}
+  {-# INLINABLE firstChild  #-}
+  {-# INLINABLE nextSibling #-}
+  {-# INLINABLE parent      #-}
 
 instance BalancedParens (SimpleBalancedParens Word8) where
-  findOpen  v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
-  findClose v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
-  enclose       = findOpen' (Count 1)
-  {-# INLINABLE findOpen  #-}
-  {-# INLINABLE findClose #-}
-  {-# INLINABLE enclose   #-}
+  findOpen    v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
+  findClose   v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
+  enclose         = findOpen' (Count 1)
+  firstChild  v p = if openAt v p && openAt v (p + 1) then Just (p + 1) else Nothing
+  nextSibling v p = let q = findClose v p in if p == q then Nothing else Just (q + 1)
+  parent      v p = Just (enclose v p)
+  {-# INLINABLE findOpen    #-}
+  {-# INLINABLE findClose   #-}
+  {-# INLINABLE enclose     #-}
+  {-# INLINABLE firstChild  #-}
+  {-# INLINABLE nextSibling #-}
+  {-# INLINABLE parent      #-}
 
 instance BalancedParens (SimpleBalancedParens Word16) where
-  findOpen  v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
-  findClose v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
-  enclose       = findOpen' (Count 1)
-  {-# INLINABLE findOpen  #-}
-  {-# INLINABLE findClose #-}
-  {-# INLINABLE enclose   #-}
+  findOpen    v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
+  findClose   v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
+  enclose         = findOpen' (Count 1)
+  firstChild  v p = if openAt v p && openAt v (p + 1) then Just (p + 1) else Nothing
+  nextSibling v p = let q = findClose v p in if p == q then Nothing else Just (q + 1)
+  parent      v p = Just (enclose v p)
+  {-# INLINABLE findOpen    #-}
+  {-# INLINABLE findClose   #-}
+  {-# INLINABLE enclose     #-}
+  {-# INLINABLE firstChild  #-}
+  {-# INLINABLE nextSibling #-}
+  {-# INLINABLE parent      #-}
 
 instance BalancedParens (SimpleBalancedParens Word32) where
-  findOpen  v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
-  findClose v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
-  enclose       = findOpen' (Count 1)
-  {-# INLINABLE findOpen  #-}
-  {-# INLINABLE findClose #-}
-  {-# INLINABLE enclose   #-}
+  findOpen    v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
+  findClose   v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
+  enclose         = findOpen' (Count 1)
+  firstChild  v p = if openAt v p && openAt v (p + 1) then Just (p + 1) else Nothing
+  nextSibling v p = let q = findClose v p in if p == q then Nothing else Just (q + 1)
+  parent      v p = Just (enclose v p)
+  {-# INLINABLE findOpen    #-}
+  {-# INLINABLE findClose   #-}
+  {-# INLINABLE enclose     #-}
+  {-# INLINABLE firstChild  #-}
+  {-# INLINABLE nextSibling #-}
+  {-# INLINABLE parent      #-}
 
 instance BalancedParens (SimpleBalancedParens Word64) where
-  findOpen  v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
-  findClose v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
-  enclose       = findOpen' (Count 1)
-  {-# INLINABLE findOpen  #-}
-  {-# INLINABLE findClose #-}
-  {-# INLINABLE enclose   #-}
+  findOpen    v p = if v `openAt`  p then p else findOpen'  (Count 0) v (p - 1)
+  findClose   v p = if v `closeAt` p then p else findClose' (Count 0) v (p + 1)
+  enclose         = findOpen' (Count 1)
+  firstChild  v p = if openAt v p && openAt v (p + 1) then Just (p + 1) else Nothing
+  nextSibling v p = let q = findClose v p in if p == q then Nothing else Just (q + 1)
+  parent      v p = Just (enclose v p)
+  {-# INLINABLE findOpen    #-}
+  {-# INLINABLE findClose   #-}
+  {-# INLINABLE enclose     #-}
+  {-# INLINABLE firstChild  #-}
+  {-# INLINABLE nextSibling #-}
+  {-# INLINABLE parent      #-}
