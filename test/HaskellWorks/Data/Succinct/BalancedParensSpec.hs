@@ -18,6 +18,14 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParensSpec" $ do
     let bs = SimpleBalancedParens (91 :: Word64)
     it "Test 1a" $ findClose bs  1 `shouldBe` 10
     it "Test 1b" $ findClose bs  2 `shouldBe`  3
+    it "Test 1b" $ findClose bs  3 `shouldBe`  3
+    it "Test 1b" $ findClose bs  4 `shouldBe`  9
+    it "Test 1b" $ findClose bs  5 `shouldBe`  6
+    it "Test 1b" $ findClose bs  6 `shouldBe`  6
+    it "Test 1b" $ findClose bs  7 `shouldBe`  8
+    it "Test 1b" $ findClose bs  8 `shouldBe`  8
+    it "Test 1b" $ findClose bs  9 `shouldBe`  9
+    it "Test 1b" $ findClose bs 10 `shouldBe` 10
     it "Test 2a" $ findOpen  bs 10 `shouldBe`  1
     it "Test 2b" $ findOpen  bs  3 `shouldBe`  2
     it "Test 3a" $ enclose   bs  2 `shouldBe`  1
@@ -28,6 +36,12 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParensSpec" $ do
     it "Test 1b" $ findClose bs  2 `shouldBe`  3
     it "Test 1b" $ findClose bs  3 `shouldBe`  3
     it "Test 1b" $ findClose bs  4 `shouldBe`  9
+    it "Test 1b" $ findClose bs  5 `shouldBe`  6
+    it "Test 1b" $ findClose bs  6 `shouldBe`  6
+    it "Test 1b" $ findClose bs  7 `shouldBe`  8
+    it "Test 1b" $ findClose bs  8 `shouldBe`  8
+    it "Test 1b" $ findClose bs  9 `shouldBe`  9
+    it "Test 1b" $ findClose bs 10 `shouldBe` 10
     it "Test 2a" $ findOpen  bs 10 `shouldBe`  1
     it "Test 2b" $ findOpen  bs  3 `shouldBe`  2
     it "Test 3a" $ enclose   bs  2 `shouldBe`  1
@@ -64,6 +78,12 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParensSpec" $ do
     it "Test 1b" $ findClose bs  2 `shouldBe`  3
     it "Test 1b" $ findClose bs  3 `shouldBe`  3
     it "Test 1b" $ findClose bs  4 `shouldBe`  9
+    it "Test 1b" $ findClose bs  5 `shouldBe`  6
+    it "Test 1b" $ findClose bs  6 `shouldBe`  6
+    it "Test 1b" $ findClose bs  7 `shouldBe`  8
+    it "Test 1b" $ findClose bs  8 `shouldBe`  8
+    it "Test 1b" $ findClose bs  9 `shouldBe`  9
+    it "Test 1b" $ findClose bs 10 `shouldBe` 10
     it "Test 2a" $ findOpen  bs 10 `shouldBe`  1
     it "Test 2b" $ findOpen  bs  3 `shouldBe`  2
     it "Test 3a" $ enclose   bs  2 `shouldBe`  1
@@ -94,5 +114,3 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParensSpec" $ do
     it "subtreeSize  8" $ subtreeSize bs  8 `shouldBe` 0
     it "subtreeSize  9" $ subtreeSize bs  9 `shouldBe` 0
     it "subtreeSize 10" $ subtreeSize bs 10 `shouldBe` 0
-
--- 11011010 00000000, cursorRank = 2
