@@ -17,7 +17,7 @@ executable hw-rankselect-example
   hs-source-dirs:       app
   main-is:              Main.hs
   ghc-options:          -threaded -rtsopts -with-rtsopts=-N -O2 -Wall -msse4.2
-  build-depends:        base            >= 4
+  build-depends:        base                          >= 4          && < 5
                       , hw-rankselect
   default-language:     Haskell2010
 
@@ -36,9 +36,9 @@ library
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512
                       , HaskellWorks.Data.Succinct.RankSelect.Internal
-  build-depends:        base            >= 4    && < 5
+  build-depends:        base                          >= 4          && < 5
                       , hw-bits
-                      , hw-prim
+                      , hw-prim                       >= 0.0.1
                       , vector
 
   default-language:     Haskell2010
@@ -57,10 +57,10 @@ test-suite hw-rankselect-test
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512Spec
                       , HaskellWorks.Data.Succinct.RankSelect.InternalSpec
                       , HaskellWorks.Data.Succinct.SimpleSpec
-  build-depends:        base
+  build-depends:        base                          >= 4          && < 5
                       , hspec
                       , hw-bits
-                      , hw-prim
+                      , hw-prim                       >= 0.0.1
                       , hw-rankselect
                       , QuickCheck
                       , vector
@@ -77,11 +77,11 @@ benchmark bench
     Main-Is: Main.hs
     GHC-Options: -O2 -Wall -msse4.2
     Default-Language: Haskell2010
-    Build-Depends:      base            >= 4    && < 5
+    Build-Depends:      base                          >= 4          && < 5
                       , bytestring
                       , conduit
                       , criterion
-                      , hw-prim
+                      , hw-prim                       >= 0.0.1
                       , hw-rankselect
                       , mmap
                       , vector
