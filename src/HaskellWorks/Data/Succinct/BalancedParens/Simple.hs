@@ -67,8 +67,8 @@ instance BalancedParens (SimpleBalancedParens [Bool]) where
   findClose   v p = if v `closeAt` p then Just p else findClose' (Count 0) v (p + 1)
   enclose         = findOpen' (Count 1)
   firstChild  v p = if openAt v p && openAt v (p + 1)   then Just (p + 1) else Nothing
-  nextSibling v p = findClose v p >>= (\q -> if (p /= q) then return (q + 1) else Nothing)
-  parent      v p = enclose   v p >>= (\r -> if (r >= 1) then return r       else Nothing)
+  nextSibling v p = if closeAt v p then Nothing else openAt v `mfilter` (findClose v p >>= (\q -> if p /= q then return (q + 1) else Nothing))
+  parent      v p = enclose   v p >>= (\r -> if r >= 1 then return r       else Nothing)
   {-# INLINABLE findOpen    #-}
   {-# INLINABLE findClose   #-}
   {-# INLINABLE enclose     #-}
@@ -81,8 +81,8 @@ instance BalancedParens (SimpleBalancedParens (DVS.Vector Word8)) where
   findClose   v p = if v `closeAt` p then Just p else findClose' (Count 0) v (p + 1)
   enclose         = findOpen' (Count 1)
   firstChild  v p = if openAt v p && openAt v (p + 1)   then Just (p + 1) else Nothing
-  nextSibling v p = findClose v p >>= (\q -> if (p /= q) then return (q + 1) else Nothing)
-  parent      v p = enclose   v p >>= (\r -> if (r >= 1) then return r       else Nothing)
+  nextSibling v p = if closeAt v p then Nothing else openAt v `mfilter` (findClose v p >>= (\q -> if p /= q then return (q + 1) else Nothing))
+  parent      v p = enclose   v p >>= (\r -> if r >= 1 then return r       else Nothing)
   {-# INLINABLE findOpen    #-}
   {-# INLINABLE findClose   #-}
   {-# INLINABLE enclose     #-}
@@ -95,8 +95,8 @@ instance BalancedParens (SimpleBalancedParens (DVS.Vector Word16)) where
   findClose v p = if v `closeAt` p then Just p else findClose' (Count 0) v (p + 1)
   enclose       = findOpen' (Count 1)
   firstChild  v p = if openAt v p && openAt v (p + 1)   then Just (p + 1) else Nothing
-  nextSibling v p = findClose v p >>= (\q -> if (p /= q) then return (q + 1) else Nothing)
-  parent      v p = enclose   v p >>= (\r -> if (r >= 1) then return r       else Nothing)
+  nextSibling v p = if closeAt v p then Nothing else openAt v `mfilter` (findClose v p >>= (\q -> if p /= q then return (q + 1) else Nothing))
+  parent      v p = enclose   v p >>= (\r -> if r >= 1 then return r       else Nothing)
   {-# INLINABLE findOpen    #-}
   {-# INLINABLE findClose   #-}
   {-# INLINABLE enclose     #-}
@@ -109,8 +109,8 @@ instance BalancedParens (SimpleBalancedParens (DVS.Vector Word32)) where
   findClose v p = if v `closeAt` p then Just p else findClose' (Count 0) v (p + 1)
   enclose       = findOpen' (Count 1)
   firstChild  v p = if openAt v p && openAt v (p + 1)   then Just (p + 1) else Nothing
-  nextSibling v p = findClose v p >>= (\q -> if (p /= q) then return (q + 1) else Nothing)
-  parent      v p = enclose   v p >>= (\r -> if (r >= 1) then return r       else Nothing)
+  nextSibling v p = if closeAt v p then Nothing else openAt v `mfilter` (findClose v p >>= (\q -> if p /= q then return (q + 1) else Nothing))
+  parent      v p = enclose   v p >>= (\r -> if r >= 1 then return r       else Nothing)
   {-# INLINABLE findOpen    #-}
   {-# INLINABLE findClose   #-}
   {-# INLINABLE enclose     #-}
@@ -123,8 +123,8 @@ instance BalancedParens (SimpleBalancedParens (DVS.Vector Word64)) where
   findClose   v p = if v `closeAt` p then Just p else findClose' (Count 0) v (p + 1)
   enclose         = findOpen' (Count 1)
   firstChild  v p = if openAt v p && openAt v (p + 1)   then Just (p + 1) else Nothing
-  nextSibling v p = findClose v p >>= (\q -> if (p /= q) then return (q + 1) else Nothing)
-  parent      v p = enclose   v p >>= (\r -> if (r >= 1) then return r       else Nothing)
+  nextSibling v p = if closeAt v p then Nothing else openAt v `mfilter` (findClose v p >>= (\q -> if p /= q then return (q + 1) else Nothing))
+  parent      v p = enclose   v p >>= (\r -> if r >= 1 then return r       else Nothing)
   {-# INLINABLE findOpen    #-}
   {-# INLINABLE findClose   #-}
   {-# INLINABLE enclose     #-}
@@ -137,8 +137,8 @@ instance BalancedParens (SimpleBalancedParens Word8) where
   findClose   v p = if v `closeAt` p then Just p else findClose' (Count 0) v (p + 1)
   enclose         = findOpen' (Count 1)
   firstChild  v p = if openAt v p && openAt v (p + 1)   then Just (p + 1) else Nothing
-  nextSibling v p = findClose v p >>= (\q -> if (p /= q) then return (q + 1) else Nothing)
-  parent      v p = enclose   v p >>= (\r -> if (r >= 1) then return r       else Nothing)
+  nextSibling v p = if closeAt v p then Nothing else openAt v `mfilter` (findClose v p >>= (\q -> if p /= q then return (q + 1) else Nothing))
+  parent      v p = enclose   v p >>= (\r -> if r >= 1 then return r       else Nothing)
   {-# INLINABLE findOpen    #-}
   {-# INLINABLE findClose   #-}
   {-# INLINABLE enclose     #-}
@@ -151,8 +151,8 @@ instance BalancedParens (SimpleBalancedParens Word16) where
   findClose   v p = if v `closeAt` p then Just p else findClose' (Count 0) v (p + 1)
   enclose         = findOpen' (Count 1)
   firstChild  v p = if openAt v p && openAt v (p + 1)   then Just (p + 1) else Nothing
-  nextSibling v p = findClose v p >>= (\q -> if (p /= q) then return (q + 1) else Nothing)
-  parent      v p = enclose   v p >>= (\r -> if (r >= 1) then return r       else Nothing)
+  nextSibling v p = if closeAt v p then Nothing else openAt v `mfilter` (findClose v p >>= (\q -> if p /= q then return (q + 1) else Nothing))
+  parent      v p = enclose   v p >>= (\r -> if r >= 1 then return r       else Nothing)
   {-# INLINABLE findOpen    #-}
   {-# INLINABLE findClose   #-}
   {-# INLINABLE enclose     #-}
@@ -165,8 +165,8 @@ instance BalancedParens (SimpleBalancedParens Word32) where
   findClose   v p = if v `closeAt` p then Just p else findClose' (Count 0) v (p + 1)
   enclose         = findOpen' (Count 1)
   firstChild  v p = if openAt v p && openAt v (p + 1)   then Just (p + 1) else Nothing
-  nextSibling v p = findClose v p >>= (\q -> if (p /= q) then return (q + 1) else Nothing)
-  parent      v p = enclose   v p >>= (\r -> if (r >= 1) then return r       else Nothing)
+  nextSibling v p = if closeAt v p then Nothing else openAt v `mfilter` (findClose v p >>= (\q -> if p /= q then return (q + 1) else Nothing))
+  parent      v p = enclose   v p >>= (\r -> if r >= 1 then return r       else Nothing)
   {-# INLINABLE findOpen    #-}
   {-# INLINABLE findClose   #-}
   {-# INLINABLE enclose     #-}
@@ -179,8 +179,8 @@ instance BalancedParens (SimpleBalancedParens Word64) where
   findClose   v p = if v `closeAt` p then Just p else findClose' (Count 0) v (p + 1)
   enclose         = findOpen' (Count 1)
   firstChild  v p = if openAt v p && openAt v (p + 1)   then Just (p + 1) else Nothing
-  nextSibling v p = findClose v p >>= (\q -> if (p /= q) then return (q + 1) else Nothing)
-  parent      v p = enclose   v p >>= (\r -> if (r >= 1) then return r       else Nothing)
+  nextSibling v p = if closeAt v p then Nothing else openAt v `mfilter` (findClose v p >>= (\q -> if p /= q then return (q + 1) else Nothing))
+  parent      v p = enclose   v p >>= (\r -> if r >= 1 then return r       else Nothing)
   {-# INLINABLE findOpen    #-}
   {-# INLINABLE findClose   #-}
   {-# INLINABLE enclose     #-}
