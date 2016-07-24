@@ -5,8 +5,10 @@
 module HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512Spec (spec) where
 
 import           GHC.Exts
+import           Data.Maybe
 import qualified Data.Vector.Storable                                       as DVS
 import           Data.Word
+import           HaskellWorks.Data.Bits.BitRead
 import           HaskellWorks.Data.Bits.BitShow
 import           HaskellWorks.Data.Bits.PopCount.PopCount0
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
@@ -129,3 +131,12 @@ spec = describe "HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512.Rank1Spec
       forAll (choose (0, popCount1 v)) $ \i ->
       let w = makePoppy512 v in
       select1 v i === select1 w i
+  describe "Rank select over large buffer" $ do
+    it "Rank works" $ do
+      let cs = fromJust (bitRead (take 4096 (cycle "10"))) :: DVS.Vector Word64
+      let ps = makePoppy512 cs
+      (rank1 ps `map` [1 .. 4096]) `shouldBe` [(x - 1) `div` 2 + 1 | x <- [1 .. 4096]]
+    it "Select works" $ do
+      let cs = fromJust (bitRead (take 4096 (cycle "10"))) :: DVS.Vector Word64
+      let ps = makePoppy512 cs
+      (select1 ps `map` [1 .. 2048]) `shouldBe` [1, 3 .. 4096]
