@@ -92,3 +92,14 @@ instance Select1 CsPoppy where
     where q = binarySearch (fromIntegral p) wordAt 0 (fromIntegral $ DVS.length i - 1)
           s = Count (i !!! q)
           wordAt = (i !!!)
+
+sampleRange :: CsPoppy -> Count -> (Word64, Word64)
+sampleRange (CsPoppy _ index _ _ samples) p =
+  let j = (fromIntegral p - 1) `div` 8192 in
+  if 0 <= j && j < DVS.length samples
+    then  let pa = samples DVS.! j                in
+          if j + 1 < DVS.length samples
+            then  let pz = samples DVS.! (j + 1)          in
+                  (pa, pz)
+            else (pa, fromIntegral (DVS.length index - 1))
+    else (1, fromIntegral (DVS.length index - 1))
