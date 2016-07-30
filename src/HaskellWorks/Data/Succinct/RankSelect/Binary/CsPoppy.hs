@@ -20,6 +20,7 @@ data CsPoppy = CsPoppy
   , csPoppy512Index :: DVS.Vector Word64
   , csPoppyLayer0   :: DVS.Vector Word64
   , csPoppyLayer1   :: DVS.Vector Word64
+  , csPoppyLayerS   :: DVS.Vector Word64 -- Sampling position of each 8192 1-bit
   } deriving (Eq, Show)
 
 popCount1Range :: (DVS.Storable a, PopCount1 a) => Int -> Int -> DVS.Vector a -> Count
@@ -31,6 +32,7 @@ makeCsPoppy v = CsPoppy
   , csPoppy512Index = DVS.constructN (((DVS.length v +           8 - 1) `div`           8) + 1) gen512Index
   , csPoppyLayer0   = DVS.constructN (((DVS.length v + 0x100000000 - 1) `div` 0x100000000) + 1) genLayer0
   , csPoppyLayer1   = DVS.constructN (((DVS.length v +          32 - 1) `div`          32) + 1) genLayer1
+  , csPoppyLayerS   = DVS.unfoldrN (fromIntegral (popCount1 v `div` 8192) + 1) genS (0, 0)
   }
   where csPoppyCum2048  = DVS.constructN (((DVS.length v +          32 - 1) `div`          32) + 1) genCum2048
         gen512Index u = let indexN = DVS.length u - 1 in
@@ -56,12 +58,20 @@ makeCsPoppy v = CsPoppy
           .|. ((a .<. 32) .&. 0x000003ff00000000)
           .|. ((b .<. 42) .&. 0x000ffc0000000000)
           .|. ((c .<. 52) .&. 0x3ff0000000000000)) -- zhou-sea2013 fig 5 (c)
+        genS :: (Count, Position) -> Maybe (Word64, (Count, Position))
+        genS (pca, n) = if n < vEnd v
+          then  let w = v !!! n in
+                let pcz = pca + popCount1 w in
+                if (8192 - 1 + pca) `div` 8192 /= (8192 - 1 + pcz) `div` 8192
+                  then Just (fromIntegral n * 64 + fromIntegral (select1 w (fromIntegral (8192 - (pca `mod` 8192)))), (pcz, n + 1))
+                  else genS (pcz, n + 1)
+          else Nothing
 
 instance BitRead CsPoppy where
   bitRead = fmap makeCsPoppy . bitRead
 
 instance Rank1 CsPoppy where
-  rank1 (CsPoppy v _ layer0 layer1) p = rankPrior + rankInBasicBlock
+  rank1 (CsPoppy v _ layer0 layer1 _) p = rankPrior + rankInBasicBlock
     where rankLayer0              = layer0  !!! toPosition (p `div` 0x100000000)
           rankLayer1Word          = layer1  !!! toPosition (p `div` 2048)
           rankLayer1A             =  rankLayer1Word .&. 0x00000000ffffffff
@@ -78,7 +88,7 @@ instance Rank1 CsPoppy where
           rankInBasicBlock        = rank1 (DVS.drop (fromIntegral p `div` 512) v) (p `mod` 512)
 
 instance Select1 CsPoppy where
-  select1 (CsPoppy v i _ _) p = toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)
+  select1 (CsPoppy v i _ _ _) p = toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)
     where q = binarySearch (fromIntegral p) wordAt 0 (fromIntegral $ DVS.length i - 1)
           s = Count (i !!! q)
           wordAt = (i !!!)
