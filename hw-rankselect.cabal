@@ -34,6 +34,7 @@ library
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select0
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
+                      , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512
                       , HaskellWorks.Data.Succinct.RankSelect.Internal
   build-depends:        base                          >= 4          && < 5
