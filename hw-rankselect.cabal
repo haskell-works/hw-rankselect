@@ -55,12 +55,13 @@ test-suite hw-rankselect-test
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select0Spec
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1Spec
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.BasicGen
+                      , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppySpec
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512Spec
                       , HaskellWorks.Data.Succinct.RankSelect.InternalSpec
                       , HaskellWorks.Data.Succinct.SimpleSpec
   build-depends:        base                          >= 4          && < 5
                       , hspec
-                      , hw-bits
+                      , hw-bits                       >= 0.0.0.8
                       , hw-prim                       >= 0.0.3
                       , hw-rankselect
                       , QuickCheck
