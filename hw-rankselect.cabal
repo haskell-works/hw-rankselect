@@ -35,6 +35,7 @@ library
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select0
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy
+                      , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy2
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512S
                       , HaskellWorks.Data.Succinct.RankSelect.Internal
@@ -57,6 +58,7 @@ test-suite hw-rankselect-test
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1Spec
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.BasicGen
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppySpec
+                      , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy2Spec
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512Spec
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512SSpec
                       , HaskellWorks.Data.Succinct.RankSelect.InternalSpec
