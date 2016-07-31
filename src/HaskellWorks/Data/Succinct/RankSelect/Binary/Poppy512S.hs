@@ -51,16 +51,23 @@ instance Rank1 Poppy512S where
     Count (i !!! toPosition (p `div` 512)) + rank1 (DVS.drop (fromIntegral p `div` 512) v) (p `mod` 512)
 
 sampleRange :: Poppy512S -> Count -> (Word64, Word64)
-sampleRange (Poppy512S v _ samples) p =
-  let i = (fromIntegral p - 1) `div` 8192 in
-  let pa = samples DVS.! i                  in
-  let pz = samples DVS.! (i + 1)            in
-  if i + 1 < DVS.length samples
-    then (pa, pz)
-    else (pa, fromIntegral (DVS.length v * 64))
+sampleRange (Poppy512S _ index samples) p =
+  let j = (fromIntegral p - 1) `div` 8192 in
+  if 0 <= j && j < DVS.length samples
+    then  let pa = samples DVS.! j                in
+          if j + 1 < DVS.length samples
+            then  let pz = samples DVS.! (j + 1)          in
+                  (pa, pz)
+            else (pa, fromIntegral (DVS.length index - 1))
+    else (1, fromIntegral (DVS.length index - 1))
 
 instance Select1 Poppy512S where
-  select1 (Poppy512S v i _) p = toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)
-    where q = binarySearch (fromIntegral p) wordAt 0 (fromIntegral $ DVS.length i - 1)
+  select1 iv@(Poppy512S v i _) p = if DVS.length v /= 0
+      then toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)
+      else 0
+    where q = binarySearch (fromIntegral p) wordAt iMin iMax
           s = Count (i !!! q)
           wordAt = (i !!!)
+          (sampleMin, sampleMax) = sampleRange iv p
+          iMin = fromIntegral $  (sampleMin - 1) `div` 512      :: Position
+          iMax = fromIntegral $ ((sampleMax - 1) `div` 512) + 1 :: Position
