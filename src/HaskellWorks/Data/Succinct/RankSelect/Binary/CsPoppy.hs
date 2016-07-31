@@ -89,10 +89,15 @@ instance Rank1 CsPoppy where
           rankInBasicBlock        = rank1 (DVS.drop (fromIntegral p `div` 512) v) (p `mod` 512)
 
 instance Select1 CsPoppy where
-  select1 (CsPoppy v i _ _ _) p = toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)
-    where q = binarySearch (fromIntegral p) wordAt 0 (fromIntegral $ DVS.length i - 1)
+  select1 iv@(CsPoppy v i _ _ _) p = if DVS.length v /= 0
+      then toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)
+      else 0
+    where q = binarySearch (fromIntegral p) wordAt iMin iMax
           s = Count (i !!! q)
           wordAt = (i !!!)
+          (sampleMin, sampleMax) = sampleRange iv p
+          iMin = fromIntegral $  (sampleMin - 1) `div` 512      :: Position
+          iMax = fromIntegral $ ((sampleMax - 1) `div` 512) + 1 :: Position
 
 sampleRange :: CsPoppy -> Count -> (Word64, Word64)
 sampleRange (CsPoppy _ index _ _ samples) p =
