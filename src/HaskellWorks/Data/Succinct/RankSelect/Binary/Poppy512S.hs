@@ -60,7 +60,7 @@ sampleRange (Poppy512S v _ samples) p =
     else (pa, fromIntegral (DVS.length v * 64))
 
 instance Select1 Poppy512S where
-  select1 (Poppy512S v i samples) p = toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)
+  select1 (Poppy512S v i _) p = toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)
     where q = binarySearch (fromIntegral p) wordAt 0 (fromIntegral $ DVS.length i - 1)
           s = Count (i !!! q)
           wordAt = (i !!!)

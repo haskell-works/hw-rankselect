@@ -2,6 +2,7 @@ module HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy
     ( CsPoppy(..)
     , Rank1(..)
     , makeCsPoppy
+    , sampleRange
     ) where
 
 import qualified Data.Vector.Storable                                       as DVS
