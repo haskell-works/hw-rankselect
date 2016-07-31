@@ -68,6 +68,10 @@ makeCsPoppy v = CsPoppy
                   else genS (pcz, n + 1)
           else Nothing
 
+instance TestBit CsPoppy where
+  (.?.) = (.?.) . csPoppyBits
+  {-# INLINE (.?.) #-}
+
 instance BitRead CsPoppy where
   bitRead = fmap makeCsPoppy . bitRead
 

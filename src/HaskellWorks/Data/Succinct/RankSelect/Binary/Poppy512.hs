@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeFamilies #-}
+
 module HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512
     ( Poppy512(..)
     , Rank1(..)
@@ -6,7 +8,9 @@ module HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512
 
 import qualified Data.Vector.Storable                                       as DVS
 import           Data.Word
+import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitRead
+import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Search
@@ -31,16 +35,24 @@ makePoppy512 v = Poppy512
             then 0
             else getCount (popCount1 (DVS.take 8 (DVS.drop (indexN * 8) v))) + DVS.last u
 
+instance BitLength Poppy512 where
+  bitLength v = vLength (poppy512Bits v) * bitLength (poppy512Bits v !!! 0)
+  {-# INLINABLE bitLength #-}
+
+instance TestBit Poppy512 where
+  (.?.) = (.?.) . poppy512Bits
+  {-# INLINE (.?.) #-}
+
 instance BitRead Poppy512 where
   bitRead = fmap makePoppy512 . bitRead
 
 instance Rank1 Poppy512 where
   rank1 (Poppy512 v i) p =
-    Count (i !!! toPosition (p `div` 512)) + rank1 (DVS.drop (fromIntegral p `div` 512) v) (p `mod` 512)
+    Count (i !!! toPosition (p `div` 512)) + rank1 (DVS.drop ((fromIntegral p `div` 512) * 8) v) (p `mod` 512)
 
 instance Rank0 Poppy512 where
   rank0 (Poppy512 v i) p =
-    p `div` 512 * 512 - Count (i !!! toPosition (p `div` 512)) + rank0 (DVS.drop (fromIntegral p `div` 512) v) (p `mod` 512)
+    p `div` 512 * 512 - Count (i !!! toPosition (p `div` 512)) + rank0 (DVS.drop ((fromIntegral p `div` 512) * 8) v) (p `mod` 512)
 
 instance Select1 Poppy512 where
   select1 (Poppy512 v i) p = toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)

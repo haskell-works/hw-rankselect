@@ -22,6 +22,7 @@ import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
+import           HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512
 import           Prelude                                                    as P
 
 newtype SimpleBalancedParens a = SimpleBalancedParens a
@@ -119,6 +120,20 @@ instance BalancedParens (SimpleBalancedParens (DVS.Vector Word32)) where
   {-# INLINABLE parent      #-}
 
 instance BalancedParens (SimpleBalancedParens (DVS.Vector Word64)) where
+  findOpen    v p = if v `openAt`  p then Just p else findOpen'  (Count 0) v (p - 1)
+  findClose   v p = if v `closeAt` p then Just p else findClose' (Count 0) v (p + 1)
+  enclose         = findOpen' (Count 1)
+  firstChild  v p = if openAt v p && openAt v (p + 1)   then Just (p + 1) else Nothing
+  nextSibling v p = if closeAt v p then Nothing else openAt v `mfilter` (findClose v p >>= (\q -> if p /= q then return (q + 1) else Nothing))
+  parent      v p = enclose   v p >>= (\r -> if r >= 1 then return r       else Nothing)
+  {-# INLINABLE findOpen    #-}
+  {-# INLINABLE findClose   #-}
+  {-# INLINABLE enclose     #-}
+  {-# INLINABLE firstChild  #-}
+  {-# INLINABLE nextSibling #-}
+  {-# INLINABLE parent      #-}
+
+instance BalancedParens (SimpleBalancedParens Poppy512) where
   findOpen    v p = if v `openAt`  p then Just p else findOpen'  (Count 0) v (p - 1)
   findClose   v p = if v `closeAt` p then Just p else findClose' (Count 0) v (p + 1)
   enclose         = findOpen' (Count 1)
