@@ -7,18 +7,21 @@ module HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512S
 
 import qualified Data.Vector.Storable                                       as DVS
 import           Data.Word
+import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitRead
+import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Search
+import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
 import           HaskellWorks.Data.Vector.VectorLike
 
 data Poppy512S = Poppy512S
-  { csPoppyBits     :: DVS.Vector Word64
-  , csPoppy512Index :: DVS.Vector Word64
-  , csPoppySamples  :: DVS.Vector Word64 -- Sampling position of each 8192 1-bit
+  { poppy512SBits     :: DVS.Vector Word64
+  , poppy512Index :: DVS.Vector Word64
+  , poppy512Samples  :: DVS.Vector Word64 -- Sampling position of each 8192 1-bit
   } deriving (Eq, Show)
 
 popCount1Range :: (DVS.Storable a, PopCount1 a) => Int -> Int -> DVS.Vector a -> Count
@@ -26,9 +29,9 @@ popCount1Range start len = popCount1 . DVS.take len . DVS.drop start
 
 makePoppy512S :: DVS.Vector Word64 -> Poppy512S
 makePoppy512S v = Poppy512S
-  { csPoppyBits     = v
-  , csPoppy512Index = DVS.constructN (((DVS.length v +           8 - 1) `div`           8) + 1) gen512Index
-  , csPoppySamples  = DVS.unfoldrN (fromIntegral (popCount1 v `div` 8192) + 1) genS (0, 0)
+  { poppy512SBits     = v
+  , poppy512Index = DVS.constructN (((DVS.length v +           8 - 1) `div`           8) + 1) gen512Index
+  , poppy512Samples  = DVS.unfoldrN (fromIntegral (popCount1 v `div` 8192) + 1) genS (0, 0)
   }
   where gen512Index u = let indexN = DVS.length u - 1 in
           if indexN == -1
@@ -43,12 +46,24 @@ makePoppy512S v = Poppy512S
                   else genS (pcz, n + 1)
           else Nothing
 
+instance BitLength Poppy512S where
+  bitLength v = vLength (poppy512SBits v) * bitLength (poppy512SBits v !!! 0)
+  {-# INLINABLE bitLength #-}
+
+instance TestBit Poppy512S where
+  (.?.) = (.?.) . poppy512SBits
+  {-# INLINE (.?.) #-}
+
 instance BitRead Poppy512S where
   bitRead = fmap makePoppy512S . bitRead
 
 instance Rank1 Poppy512S where
   rank1 (Poppy512S v i _) p =
-    Count (i !!! toPosition (p `div` 512)) + rank1 (DVS.drop (fromIntegral p `div` 512) v) (p `mod` 512)
+    Count (i !!! toPosition (p `div` 512)) + rank1 (DVS.drop ((fromIntegral p `div` 512) * 8) v) (p `mod` 512)
+
+instance Rank0 Poppy512S where
+  rank0 (Poppy512S v i _) p =
+    p `div` 512 * 512 - Count (i !!! toPosition (p `div` 512)) + rank0 (DVS.drop ((fromIntegral p `div` 512) * 8) v) (p `mod` 512)
 
 sampleRange :: Poppy512S -> Count -> (Word64, Word64)
 sampleRange (Poppy512S _ index samples) p =
