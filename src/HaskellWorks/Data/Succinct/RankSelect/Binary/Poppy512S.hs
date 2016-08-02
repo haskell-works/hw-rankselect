@@ -13,6 +13,7 @@ import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Search
+import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
@@ -86,3 +87,17 @@ instance Select1 Poppy512S where
           (sampleMin, sampleMax) = sampleRange iv p
           iMin = fromIntegral $  (sampleMin - 1) `div` 512      :: Position
           iMax = fromIntegral $ ((sampleMax - 1) `div` 512) + 1 :: Position
+
+instance BalancedParens Poppy512S where
+  findOpen    = findOpen    . poppy512SBits
+  findClose   = findClose   . poppy512SBits
+  enclose     = enclose     . poppy512SBits
+  firstChild  = firstChild  . poppy512SBits
+  nextSibling = nextSibling . poppy512SBits
+  parent      = parent      . poppy512SBits
+  {-# INLINABLE findOpen    #-}
+  {-# INLINABLE findClose   #-}
+  {-# INLINABLE enclose     #-}
+  {-# INLINABLE firstChild  #-}
+  {-# INLINABLE nextSibling #-}
+  {-# INLINABLE parent      #-}
