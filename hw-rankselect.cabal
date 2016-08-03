@@ -26,6 +26,9 @@ library
   exposed-modules:      HaskellWorks.Data.Succinct.BalancedParens
                       , HaskellWorks.Data.Succinct.BalancedParens.Internal
                       , HaskellWorks.Data.Succinct.BalancedParens.Simple
+                      , HaskellWorks.Data.Succinct.Excess
+                      , HaskellWorks.Data.Succinct.Excess.Excess0
+                      , HaskellWorks.Data.Succinct.Excess.Excess1
                       , HaskellWorks.Data.Succinct.NearestNeighbour
                       , HaskellWorks.Data.Succinct.RankSelect
                       , HaskellWorks.Data.Succinct.RankSelect.Binary
