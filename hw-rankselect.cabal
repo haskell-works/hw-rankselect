@@ -29,6 +29,7 @@ library
                       , HaskellWorks.Data.Succinct.Excess
                       , HaskellWorks.Data.Succinct.Excess.Excess0
                       , HaskellWorks.Data.Succinct.Excess.Excess1
+                      , HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
                       , HaskellWorks.Data.Succinct.NearestNeighbour
                       , HaskellWorks.Data.Succinct.RankSelect
                       , HaskellWorks.Data.Succinct.RankSelect.Binary
