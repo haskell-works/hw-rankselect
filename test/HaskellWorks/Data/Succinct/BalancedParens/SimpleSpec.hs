@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module HaskellWorks.Data.Succinct.BalancedParensSpec where
+module HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec where
 
 import           Data.Maybe
 import qualified Data.Vector.Storable                      as DVS
