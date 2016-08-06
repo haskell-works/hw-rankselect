@@ -1,4 +1,5 @@
-{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE FlexibleInstances  #-}
+{-# LANGUAGE InstanceSigs       #-}
 
 module HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax
   ( RangeMinMaxL0(..)
@@ -6,9 +7,11 @@ module HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax
   ) where
 
 import           Data.Int
-import qualified Data.Vector                                as DV
-import qualified Data.Vector.Storable                       as DVS
+import qualified Data.Vector                                        as DV
+import qualified Data.Vector.Storable                               as DVS
 import           Data.Word
+import           HaskellWorks.Data.Positioning
+import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
 import           HaskellWorks.Data.Vector.VectorLike
 
@@ -26,3 +29,12 @@ mkRangeMinMaxL0 bp = RangeMinMaxL0
   }
   where len0        = (DVS.length bp + 7) `div` 8
         allMinMax   = DV.constructN len0 (\v -> minMaxExcess1 (bp !!! fromIntegral (DV.length v)))
+
+instance BalancedParens RangeMinMaxL0 where
+    findOpen :: RangeMinMaxL0 -> Count -> Maybe Count
+    findOpen (RangeMinMaxL0 bp mins maxs) c = undefined
+    findClose :: RangeMinMaxL0 -> Count -> Maybe Count
+    enclose :: RangeMinMaxL0 -> Count -> Maybe Count
+    firstChild :: RangeMinMaxL0 -> Count -> Maybe Count
+    nextSibling :: RangeMinMaxL0 -> Count -> Maybe Count
+    parent :: RangeMinMaxL0 -> Count -> Maybe Count
