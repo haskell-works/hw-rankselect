@@ -67,7 +67,7 @@ findOpen' v c p = if 0 < p && p <= bitLength v
 {-# INLINE findOpen' #-}
 
 findClose' :: (BitLength a, TestBit a) => a -> Count -> Count -> Maybe Count
-findClose' v c p = if 1 < p && p <= bitLength v
+findClose' v c p = if 0 < p && p <= bitLength v
   then if v `closeAt'` p
     then if c == 0
       then Just p

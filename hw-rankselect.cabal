@@ -57,7 +57,8 @@ test-suite hw-rankselect-test
   type:                 exitcode-stdio-1.0
   hs-source-dirs:       test
   main-is:              Spec.hs
-  other-modules:        HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec
+  other-modules:        HaskellWorks.Data.Succinct.BalancedParens.RangeMinMaxSpec
+                      , HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec
                       , HaskellWorks.Data.Succinct.Excess.MinMaxExcess0Spec
                       , HaskellWorks.Data.Succinct.Excess.MinMaxExcess1Spec
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0Spec
