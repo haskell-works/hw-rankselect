@@ -68,6 +68,10 @@ instance Select0 Poppy512 where
           wordAt o = fromIntegral o * 512 - (i !!! o)
 
 instance BalancedParens Poppy512 where
+  openAt      = openAt      . poppy512Bits
+  closeAt     = closeAt     . poppy512Bits
+  findOpenN   = findOpenN   . poppy512Bits
+  findCloseN  = findCloseN  . poppy512Bits
   findOpen    = findOpen    . poppy512Bits
   findClose   = findClose   . poppy512Bits
   enclose     = enclose     . poppy512Bits

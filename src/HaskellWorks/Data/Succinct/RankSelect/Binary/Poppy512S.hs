@@ -89,15 +89,11 @@ instance Select1 Poppy512S where
           iMax = fromIntegral $ ((sampleMax - 1) `div` 512) + 1 :: Position
 
 instance BalancedParens Poppy512S where
-  findOpen    = findOpen    . poppy512SBits
-  findClose   = findClose   . poppy512SBits
-  enclose     = enclose     . poppy512SBits
-  firstChild  = firstChild  . poppy512SBits
-  nextSibling = nextSibling . poppy512SBits
-  parent      = parent      . poppy512SBits
-  {-# INLINABLE findOpen    #-}
-  {-# INLINABLE findClose   #-}
-  {-# INLINABLE enclose     #-}
-  {-# INLINABLE firstChild  #-}
-  {-# INLINABLE nextSibling #-}
-  {-# INLINABLE parent      #-}
+  openAt      = openAt      . poppy512SBits
+  closeAt     = closeAt     . poppy512SBits
+  findOpenN   = findOpenN   . poppy512SBits
+  findCloseN  = findCloseN  . poppy512SBits
+  {-# INLINABLE openAt      #-}
+  {-# INLINABLE closeAt     #-}
+  {-# INLINABLE findOpenN   #-}
+  {-# INLINABLE findCloseN  #-}

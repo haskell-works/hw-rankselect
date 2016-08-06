@@ -10,7 +10,6 @@ import           Data.Int
 import qualified Data.Vector                                        as DV
 import qualified Data.Vector.Storable                               as DVS
 import           Data.Word
-import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
 import           HaskellWorks.Data.Vector.VectorLike
@@ -31,10 +30,11 @@ mkRangeMinMaxL0 bp = RangeMinMaxL0
         allMinMax   = DV.constructN len0 (\v -> minMaxExcess1 (bp !!! fromIntegral (DV.length v)))
 
 instance BalancedParens RangeMinMaxL0 where
-    findOpen :: RangeMinMaxL0 -> Count -> Maybe Count
-    findOpen (RangeMinMaxL0 bp mins maxs) c = undefined
-    findClose :: RangeMinMaxL0 -> Count -> Maybe Count
-    enclose :: RangeMinMaxL0 -> Count -> Maybe Count
-    firstChild :: RangeMinMaxL0 -> Count -> Maybe Count
-    nextSibling :: RangeMinMaxL0 -> Count -> Maybe Count
-    parent :: RangeMinMaxL0 -> Count -> Maybe Count
+  openAt      = openAt      . rangeMinMaxBP
+  closeAt     = closeAt     . rangeMinMaxBP
+  findOpenN   = findOpenN   . rangeMinMaxBP
+  findCloseN  = findCloseN  . rangeMinMaxBP
+  {-# INLINABLE openAt      #-}
+  {-# INLINABLE closeAt     #-}
+  {-# INLINABLE findOpenN   #-}
+  {-# INLINABLE findCloseN  #-}
