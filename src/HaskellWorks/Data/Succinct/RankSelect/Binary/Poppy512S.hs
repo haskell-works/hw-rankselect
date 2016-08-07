@@ -91,9 +91,9 @@ instance Select1 Poppy512S where
 instance BalancedParens Poppy512S where
   openAt      = openAt      . poppy512SBits
   closeAt     = closeAt     . poppy512SBits
-  findOpenN   = findOpenN   . poppy512SBits
+  -- findOpenN   = findOpenN   . poppy512SBits
   findCloseN  = findCloseN  . poppy512SBits
   {-# INLINABLE openAt      #-}
   {-# INLINABLE closeAt     #-}
-  {-# INLINABLE findOpenN   #-}
+  -- {-# INLINABLE findOpenN   #-}
   {-# INLINABLE findCloseN  #-}

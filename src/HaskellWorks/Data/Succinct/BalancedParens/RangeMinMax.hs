@@ -13,11 +13,13 @@ import qualified Data.Vector.Storable                               as DVS
 import           Data.Word
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitWise
+import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
 import           HaskellWorks.Data.Vector.VectorLike
+import           Debug.Trace
 
 data RangeMinMaxL0 v = RangeMinMaxL0
   { rangeMinMaxBP       :: v
@@ -56,32 +58,38 @@ instance BitLength (RangeMinMaxL0 (DVS.Vector Word64)) where
   bitLength = bitLength . rangeMinMaxBP
   {-# INLINE bitLength #-}
 
+rangeMinMaxFindCloseN :: RangeMinMaxL0 (DVS.Vector Word64) -> Int -> Count -> Maybe Count
+rangeMinMaxFindCloseN v s p  = result
+  where bp                    = rangeMinMaxBP v
+        mins                  = rangeMinMaxL0Min v
+        excesses              = rangeMinMaxL0Excess v
+        findCloseN'           = if v `closeAt` p
+          then if s == 0
+            then Just p
+            else rangeMinMaxFindCloseN v (s - 1) (p + 1)
+          else rangeMinMaxFindCloseN v (s + 1) (p + 1)
+        result                = if 0 < trace ("rangeMinMaxFindCloseN v " ++ show s ++ " " ++ show p) p && p <= bitLength v
+          then if p `mod` elemBitLength bp == 0
+            then  let i = p `div` elemBitLength bp in
+                  let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
+                  if fromIntegral s + minE < 0
+                    then  findCloseN'
+                    else if v `closeAt` p && s < 0
+                      then Just p
+                      else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
+                            -- trace ("Skipping from " ++ show p) $
+                            rangeMinMaxFindCloseN v (fromIntegral (excess + fromIntegral s)) (p + 64)
+            else findCloseN'
+          else Nothing
+{-# INLINE rangeMinMaxFindCloseN #-}
+
 instance BalancedParens (RangeMinMaxL0 (DVS.Vector Word64)) where
   openAt            = openAt      . rangeMinMaxBP
   closeAt           = closeAt     . rangeMinMaxBP
-  findOpenN         = findOpenN   . rangeMinMaxBP
-  findCloseN v s p  = if 0 < p && p <= bitLength v
-    then if p `mod` elemBitLength bp == 0
-      then  let i = p `div` elemBitLength bp in
-            let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
-            if fromIntegral s + minE < 0
-              then  findCloseN'
-              else if v `closeAt` p && s == 0
-                then Just p
-                else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
-                      findCloseN v (fromIntegral (excess + fromIntegral s)) (p + 64)
-      else findCloseN'
-    else Nothing
-    where bp                    = rangeMinMaxBP v
-          mins                  = rangeMinMaxL0Min v
-          excesses              = rangeMinMaxL0Excess v
-          findCloseN'           = if v `closeAt` p
-            then if s == 0
-              then Just p
-              else findCloseN v (s + 1) (p + 1)
-            else findCloseN v (s - 1) (p + 1)
+  -- findOpenN         = findOpenN   . rangeMinMaxBP
+  findCloseN v s    = rangeMinMaxFindCloseN v (fromIntegral s)
 
   {-# INLINE openAt      #-}
   {-# INLINE closeAt     #-}
-  {-# INLINE findOpenN   #-}
+  -- {-# INLINE findOpenN   #-}
   {-# INLINE findCloseN  #-}
