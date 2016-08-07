@@ -19,7 +19,6 @@ import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
 import           HaskellWorks.Data.Vector.VectorLike
-import           Debug.Trace
 
 data RangeMinMaxL0 v = RangeMinMaxL0
   { rangeMinMaxBP       :: v
@@ -64,20 +63,19 @@ rangeMinMaxFindCloseN v s p  = result
         mins                  = rangeMinMaxL0Min v
         excesses              = rangeMinMaxL0Excess v
         findCloseN'           = if v `closeAt` p
-          then if s == 0
+          then if s <= 1
             then Just p
             else rangeMinMaxFindCloseN v (s - 1) (p + 1)
           else rangeMinMaxFindCloseN v (s + 1) (p + 1)
-        result                = if 0 < trace ("rangeMinMaxFindCloseN v " ++ show s ++ " " ++ show p) p && p <= bitLength v
-          then if p `mod` elemBitLength bp == 0
-            then  let i = p `div` elemBitLength bp in
+        result                = if 0 < p && p <= bitLength v
+          then if (p - 1) `mod` elemBitLength bp == 0
+            then  let i = (p - 1) `div` elemBitLength bp in
                   let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
-                  if fromIntegral s + minE < 0
+                  if fromIntegral s + minE <= 0
                     then  findCloseN'
-                    else if v `closeAt` p && s < 0
+                    else if v `closeAt` p && s <= 1
                       then Just p
                       else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
-                            -- trace ("Skipping from " ++ show p) $
                             rangeMinMaxFindCloseN v (fromIntegral (excess + fromIntegral s)) (p + 64)
             else findCloseN'
           else Nothing

@@ -71,10 +71,10 @@ openAt' v c = v .?. toPosition (c - 1)
 findClose' :: (BitLength a, TestBit a) => a -> Count -> Count -> Maybe Count
 findClose' v c p = if 0 < p && p <= bitLength v
   then if v `closeAt'` p
-    then if c == 0
+    then if c <= 1
       then Just p
-      else findClose' v (c + 1) (p + 1)
-    else findClose' v (c - 1) (p + 1)
+      else findClose' v (c - 1) (p + 1)
+    else findClose' v (c + 1) (p + 1)
   else Nothing
 {-# INLINE findClose' #-}
 
