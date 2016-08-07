@@ -15,7 +15,6 @@ import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
--- import qualified HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L0 as L0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
@@ -23,22 +22,28 @@ import           HaskellWorks.Data.Vector.VectorLike
 
 data RangeMinMax = RangeMinMax
   { rangeMinMaxBP       :: DVS.Vector Word64
-  , rangeMinMaxL0Min    :: DVS.Vector Int16
-  , rangeMinMaxL0Max    :: DVS.Vector Int16
-  , rangeMinMaxL0Excess :: DVS.Vector Int16
+  , rangeMinMaxL1Min    :: DVS.Vector Int16
+  , rangeMinMaxL1Max    :: DVS.Vector Int16
+  , rangeMinMaxL1Excess :: DVS.Vector Int16
   }
+
+wordsL1 :: Int
+wordsL1 = 8
+
+bitsL1 :: Count
+bitsL1 = fromIntegral (wordsL1 * 64)
 
 mkRangeMinMax :: DVS.Vector Word64 -> RangeMinMax
 mkRangeMinMax bp = RangeMinMax
   { rangeMinMaxBP       = bp
-  , rangeMinMaxL0Min    = DVS.constructN (len0 `div` 8 + 1) (\v -> let (minE, _, _) = allMinMax DV.! DVS.length v in fromIntegral minE)
-  , rangeMinMaxL0Max    = DVS.constructN (len0 `div` 8 + 1) (\v -> let (_, _, maxE) = allMinMax DV.! DVS.length v in fromIntegral maxE)
-  , rangeMinMaxL0Excess = DVS.constructN (len0 `div` 8 + 1) (\v -> let (_, e,    _) = allMinMax DV.! DVS.length v in fromIntegral e)
+  , rangeMinMaxL1Min    = DVS.constructN (len0 `div` wordsL1 + 1) (\v -> let (minE, _, _) = allMinMax DV.! DVS.length v in fromIntegral minE)
+  , rangeMinMaxL1Max    = DVS.constructN (len0 `div` wordsL1 + 1) (\v -> let (_, _, maxE) = allMinMax DV.! DVS.length v in fromIntegral maxE)
+  , rangeMinMaxL1Excess = DVS.constructN (len0 `div` wordsL1 + 1) (\v -> let (_, e,    _) = allMinMax DV.! DVS.length v in fromIntegral e)
   }
   where len0        = fromIntegral (vLength bp) :: Int
-        allMinMax   = DV.constructN (len0 `div` 8 + 1) genMinMax
+        allMinMax   = DV.constructN (len0 `div` wordsL1 + 1) genMinMax
         genMinMax v = let len = DV.length v in
-                      minMaxExcess1 (DVS.take 8 (DVS.drop (fromIntegral len * 8) bp))
+                      minMaxExcess1 (DVS.take wordsL1 (DVS.drop (fromIntegral len * wordsL1) bp))
 
 instance TestBit RangeMinMax where
   (.?.) = (.?.) . rangeMinMaxBP
@@ -58,23 +63,23 @@ instance BitLength RangeMinMax where
 
 rangeMinMaxFindCloseN :: RangeMinMax -> Int -> Count -> Maybe Count
 rangeMinMaxFindCloseN v s p  = result
-  where mins                  = rangeMinMaxL0Min v
-        excesses              = rangeMinMaxL0Excess v
+  where mins                  = rangeMinMaxL1Min v
+        excesses              = rangeMinMaxL1Excess v
         findCloseN'           = if v `closeAt` p
           then if s <= 1
             then Just p
             else rangeMinMaxFindCloseN v (s - 1) (p + 1)
           else rangeMinMaxFindCloseN v (s + 1) (p + 1)
         result                = if 0 < p && p <= bitLength v
-          then if (p - 1) `mod` 512 == 0
-            then  let i = (p - 1) `div` 512 in
+          then if (p - 1) `mod` bitsL1 == 0
+            then  let i = (p - 1) `div` bitsL1 in
                   let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
                   if fromIntegral s + minE <= 0
                     then  findCloseN'
                     else if v `closeAt` p && s <= 1
                       then Just p
                       else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
-                            rangeMinMaxFindCloseN v (fromIntegral (excess + fromIntegral s)) (p + 512)
+                            rangeMinMaxFindCloseN v (fromIntegral (excess + fromIntegral s)) (p + bitsL1)
             else findCloseN'
           else Nothing
 {-# INLINE rangeMinMaxFindCloseN #-}
