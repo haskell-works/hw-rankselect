@@ -36,14 +36,14 @@ bitsL1 = fromIntegral (wordsL1 * 64)
 mkRangeMinMax :: DVS.Vector Word64 -> RangeMinMax
 mkRangeMinMax bp = RangeMinMax
   { rangeMinMaxBP       = bp
-  , rangeMinMaxL1Min    = DVS.constructN (len0 `div` wordsL1 + 1) (\v -> let (minE, _, _) = allMinMax DV.! DVS.length v in fromIntegral minE)
-  , rangeMinMaxL1Max    = DVS.constructN (len0 `div` wordsL1 + 1) (\v -> let (_, _, maxE) = allMinMax DV.! DVS.length v in fromIntegral maxE)
-  , rangeMinMaxL1Excess = DVS.constructN (len0 `div` wordsL1 + 1) (\v -> let (_, e,    _) = allMinMax DV.! DVS.length v in fromIntegral e)
+  , rangeMinMaxL1Min    = DVS.constructN lenL1 (\v -> let (minE, _, _) = allMinMaxL1 DV.! DVS.length v in fromIntegral minE)
+  , rangeMinMaxL1Max    = DVS.constructN lenL1 (\v -> let (_, _, maxE) = allMinMaxL1 DV.! DVS.length v in fromIntegral maxE)
+  , rangeMinMaxL1Excess = DVS.constructN lenL1 (\v -> let (_, e,    _) = allMinMaxL1 DV.! DVS.length v in fromIntegral e)
   }
-  where len0        = fromIntegral (vLength bp) :: Int
-        allMinMax   = DV.constructN (len0 `div` wordsL1 + 1) genMinMax
-        genMinMax v = let len = DV.length v in
-                      minMaxExcess1 (DVS.take wordsL1 (DVS.drop (fromIntegral len * wordsL1) bp))
+  where lenL1          = fromIntegral (vLength bp) `div` wordsL1 + 1 :: Int
+        allMinMaxL1   = DV.constructN lenL1 genMinMaxL1
+        genMinMaxL1 v = let len = DV.length v in
+                        minMaxExcess1 (DVS.take wordsL1 (DVS.drop (fromIntegral len * wordsL1) bp))
 
 instance TestBit RangeMinMax where
   (.?.) = (.?.) . rangeMinMaxBP
