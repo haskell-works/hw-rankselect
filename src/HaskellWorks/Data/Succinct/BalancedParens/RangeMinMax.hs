@@ -33,9 +33,9 @@ data RangeMinMax = RangeMinMax
   , rangeMinMaxL2Excess :: DVS.Vector Int16
   }
 
-wordsL0 :: Int
-wordsL0 = 8
-{-# INLINE wordsL0 #-}
+-- wordsL0 :: Int
+-- wordsL0 = 8
+-- {-# INLINE wordsL0 #-}
 
 wordsL1 :: Int
 wordsL1 = 8
@@ -84,8 +84,8 @@ mkRangeMinMax bp = RangeMinMax
         -- rangeMinMaxL1ExcessB = DVS.constructN lenL1 (\v -> DVS.foldr ((+) . fromIntegral) 0 (takeDrop8 bitsRatioL1  (DVS.length v * bitsRatioL1) rangeMinMaxL0ExcessA)) :: DVS.Vector Int16
         rangeMinMaxL2ExcessB = DVS.constructN lenL2 (\v -> DVS.foldr (+)                  0 (takeDrop16 bitsRatioL2 (DVS.length v * bitsRatioL2) rangeMinMaxL1ExcessA)) :: DVS.Vector Int16
 
-bitsRatioL1 :: Int
-bitsRatioL1 = wordsL1 `div` wordsL0
+-- bitsRatioL1 :: Int
+-- bitsRatioL1 = wordsL1 `div` wordsL0
 
 bitsRatioL2 :: Int
 bitsRatioL2 = wordsL2 `div` wordsL1
@@ -93,8 +93,8 @@ bitsRatioL2 = wordsL2 `div` wordsL1
 takeDrop16 :: Int -> Int -> DVS.Vector Int16 -> DVS.Vector Int16
 takeDrop16 n o v = DVS.take n (DVS.drop o v)
 
-takeDrop8 :: Int -> Int -> DVS.Vector Int8 -> DVS.Vector Int8
-takeDrop8 n o v = DVS.take n (DVS.drop o v)
+-- takeDrop8 :: Int -> Int -> DVS.Vector Int8 -> DVS.Vector Int8
+-- takeDrop8 n o v = DVS.take n (DVS.drop o v)
 
 instance TestBit RangeMinMax where
   (.?.) = (.?.) . rangeMinMaxBP
