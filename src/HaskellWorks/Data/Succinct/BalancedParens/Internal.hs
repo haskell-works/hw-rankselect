@@ -32,7 +32,12 @@ class BalancedParens v where
   -- findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 1) (p - 1)
   findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
   firstChild  v p = if openAt v p && openAt v (p + 1)   then Just (p + 1) else Nothing
-  nextSibling v p = if closeAt v p then Nothing else openAt v `mfilter` (findClose v p >>= (\q -> if p /= q then return (q + 1) else Nothing))
+  nextSibling v p = if closeAt v p
+    then Nothing
+    else openAt v `mfilter` (findClose v p >>= (\q ->
+      if p /= q
+        then return (q + 1)
+        else Nothing))
   -- parent      v p = enclose   v p >>= (\r -> if r >= 1 then return r      else Nothing)
   -- enclose     v   = findOpenN v (Count 1)
   -- {-# INLINE findOpen     #-}
@@ -52,8 +57,8 @@ closeAt' :: TestBit a => a -> Count -> Bool
 closeAt' v c = not (v .?. toPosition (c - 1))
 {-# INLINE closeAt' #-}
 
-openAt' :: TestBit a => a -> Count -> Bool
-openAt' v c = v .?. toPosition (c - 1)
+openAt' :: (BitLength a, TestBit a) => a -> Count -> Bool
+openAt' v c = (0 <= c && c < bitLength v) && (v .?. toPosition (c - 1))
 {-# INLINE openAt' #-}
 
 -----
