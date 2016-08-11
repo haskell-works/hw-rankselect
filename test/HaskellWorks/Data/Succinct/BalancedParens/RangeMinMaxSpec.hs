@@ -68,6 +68,5 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.RangeMinMaxSpec" $ do
   it "nextSibling should return the same result over all counts" $ do
     forAll (vectorSizedBetween 1 64) $ \(ShowVector u) -> do
       let v = padVectorExcess u
-      forAll (choose (1, bitLength v)) $ \p -> do
-        let !rmm = mkRangeMinMax v
-        nextSibling rmm p `shouldBe` nextSibling v p
+      let !rmm = mkRangeMinMax v
+      [nextSibling rmm p | p <- [1..bitLength v]] `shouldBe` [nextSibling v p | p <- [1..bitLength v]]
