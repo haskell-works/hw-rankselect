@@ -14,7 +14,6 @@ import qualified Data.Vector.Storable                                     as DVS
 import           Data.Word
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitWise
-import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
 import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L0
@@ -31,28 +30,28 @@ data RangeMinMaxL1 = RangeMinMaxL1
   , rangeMinMaxL1Excess   :: DVS.Vector Int16
   }
 
-wordsL1 :: Int
-wordsL1 = 8
-{-# INLINE wordsL1 #-}
-
-bitsL1 :: Count
-bitsL1 = fromIntegral (wordsL1 * 64)
+instance RangeMinMaxLevel RangeMinMaxL1 where
+  rmmFactor _ = 8
+  rmmBinWords v = rmmFactor v * rmmBinWords (rmmBase v)
+  rmmBins = DVS.length . rangeMinMaxL1Min
+  {-# INLINE rmmFactor #-}
 
 class MkRangeMinMaxL1 a where
   mkRangeMinMaxL1 :: a -> RangeMinMaxL1
 
 instance MkRangeMinMaxL1 RangeMinMaxL0 where
-  mkRangeMinMaxL1 rmmL0 = RangeMinMaxL1
-    { rangeMinMaxL1Base     = rmmL0
-    , rangeMinMaxL1Min      = DVS.constructN lenL1 (\v -> let (minE, _, _) = allMinMaxL1 DV.! DVS.length v in fromIntegral minE)
-    , rangeMinMaxL1Max      = DVS.constructN lenL1 (\v -> let (_, _, maxE) = allMinMaxL1 DV.! DVS.length v in fromIntegral maxE)
-    , rangeMinMaxL1Excess   = rangeMinMaxL1ExcessA
-    }
+  mkRangeMinMaxL1 rmmL0 = result
     where bp            = rangeMinMaxSimpleBP (rangeMinMaxSimple rmmL0)
-          lenL1         = DVS.length (rangeMinMaxL0Min rmmL0) `div` wordsL1 + 1 :: Int
+          lenL1         = (DVS.length (rangeMinMaxL0Min rmmL0) `div` rmmFactor result) + 1 :: Int
           allMinMaxL1   = DV.constructN lenL1 genMinMaxL1
-          genMinMaxL1 v = let len = DV.length v in minMaxExcess1 (DVS.take wordsL1 (DVS.drop (fromIntegral len * wordsL1) bp))
+          genMinMaxL1 v = let len = DV.length v in minMaxExcess1 (DVS.take (rmmBinWords result) (DVS.drop (len * rmmBinWords result) bp))
           rangeMinMaxL1ExcessA = DVS.constructN lenL1 (\v -> let (_, e,    _) = allMinMaxL1 DV.! DVS.length v in fromIntegral e) :: DVS.Vector Int16
+          result        = RangeMinMaxL1
+            { rangeMinMaxL1Base     = rmmL0
+            , rangeMinMaxL1Min      = DVS.constructN lenL1 (\v -> let (minE, _, _) = allMinMaxL1 DV.! DVS.length v in fromIntegral minE)
+            , rangeMinMaxL1Max      = DVS.constructN lenL1 (\v -> let (_, _, maxE) = allMinMaxL1 DV.! DVS.length v in fromIntegral maxE)
+            , rangeMinMaxL1Excess   = rangeMinMaxL1ExcessA
+            }
 
 instance MkRangeMinMaxL1 RangeMinMaxSimple where
   mkRangeMinMaxL1 = mkRangeMinMaxL1 . mkRangeMinMaxL0
@@ -83,18 +82,18 @@ instance RangeMinMaxDerived RangeMinMaxL1 where
   {-# INLINE rmmBase #-}
 
 instance RangeMinMax RangeMinMaxL1 where
-  rmmFindCloseDispatch v s p = if (p - 1) `mod` bitsL1 == 0
+  rmmFindCloseDispatch v s p = if (p - 1) `mod` rmmBinBits v == 0
     then rmmFindCloseN v s p
     else rmmFindCloseDispatch (rmmBase v) s p
   rmmFindCloseN v s p =
-    let i = (p - 1) `div` bitsL1 in
+    let i = (p - 1) `div` rmmBinBits v in
     let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
     if fromIntegral s + minE <= 0
       then  rmmFindCloseN (rmmBase v) s p
       else if v `closeAt` p && s <= 1
         then Just p
         else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
-              rmmFindClose  v (fromIntegral (excess + fromIntegral s)) (p + bitsL1)
+              rmmFindClose  v (fromIntegral (excess + fromIntegral s)) (p + rmmBinBits v)
     where mins                  = rangeMinMaxL1Min v
           excesses              = rangeMinMaxL1Excess v
   {-# INLINE rmmFindCloseDispatch #-}

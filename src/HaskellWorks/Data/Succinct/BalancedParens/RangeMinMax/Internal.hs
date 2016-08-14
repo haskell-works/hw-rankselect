@@ -3,11 +3,20 @@
 module HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
   ( RangeMinMax(..)
   , RangeMinMaxDerived(..)
+  , RangeMinMaxLevel(..)
   ) where
 
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
+
+class RangeMinMaxLevel v where
+  rmmFactor   :: v -> Int
+  rmmBinWords :: v -> Int
+  rmmBins     :: v -> Int
+  rmmBinBits  :: v -> Count
+  rmmBinBits v = fromIntegral (rmmBinWords v * 64)
+  {-# INLINE rmmBinBits #-}
 
 class RangeMinMaxDerived v where
   type RangeMinMaxBase v

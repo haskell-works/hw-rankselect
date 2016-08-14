@@ -28,6 +28,12 @@ data RangeMinMaxL0 = RangeMinMaxL0
   , rangeMinMaxL0Excess :: DVS.Vector Int8
   }
 
+instance RangeMinMaxLevel RangeMinMaxL0 where
+  rmmFactor _ = 1
+  rmmBinWords _ = 1
+  rmmBins = DVS.length . rangeMinMaxL0Min
+  {-# INLINE rmmFactor #-}
+
 class MkRangeMinMaxL0 a where
   mkRangeMinMaxL0 :: a -> RangeMinMaxL0
 
@@ -65,7 +71,6 @@ instance Rank0 RangeMinMaxL0 where
 instance BitLength RangeMinMaxL0 where
   bitLength = bitLength . rangeMinMaxSimple
   {-# INLINE bitLength #-}
-
 
 instance OpenAt RangeMinMaxL0 where
   openAt = openAt . rangeMinMaxSimple
