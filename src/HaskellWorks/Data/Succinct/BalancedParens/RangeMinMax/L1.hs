@@ -24,10 +24,10 @@ import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
 import           HaskellWorks.Data.Vector.VectorLike
 
 data RangeMinMaxL1 = RangeMinMaxL1
-  { rangeMinMaxL1Base     :: RangeMinMaxL0
-  , rangeMinMaxL1Min      :: DVS.Vector Int16
-  , rangeMinMaxL1Max      :: DVS.Vector Int16
-  , rangeMinMaxL1Excess   :: DVS.Vector Int16
+  { rangeMinMaxL1Base     :: !RangeMinMaxL0
+  , rangeMinMaxL1Min      :: !(DVS.Vector Int16)
+  , rangeMinMaxL1Max      :: !(DVS.Vector Int16)
+  , rangeMinMaxL1Excess   :: !(DVS.Vector Int16)
   }
 
 instance RangeMinMaxLevel RangeMinMaxL1 where
