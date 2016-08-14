@@ -25,6 +25,8 @@ library
   hs-source-dirs:       src
   exposed-modules:      HaskellWorks.Data.Succinct.BalancedParens
                       , HaskellWorks.Data.Succinct.BalancedParens.Internal
+                      , HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
+                      , HaskellWorks.Data.Succinct.BalancedParens.NewOpenAt
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L0
