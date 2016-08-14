@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts   #-}
 {-# LANGUAGE FlexibleInstances  #-}
 {-# LANGUAGE InstanceSigs       #-}
+{-# LANGUAGE TypeFamilies       #-}
 
 module HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L1
   ( RangeMinMaxL1(..)
@@ -16,6 +17,7 @@ import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
+import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L0
 import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Simple
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
@@ -24,9 +26,9 @@ import           HaskellWorks.Data.Vector.VectorLike
 
 data RangeMinMaxL1 = RangeMinMaxL1
   { rangeMinMaxL1Simple :: RangeMinMaxSimple
-  , rangeMinMaxL0Min    :: DVS.Vector Int8
-  , rangeMinMaxL0Max    :: DVS.Vector Int8
-  , rangeMinMaxL0Excess :: DVS.Vector Int8
+  , rangeMinMaxL1L0Min    :: DVS.Vector Int8
+  , rangeMinMaxL1L0Max    :: DVS.Vector Int8
+  , rangeMinMaxL1L0Excess :: DVS.Vector Int8
   , rangeMinMaxL1Min    :: DVS.Vector Int16
   , rangeMinMaxL1Max    :: DVS.Vector Int16
   , rangeMinMaxL1Excess :: DVS.Vector Int16
@@ -45,12 +47,12 @@ class MkRangeMinMaxL1 a where
 instance MkRangeMinMaxL1 RangeMinMaxSimple where
   mkRangeMinMaxL1 simple = RangeMinMaxL1
     { rangeMinMaxL1Simple = simple
-    , rangeMinMaxL0Min    = DVS.constructN lenL0 (\v -> let (minE, _, _) = allMinMaxL0 DV.! DVS.length v in fromIntegral minE)
-    , rangeMinMaxL0Max    = DVS.constructN lenL0 (\v -> let (_, _, maxE) = allMinMaxL0 DV.! DVS.length v in fromIntegral maxE)
-    , rangeMinMaxL0Excess = rangeMinMaxL0ExcessA
-    , rangeMinMaxL1Min    = DVS.constructN lenL1 (\v -> let (minE, _, _) = allMinMaxL1 DV.! DVS.length v in fromIntegral minE)
-    , rangeMinMaxL1Max    = DVS.constructN lenL1 (\v -> let (_, _, maxE) = allMinMaxL1 DV.! DVS.length v in fromIntegral maxE)
-    , rangeMinMaxL1Excess = rangeMinMaxL1ExcessA
+    , rangeMinMaxL1L0Min    = DVS.constructN lenL0 (\v -> let (minE, _, _) = allMinMaxL0 DV.! DVS.length v in fromIntegral minE)
+    , rangeMinMaxL1L0Max    = DVS.constructN lenL0 (\v -> let (_, _, maxE) = allMinMaxL0 DV.! DVS.length v in fromIntegral maxE)
+    , rangeMinMaxL1L0Excess = rangeMinMaxL0ExcessA
+    , rangeMinMaxL1Min      = DVS.constructN lenL1 (\v -> let (minE, _, _) = allMinMaxL1 DV.! DVS.length v in fromIntegral minE)
+    , rangeMinMaxL1Max      = DVS.constructN lenL1 (\v -> let (_, _, maxE) = allMinMaxL1 DV.! DVS.length v in fromIntegral maxE)
+    , rangeMinMaxL1Excess   = rangeMinMaxL1ExcessA
     }
     where lenSimple     = fromIntegral (vLength (rangeMinMaxSimpleBP simple)) :: Int
           lenL0         = lenSimple + 1
@@ -85,51 +87,33 @@ instance BitLength RangeMinMaxL1 where
   bitLength = bitLength . rangeMinMaxL1Simple
   {-# INLINE bitLength #-}
 
-findCloseN' :: RangeMinMaxL1 -> Int -> Count -> RangeMinMaxResult Count
-findCloseN' v s p = if v `closeAt` p
-  then if s <= 1
-    then Progress p
-    else rangeMinMaxFindCloseN v (s - 1) (p + 1)
-  else rangeMinMaxFindCloseN v (s + 1) (p + 1)
-{-# INLINE findCloseN' #-}
+instance RangeMinMaxDerived RangeMinMaxL1 where
+  type RangeMinMaxBase RangeMinMaxL1 = RangeMinMaxL0
+  rmmBase v = RangeMinMaxL0
+    { rangeMinMaxSimple   = rangeMinMaxL1Simple v
+    , rangeMinMaxL0Min    = rangeMinMaxL1L0Min v
+    , rangeMinMaxL0Max    = rangeMinMaxL1L0Max v
+    , rangeMinMaxL0Excess = rangeMinMaxL1L0Excess v
+    }
+  {-# INLINE rmmBase #-}
 
-rangeMinMaxFindCloseN :: RangeMinMaxL1 -> Int -> Count -> RangeMinMaxResult Count
-rangeMinMaxFindCloseN v s p = if 0 < p && p <= bitLength v
-  then if (p - 1) `mod` 64 /= 0
-    then findCloseN' v s p
-    else if (p - 1) `mod` bitsL1 /= 0
-      then rangeMinMaxFindCloseNL0 v s p <||> findCloseN' v s p
-      else rangeMinMaxFindCloseNL1 v s p <||> rangeMinMaxFindCloseNL0 v s p <||> findCloseN' v s p
-  else Fail
-{-# INLINE rangeMinMaxFindCloseN #-}
-
-rangeMinMaxFindCloseNL0 :: RangeMinMaxL1 -> Int -> Count -> RangeMinMaxResult Count
-rangeMinMaxFindCloseNL0 v s p =
-  let i = (p - 1) `div` 64 in
-  let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
-  if fromIntegral s + minE <= 0
-    then NoSkip
-    else if v `closeAt` p && s <= 1
-      then Progress p
-      else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
-            rangeMinMaxFindCloseN  v (fromIntegral (excess + fromIntegral s)) (p + 64)
-  where mins                  = rangeMinMaxL0Min v
-        excesses              = rangeMinMaxL0Excess v
-{-# INLINE rangeMinMaxFindCloseNL0 #-}
-
-rangeMinMaxFindCloseNL1 :: RangeMinMaxL1 -> Int -> Count -> RangeMinMaxResult Count
-rangeMinMaxFindCloseNL1 v s p =
-  let i = (p - 1) `div` bitsL1 in
-  let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
-  if fromIntegral s + minE <= 0
-    then  NoSkip
-    else if v `closeAt` p && s <= 1
-      then Progress p
-      else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
-            rangeMinMaxFindCloseN  v (fromIntegral (excess + fromIntegral s)) (p + bitsL1)
-  where mins                  = rangeMinMaxL1Min v
-        excesses              = rangeMinMaxL1Excess v
-{-# INLINE rangeMinMaxFindCloseNL1 #-}
+instance RangeMinMax RangeMinMaxL1 where
+  rmmFindCloseDispatch v s p = if (p - 1) `mod` bitsL1 == 0
+    then rmmFindCloseN v s p
+    else rmmFindCloseDispatch (rmmBase v) s p
+  rmmFindCloseN v s p =
+    let i = (p - 1) `div` bitsL1 in
+    let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
+    if fromIntegral s + minE <= 0
+      then  rmmFindCloseN (rmmBase v) s p
+      else if v `closeAt` p && s <= 1
+        then Progress p
+        else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
+              rmmFindClose  v (fromIntegral (excess + fromIntegral s)) (p + bitsL1)
+    where mins                  = rangeMinMaxL1Min v
+          excesses              = rangeMinMaxL1Excess v
+  {-# INLINE rmmFindCloseDispatch #-}
+  {-# INLINE rmmFindCloseN        #-}
 
 instance OpenAt RangeMinMaxL1 where
   openAt = openAt . rangeMinMaxL1Simple
@@ -141,7 +125,7 @@ instance CloseAt RangeMinMaxL1 where
 
 instance BalancedParens RangeMinMaxL1 where
   -- findOpenN         = findOpenN   . rangeMinMaxBP
-  findCloseN v s p  = resultToMaybe (rangeMinMaxFindCloseN v (fromIntegral s) p)
+  findCloseN v s p  = resultToMaybe (rmmFindClose v (fromIntegral s) p)
 
   -- {-# INLINE findOpenN   #-}
   {-# INLINE findCloseN  #-}

@@ -1,5 +1,8 @@
+{-# LANGUAGE TypeFamilies #-}
+
 module HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
   ( RangeMinMax(..)
+  , RangeMinMaxDerived(..)
   , RangeMinMaxResult(..)
   , resultToMaybe
   , (<||>)
@@ -11,6 +14,10 @@ import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 
 data RangeMinMaxResult a = Progress a | NoSkip | Fail
   deriving (Eq, Show)
+
+class RangeMinMaxDerived v where
+  type RangeMinMaxBase v
+  rmmBase :: v -> RangeMinMaxBase v
 
 class (OpenAt v, CloseAt v, BitLength v) => RangeMinMax v where
   rmmFindClose  :: v -> Int -> Count -> RangeMinMaxResult Count
