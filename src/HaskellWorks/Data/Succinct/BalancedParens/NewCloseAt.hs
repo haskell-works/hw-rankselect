@@ -2,6 +2,7 @@
 
 module HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
   ( NewCloseAt(..)
+  , newCloseAt'
   ) where
 
 import qualified Data.Vector.Storable             as DVS
