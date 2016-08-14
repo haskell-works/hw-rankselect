@@ -88,16 +88,15 @@ instance NewCloseAt RangeMinMaxL0 where
   {-# INLINE newCloseAt #-}
 
 instance RangeMinMax RangeMinMaxL0 where
-  rmmFindCloseDispatch v s p = if (p - 1) `mod` 64 == 0
+  rmmFindCloseDispatch v s p = if p `mod` 64 == 0
     then rmmFindCloseN v s p
     else rmmFindCloseDispatch (rangeMinMaxSimple v) s p
   rmmFindCloseN v s p =
-    let q = p - 1 in
-    let i = q `div` 64 in
+    let i = p `div` 64 in
     let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
     if fromIntegral s + minE <= 0
       then  rmmFindCloseN (rangeMinMaxSimple v) s p
-      else if v `newCloseAt` q && s <= 1
+      else if v `newCloseAt` p && s <= 1
         then Just p
         else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
               rmmFindClose v (fromIntegral (excess + fromIntegral s)) (p + 64)
@@ -108,7 +107,7 @@ instance RangeMinMax RangeMinMaxL0 where
 
 instance BalancedParens RangeMinMaxL0 where
   -- findOpenN         = findOpenN   . rangeMinMaxBP
-  findCloseN v s = rmmFindClose v (fromIntegral s)
+  findCloseN v s p = (+ 1) `fmap` rmmFindClose v (fromIntegral s) (p - 1)
 
   -- {-# INLINE findOpenN   #-}
   {-# INLINE findCloseN  #-}

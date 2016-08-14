@@ -44,7 +44,7 @@ instance BitLength RangeMinMaxSimple where
 
 instance RangeMinMax RangeMinMaxSimple where
   rmmFindCloseDispatch = rmmFindCloseN
-  rmmFindCloseN v s p  = if v `closeAt` p
+  rmmFindCloseN v s p  = if v `newCloseAt` p
     then if s <= 1
       then Just p
       else rmmFindClose v (s - 1) (p + 1)
@@ -66,7 +66,7 @@ instance NewCloseAt RangeMinMaxSimple where
 
 instance BalancedParens RangeMinMaxSimple where
   -- findOpenN         = findOpenN   . rangeMinMaxBP
-  findCloseN v s = rmmFindClose v (fromIntegral s)
+  findCloseN v s p = (+ 1) `fmap` rmmFindClose v (fromIntegral s) (p - 1)
 
   -- {-# INLINE findOpenN   #-}
   {-# INLINE findCloseN  #-}

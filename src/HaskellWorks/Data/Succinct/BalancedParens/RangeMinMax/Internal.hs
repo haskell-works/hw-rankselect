@@ -26,7 +26,7 @@ class (OpenAt v, CloseAt v, BitLength v) => RangeMinMax v where
   rmmFindCloseDispatch :: v -> Int -> Count -> Maybe Count
   rmmFindCloseN :: v -> Int -> Count -> Maybe Count
   rmmFindClose  :: v -> Int -> Count -> Maybe Count
-  rmmFindClose v s p = if 0 < p && p <= bitLength v
+  rmmFindClose v s p = if 0 <= p && p < bitLength v
     then rmmFindCloseDispatch v s p
     else Nothing
   {-# INLINE rmmFindClose #-}
