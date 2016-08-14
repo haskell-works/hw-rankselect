@@ -32,7 +32,9 @@ instance RangeMinMaxLevel RangeMinMaxL0 where
   rmmFactor _ = 1
   rmmBinWords _ = 1
   rmmBins = DVS.length . rangeMinMaxL0Min
-  {-# INLINE rmmFactor #-}
+  {-# INLINE rmmFactor    #-}
+  {-# INLINE rmmBinWords  #-}
+  {-# INLINE rmmBins      #-}
 
 class MkRangeMinMaxL0 a where
   mkRangeMinMaxL0 :: a -> RangeMinMaxL0
