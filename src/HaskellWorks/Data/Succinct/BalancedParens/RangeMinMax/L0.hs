@@ -44,9 +44,11 @@ instance MkRangeMinMaxL0 RangeMinMaxSimple where
                         if len == len0
                           then (0, 0, 0)
                           else minMaxExcess1 (rangeMinMaxSimpleBP simple !!! fromIntegral len)
+  {-# INLINE mkRangeMinMaxL0 #-}
 
 instance MkRangeMinMaxL0 (DVS.Vector Word64) where
   mkRangeMinMaxL0 = mkRangeMinMaxL0 . mkRangeMinMaxSimple
+  {-# INLINE mkRangeMinMaxL0 #-}
 
 instance TestBit RangeMinMaxL0 where
   (.?.) = (.?.) . rangeMinMaxSimple

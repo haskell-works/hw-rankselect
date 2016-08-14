@@ -25,13 +25,13 @@ import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
 import           HaskellWorks.Data.Vector.VectorLike
 
 data RangeMinMaxL1 = RangeMinMaxL1
-  { rangeMinMaxL1Simple :: RangeMinMaxSimple
+  { rangeMinMaxL1Simple   :: RangeMinMaxSimple
   , rangeMinMaxL1L0Min    :: DVS.Vector Int8
   , rangeMinMaxL1L0Max    :: DVS.Vector Int8
   , rangeMinMaxL1L0Excess :: DVS.Vector Int8
-  , rangeMinMaxL1Min    :: DVS.Vector Int16
-  , rangeMinMaxL1Max    :: DVS.Vector Int16
-  , rangeMinMaxL1Excess :: DVS.Vector Int16
+  , rangeMinMaxL1Min      :: DVS.Vector Int16
+  , rangeMinMaxL1Max      :: DVS.Vector Int16
+  , rangeMinMaxL1Excess   :: DVS.Vector Int16
   }
 
 wordsL1 :: Int
@@ -70,6 +70,7 @@ instance MkRangeMinMaxL1 RangeMinMaxSimple where
 
 instance MkRangeMinMaxL1 (DVS.Vector Word64) where
   mkRangeMinMaxL1 = mkRangeMinMaxL1 . mkRangeMinMaxSimple
+  {-# INLINE mkRangeMinMaxL1 #-}
 
 instance TestBit RangeMinMaxL1 where
   (.?.) = (.?.) . rangeMinMaxL1Simple

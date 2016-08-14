@@ -17,12 +17,12 @@ import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 
 data RangeMinMaxSimple = RangeMinMaxSimple
-  { rangeMinMaxSimpleBP     :: DVS.Vector Word64
+  { rangeMinMaxSimpleBP :: DVS.Vector Word64
   }
 
 mkRangeMinMaxSimple :: DVS.Vector Word64 -> RangeMinMaxSimple
 mkRangeMinMaxSimple bp = RangeMinMaxSimple
-  { rangeMinMaxSimpleBP       = bp
+  { rangeMinMaxSimpleBP = bp
   }
 
 instance TestBit RangeMinMaxSimple where
