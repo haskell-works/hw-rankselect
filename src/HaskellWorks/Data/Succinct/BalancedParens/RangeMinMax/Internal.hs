@@ -5,14 +5,20 @@ module HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
   , (<||>)
   ) where
 
+import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 
 data RangeMinMaxResult a = Progress a | NoSkip | Fail
   deriving (Eq, Show)
 
-class (OpenAt v, CloseAt v) => RangeMinMax v where
-  rmmFindCloseN   :: v -> Int -> Count -> RangeMinMaxResult Count
+class (OpenAt v, CloseAt v, BitLength v) => RangeMinMax v where
+  rmmFindClose  :: v -> Int -> Count -> RangeMinMaxResult Count
+  rmmFindClose v s p = if 0 < p && p <= bitLength v
+    then rmmFindCloseN v s p
+    else Fail
+  rmmFindCloseN :: v -> Int -> Count -> RangeMinMaxResult Count
+  {-# INLINE rmmFindClose #-}
 
 (<||>) :: RangeMinMaxResult a -> RangeMinMaxResult a -> RangeMinMaxResult a
 Fail        <||> _          = Fail
