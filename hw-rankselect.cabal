@@ -26,8 +26,9 @@ library
   exposed-modules:      HaskellWorks.Data.Succinct.BalancedParens
                       , HaskellWorks.Data.Succinct.BalancedParens.Internal
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L0
-                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L2
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L1
                       , HaskellWorks.Data.Succinct.BalancedParens.Simple
                       , HaskellWorks.Data.Succinct.Excess
                       , HaskellWorks.Data.Succinct.Excess.Excess0
@@ -59,9 +60,8 @@ test-suite hw-rankselect-test
   type:                 exitcode-stdio-1.0
   hs-source-dirs:       test
   main-is:              Spec.hs
-  other-modules:        HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
-                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L0Spec
-                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L2Spec
+  other-modules:        HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L0Spec
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L1Spec
                       , HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec
                       , HaskellWorks.Data.Succinct.Excess.MinMaxExcess0Spec
                       , HaskellWorks.Data.Succinct.Excess.MinMaxExcess1Spec
