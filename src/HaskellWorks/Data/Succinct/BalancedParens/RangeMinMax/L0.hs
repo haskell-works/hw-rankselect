@@ -92,11 +92,12 @@ instance RangeMinMax RangeMinMaxL0 where
     then rmmFindCloseN v s p
     else rmmFindCloseDispatch (rangeMinMaxSimple v) s p
   rmmFindCloseN v s p =
-    let i = (p - 1) `div` 64 in
+    let q = p - 1 in
+    let i = q `div` 64 in
     let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
     if fromIntegral s + minE <= 0
       then  rmmFindCloseN (rangeMinMaxSimple v) s p
-      else if v `closeAt` p && s <= 1
+      else if v `newCloseAt` q && s <= 1
         then Just p
         else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
               rmmFindClose v (fromIntegral (excess + fromIntegral s)) (p + 64)
