@@ -12,7 +12,7 @@ data RangeMinMaxResult a = Progress a | NoSkip | Fail
   deriving (Eq, Show)
 
 class (OpenAt v, CloseAt v) => RangeMinMax v where
-  rmmCloseN   :: v -> Int -> Count -> RangeMinMaxResult Count
+  rmmFindCloseN   :: v -> Int -> Count -> RangeMinMaxResult Count
 
 (<||>) :: RangeMinMaxResult a -> RangeMinMaxResult a -> RangeMinMaxResult a
 Fail        <||> _          = Fail

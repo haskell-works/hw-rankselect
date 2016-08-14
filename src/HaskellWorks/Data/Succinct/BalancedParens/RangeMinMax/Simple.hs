@@ -43,15 +43,15 @@ instance BitLength RangeMinMaxSimple where
   {-# INLINE bitLength #-}
 
 instance RangeMinMax RangeMinMaxSimple where
-  rmmCloseN :: RangeMinMaxSimple -> Int -> Count -> RangeMinMaxResult Count
-  rmmCloseN v s p  = if 0 < p && p <= bitLength v
+  rmmFindCloseN :: RangeMinMaxSimple -> Int -> Count -> RangeMinMaxResult Count
+  rmmFindCloseN v s p  = if 0 < p && p <= bitLength v
     then if v `closeAt` p
       then if s <= 1
         then Progress p
-        else rmmCloseN v (s - 1) (p + 1)
-      else rmmCloseN v (s + 1) (p + 1)
+        else rmmFindCloseN v (s - 1) (p + 1)
+      else rmmFindCloseN v (s + 1) (p + 1)
     else Fail
-  {-# INLINE rmmCloseN #-}
+  {-# INLINE rmmFindCloseN #-}
 
 instance OpenAt RangeMinMaxSimple where
   openAt = openAt . rangeMinMaxSimpleBP
@@ -63,7 +63,7 @@ instance CloseAt RangeMinMaxSimple where
 
 instance BalancedParens RangeMinMaxSimple where
   -- findOpenN         = findOpenN   . rangeMinMaxBP
-  findCloseN v s c = resultToMaybe (rmmCloseN v (fromIntegral s) c)
+  findCloseN v s c = resultToMaybe (rmmFindCloseN v (fromIntegral s) c)
 
   -- {-# INLINE findOpenN   #-}
   {-# INLINE findCloseN  #-}

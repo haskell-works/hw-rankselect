@@ -13,8 +13,8 @@ import qualified Data.Vector.Storable                                         as
 import           Data.Word
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitWise
-import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
+import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
 import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Simple
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
@@ -64,28 +64,6 @@ instance BitLength RangeMinMaxL0 where
   bitLength = bitLength . rangeMinMaxSimple
   {-# INLINE bitLength #-}
 
-rangeMinMaxFindCloseN :: RangeMinMaxL0 -> Int -> Count -> Maybe Count
-rangeMinMaxFindCloseN v s p  = result
-  where mins                  = rangeMinMaxL0Min v
-        excesses              = rangeMinMaxL0Excess v
-        findCloseN'           = if v `closeAt` p
-          then if s <= 1
-            then Just p
-            else rangeMinMaxFindCloseN v (s - 1) (p + 1)
-          else rangeMinMaxFindCloseN v (s + 1) (p + 1)
-        result                = if 0 < p && p <= bitLength v
-          then if (p - 1) `mod` 64 == 0
-            then  let i = (p - 1) `div` 64 in
-                  let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
-                  if fromIntegral s + minE <= 0
-                    then  findCloseN'
-                    else if v `closeAt` p && s <= 1
-                      then Just p
-                      else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
-                            rangeMinMaxFindCloseN v (fromIntegral (excess + fromIntegral s)) (p + 64)
-            else findCloseN'
-          else Nothing
-{-# INLINE rangeMinMaxFindCloseN #-}
 
 instance OpenAt RangeMinMaxL0 where
   openAt = openAt . rangeMinMaxSimple
@@ -95,9 +73,32 @@ instance CloseAt RangeMinMaxL0 where
   closeAt = closeAt . rangeMinMaxSimple
   {-# INLINE closeAt #-}
 
+instance RangeMinMax RangeMinMaxL0 where
+  rmmFindCloseN v s p = result
+    where mins                  = rangeMinMaxL0Min v
+          excesses              = rangeMinMaxL0Excess v
+          findCloseN'           = if v `closeAt` p
+            then if s <= 1
+              then Progress p
+              else rmmFindCloseN v (s - 1) (p + 1)
+            else rmmFindCloseN v (s + 1) (p + 1)
+          result                = if 0 < p && p <= bitLength v
+            then if (p - 1) `mod` 64 == 0
+              then  let i = (p - 1) `div` 64 in
+                    let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
+                    if fromIntegral s + minE <= 0
+                      then  findCloseN'
+                      else if v `closeAt` p && s <= 1
+                        then Progress p
+                        else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
+                              rmmFindCloseN v (fromIntegral (excess + fromIntegral s)) (p + 64)
+              else findCloseN'
+            else Fail
+  {-# INLINE rmmFindCloseN #-}
+
 instance BalancedParens RangeMinMaxL0 where
   -- findOpenN         = findOpenN   . rangeMinMaxBP
-  findCloseN v s    = rangeMinMaxFindCloseN v (fromIntegral s)
+  findCloseN v s p = resultToMaybe (rmmFindCloseN v (fromIntegral s) p)
 
   -- {-# INLINE findOpenN   #-}
   {-# INLINE findCloseN  #-}
