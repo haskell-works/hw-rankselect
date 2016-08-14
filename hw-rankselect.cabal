@@ -29,6 +29,7 @@ library
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L0
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L1
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L2
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Simple
                       , HaskellWorks.Data.Succinct.BalancedParens.Simple
                       , HaskellWorks.Data.Succinct.Excess
