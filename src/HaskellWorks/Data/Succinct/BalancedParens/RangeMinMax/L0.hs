@@ -74,19 +74,22 @@ instance CloseAt RangeMinMaxL0 where
   {-# INLINE closeAt #-}
 
 instance RangeMinMax RangeMinMaxL0 where
-  rmmFindCloseN v s p = if (p - 1) `mod` 64 == 0
-    then  let i = (p - 1) `div` 64 in
-          let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
-          if fromIntegral s + minE <= 0
-            then  rmmFindCloseN (rangeMinMaxSimple v) s p
-            else if v `closeAt` p && s <= 1
-              then Progress p
-              else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
-                    rmmFindClose v (fromIntegral (excess + fromIntegral s)) (p + 64)
-    else rmmFindCloseN (rangeMinMaxSimple v) s p
+  rmmFindCloseDispatch v s p = if (p - 1) `mod` 64 == 0
+    then rmmFindCloseN v s p
+    else rmmFindCloseDispatch (rangeMinMaxSimple v) s p
+  rmmFindCloseN v s p =
+    let i = (p - 1) `div` 64 in
+    let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
+    if fromIntegral s + minE <= 0
+      then  rmmFindCloseN (rangeMinMaxSimple v) s p
+      else if v `closeAt` p && s <= 1
+        then Progress p
+        else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
+              rmmFindClose v (fromIntegral (excess + fromIntegral s)) (p + 64)
     where mins                  = rangeMinMaxL0Min v
           excesses              = rangeMinMaxL0Excess v
-  {-# INLINE rmmFindCloseN #-}
+  {-# INLINE rmmFindCloseDispatch #-}
+  {-# INLINE rmmFindCloseN        #-}
 
 instance BalancedParens RangeMinMaxL0 where
   -- findOpenN         = findOpenN   . rangeMinMaxBP

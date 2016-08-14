@@ -15,8 +15,9 @@ data RangeMinMaxResult a = Progress a | NoSkip | Fail
 class (OpenAt v, CloseAt v, BitLength v) => RangeMinMax v where
   rmmFindClose  :: v -> Int -> Count -> RangeMinMaxResult Count
   rmmFindClose v s p = if 0 < p && p <= bitLength v
-    then rmmFindCloseN v s p
+    then rmmFindCloseDispatch v s p
     else Fail
+  rmmFindCloseDispatch :: v -> Int -> Count -> RangeMinMaxResult Count
   rmmFindCloseN :: v -> Int -> Count -> RangeMinMaxResult Count
   {-# INLINE rmmFindClose #-}
 

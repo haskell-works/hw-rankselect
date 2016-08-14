@@ -11,7 +11,6 @@ import qualified Data.Vector.Storable                                           
 import           Data.Word
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitWise
-import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
@@ -43,13 +42,14 @@ instance BitLength RangeMinMaxSimple where
   {-# INLINE bitLength #-}
 
 instance RangeMinMax RangeMinMaxSimple where
-  rmmFindCloseN :: RangeMinMaxSimple -> Int -> Count -> RangeMinMaxResult Count
+  rmmFindCloseDispatch = rmmFindCloseN
   rmmFindCloseN v s p  = if v `closeAt` p
     then if s <= 1
       then Progress p
       else rmmFindClose v (s - 1) (p + 1)
     else rmmFindClose v (s + 1) (p + 1)
-  {-# INLINE rmmFindClose #-}
+  {-# INLINE rmmFindCloseDispatch #-}
+  {-# INLINE rmmFindCloseN        #-}
 
 instance OpenAt RangeMinMaxSimple where
   openAt = openAt . rangeMinMaxSimpleBP
