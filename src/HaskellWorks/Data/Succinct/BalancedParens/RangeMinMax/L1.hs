@@ -107,7 +107,7 @@ instance RangeMinMax RangeMinMaxL1 where
     if fromIntegral s + minE <= 0
       then  rmmFindCloseN (rmmBase v) s p
       else if v `closeAt` p && s <= 1
-        then Progress p
+        then Just p
         else let excess  = fromIntegral (excesses !!! fromIntegral i)  :: Int in
               rmmFindClose  v (fromIntegral (excess + fromIntegral s)) (p + bitsL1)
     where mins                  = rangeMinMaxL1Min v
@@ -125,7 +125,7 @@ instance CloseAt RangeMinMaxL1 where
 
 instance BalancedParens RangeMinMaxL1 where
   -- findOpenN         = findOpenN   . rangeMinMaxBP
-  findCloseN v s p  = resultToMaybe (rmmFindClose v (fromIntegral s) p)
+  findCloseN v s = rmmFindClose v (fromIntegral s)
 
   -- {-# INLINE findOpenN   #-}
   {-# INLINE findCloseN  #-}

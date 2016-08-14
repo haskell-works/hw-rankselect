@@ -45,7 +45,7 @@ instance RangeMinMax RangeMinMaxSimple where
   rmmFindCloseDispatch = rmmFindCloseN
   rmmFindCloseN v s p  = if v `closeAt` p
     then if s <= 1
-      then Progress p
+      then Just p
       else rmmFindClose v (s - 1) (p + 1)
     else rmmFindClose v (s + 1) (p + 1)
   {-# INLINE rmmFindCloseDispatch #-}
@@ -61,7 +61,7 @@ instance CloseAt RangeMinMaxSimple where
 
 instance BalancedParens RangeMinMaxSimple where
   -- findOpenN         = findOpenN   . rangeMinMaxBP
-  findCloseN v s c = resultToMaybe (rmmFindClose v (fromIntegral s) c)
+  findCloseN v s = rmmFindClose v (fromIntegral s)
 
   -- {-# INLINE findOpenN   #-}
   {-# INLINE findCloseN  #-}
