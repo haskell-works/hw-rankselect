@@ -12,6 +12,7 @@ import           Data.Word
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
+import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
 import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
@@ -58,6 +59,10 @@ instance OpenAt RangeMinMaxSimple where
 instance CloseAt RangeMinMaxSimple where
   closeAt = closeAt . rangeMinMaxSimpleBP
   {-# INLINE closeAt #-}
+
+instance NewCloseAt RangeMinMaxSimple where
+  newCloseAt = newCloseAt . rangeMinMaxSimpleBP
+  {-# INLINE newCloseAt #-}
 
 instance BalancedParens RangeMinMaxSimple where
   -- findOpenN         = findOpenN   . rangeMinMaxBP

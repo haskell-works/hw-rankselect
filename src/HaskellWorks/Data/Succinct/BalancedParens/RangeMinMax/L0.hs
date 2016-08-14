@@ -14,6 +14,7 @@ import           Data.Word
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
+import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
 import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
 import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Simple
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
@@ -81,6 +82,10 @@ instance OpenAt RangeMinMaxL0 where
 instance CloseAt RangeMinMaxL0 where
   closeAt = closeAt . rangeMinMaxSimple
   {-# INLINE closeAt #-}
+
+instance NewCloseAt RangeMinMaxL0 where
+  newCloseAt = newCloseAt . rangeMinMaxSimple
+  {-# INLINE newCloseAt #-}
 
 instance RangeMinMax RangeMinMaxL0 where
   rmmFindCloseDispatch v s p = if (p - 1) `mod` 64 == 0
