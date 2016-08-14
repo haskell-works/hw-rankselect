@@ -15,6 +15,7 @@ import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
+import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
@@ -104,20 +105,12 @@ instance BitLength RangeMinMaxL2 where
   bitLength = bitLength . rangeMinMaxBP
   {-# INLINE bitLength #-}
 
-data Result a = Progress a | NoSkip | Fail
-  deriving (Eq, Show)
-
-(<||>) :: Result a -> Result a -> Result a
-Fail        <||> _          = Fail
-NoSkip      <||> b          = b
-Progress a  <||> _          = Progress a
-
-resultToMaybe :: Result a -> Maybe a
+resultToMaybe :: RangeMinMaxResult a -> Maybe a
 resultToMaybe Fail          = Nothing
 resultToMaybe NoSkip        = Nothing
 resultToMaybe (Progress a)  = Just a
 
-findCloseN' :: RangeMinMaxL2 -> Int -> Count -> Result Count
+findCloseN' :: RangeMinMaxL2 -> Int -> Count -> RangeMinMaxResult Count
 findCloseN' v s p = if v `closeAt` p
   then if s <= 1
     then Progress p
@@ -125,7 +118,7 @@ findCloseN' v s p = if v `closeAt` p
   else rangeMinMaxFindCloseN v (s + 1) (p + 1)
 {-# INLINE findCloseN' #-}
 
-rangeMinMaxFindCloseN :: RangeMinMaxL2 -> Int -> Count -> Result Count
+rangeMinMaxFindCloseN :: RangeMinMaxL2 -> Int -> Count -> RangeMinMaxResult Count
 rangeMinMaxFindCloseN v s p = if 0 < p && p <= bitLength v
   then if (p - 1) `mod` elemBitLength (rangeMinMaxBP v) /= 0
     then findCloseN' v s p
@@ -137,7 +130,7 @@ rangeMinMaxFindCloseN v s p = if 0 < p && p <= bitLength v
   else Fail
 {-# INLINE rangeMinMaxFindCloseN #-}
 
-rangeMinMaxFindCloseNL0 :: RangeMinMaxL2 -> Int -> Count -> Result Count
+rangeMinMaxFindCloseNL0 :: RangeMinMaxL2 -> Int -> Count -> RangeMinMaxResult Count
 rangeMinMaxFindCloseNL0 v s p =
   let i = (p - 1) `div` elemBitLength bp in
   let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
@@ -152,7 +145,7 @@ rangeMinMaxFindCloseNL0 v s p =
         excesses              = rangeMinMaxL0Excess v
 {-# INLINE rangeMinMaxFindCloseNL0 #-}
 
-rangeMinMaxFindCloseNL1 :: RangeMinMaxL2 -> Int -> Count -> Result Count
+rangeMinMaxFindCloseNL1 :: RangeMinMaxL2 -> Int -> Count -> RangeMinMaxResult Count
 rangeMinMaxFindCloseNL1 v s p =
   let i = (p - 1) `div` bitsL1 in
   let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
@@ -167,7 +160,7 @@ rangeMinMaxFindCloseNL1 v s p =
 {-# INLINE rangeMinMaxFindCloseNL1 #-}
 
 
-rangeMinMaxFindCloseNL2 :: RangeMinMaxL2 -> Int -> Count -> Result Count
+rangeMinMaxFindCloseNL2 :: RangeMinMaxL2 -> Int -> Count -> RangeMinMaxResult Count
 rangeMinMaxFindCloseNL2 v s p =
   let i = (p - 1) `div` bitsL2 in
   let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
