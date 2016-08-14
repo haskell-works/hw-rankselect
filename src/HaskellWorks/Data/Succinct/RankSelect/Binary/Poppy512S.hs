@@ -49,7 +49,7 @@ makePoppy512S v = Poppy512S
 
 instance BitLength Poppy512S where
   bitLength v = vLength (poppy512SBits v) * bitLength (poppy512SBits v !!! 0)
-  {-# INLINABLE bitLength #-}
+  {-# INLINE bitLength #-}
 
 instance TestBit Poppy512S where
   (.?.) = (.?.) . poppy512SBits
@@ -88,12 +88,16 @@ instance Select1 Poppy512S where
           iMin = fromIntegral $  (sampleMin - 1) `div` 512      :: Position
           iMax = fromIntegral $ ((sampleMax - 1) `div` 512) + 1 :: Position
 
-instance BalancedParens Poppy512S where
+instance OpenAt Poppy512S where
   openAt      = openAt      . poppy512SBits
+  {-# INLINE openAt      #-}
+
+instance CloseAt Poppy512S where
   closeAt     = closeAt     . poppy512SBits
+  {-# INLINE closeAt     #-}
+
+instance BalancedParens Poppy512S where
   -- findOpenN   = findOpenN   . poppy512SBits
   findCloseN  = findCloseN  . poppy512SBits
-  {-# INLINABLE openAt      #-}
-  {-# INLINABLE closeAt     #-}
-  -- {-# INLINABLE findOpenN   #-}
-  {-# INLINABLE findCloseN  #-}
+  -- {-# INLINE findOpenN   #-}
+  {-# INLINE findCloseN  #-}

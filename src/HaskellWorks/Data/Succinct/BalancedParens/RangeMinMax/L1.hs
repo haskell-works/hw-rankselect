@@ -77,11 +77,6 @@ instance BitLength RangeMinMaxL1 where
   bitLength = bitLength . rangeMinMaxBP
   {-# INLINE bitLength #-}
 
-resultToMaybe :: RangeMinMaxResult a -> Maybe a
-resultToMaybe Fail          = Nothing
-resultToMaybe NoSkip        = Nothing
-resultToMaybe (Progress a)  = Just a
-
 findCloseN' :: RangeMinMaxL1 -> Int -> Count -> RangeMinMaxResult Count
 findCloseN' v s p = if v `closeAt` p
   then if s <= 1
@@ -129,13 +124,17 @@ rangeMinMaxFindCloseNL1 v s p =
         excesses              = rangeMinMaxL1Excess v
 {-# INLINE rangeMinMaxFindCloseNL1 #-}
 
-instance BalancedParens RangeMinMaxL1 where
+instance OpenAt RangeMinMaxL1 where
   openAt            = openAt      . rangeMinMaxBP
+  {-# INLINE openAt      #-}
+
+instance CloseAt RangeMinMaxL1 where
   closeAt           = closeAt     . rangeMinMaxBP
+  {-# INLINE closeAt     #-}
+
+instance BalancedParens RangeMinMaxL1 where
   -- findOpenN         = findOpenN   . rangeMinMaxBP
   findCloseN v s p  = resultToMaybe (rangeMinMaxFindCloseN v (fromIntegral s) p)
 
-  {-# INLINE openAt      #-}
-  {-# INLINE closeAt     #-}
   -- {-# INLINE findOpenN   #-}
   {-# INLINE findCloseN  #-}

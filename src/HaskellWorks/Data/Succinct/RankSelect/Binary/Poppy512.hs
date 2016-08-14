@@ -38,7 +38,7 @@ makePoppy512 v = Poppy512
 
 instance BitLength Poppy512 where
   bitLength v = vLength (poppy512Bits v) * bitLength (poppy512Bits v !!! 0)
-  {-# INLINABLE bitLength #-}
+  {-# INLINE bitLength #-}
 
 instance TestBit Poppy512 where
   (.?.) = (.?.) . poppy512Bits
@@ -67,9 +67,15 @@ instance Select0 Poppy512 where
           s = Count (fromIntegral q * 512 - (i !!! q))
           wordAt o = fromIntegral o * 512 - (i !!! o)
 
+instance OpenAt Poppy512 where
+  openAt = openAt . poppy512Bits
+  {-# INLINE openAt #-}
+
+instance CloseAt Poppy512 where
+  closeAt = closeAt . poppy512Bits
+  {-# INLINE closeAt #-}
+
 instance BalancedParens Poppy512 where
-  openAt      = openAt      . poppy512Bits
-  closeAt     = closeAt     . poppy512Bits
   -- findOpenN   = findOpenN   . poppy512Bits
   findCloseN  = findCloseN  . poppy512Bits
   -- findOpen    = findOpen    . poppy512Bits
@@ -78,9 +84,9 @@ instance BalancedParens Poppy512 where
   firstChild  = firstChild  . poppy512Bits
   nextSibling = nextSibling . poppy512Bits
   -- parent      = parent      . poppy512Bits
-  -- {-# INLINABLE findOpen    #-}
-  {-# INLINABLE findClose   #-}
-  -- {-# INLINABLE enclose     #-}
-  {-# INLINABLE firstChild  #-}
-  {-# INLINABLE nextSibling #-}
-  -- {-# INLINABLE parent      #-}
+  -- {-# INLINE findOpen    #-}
+  {-# INLINE findClose   #-}
+  -- {-# INLINE enclose     #-}
+  {-# INLINE firstChild  #-}
+  {-# INLINE nextSibling #-}
+  -- {-# INLINE parent      #-}
