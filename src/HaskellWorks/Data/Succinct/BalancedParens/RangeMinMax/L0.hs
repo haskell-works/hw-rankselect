@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts   #-}
 {-# LANGUAGE FlexibleInstances  #-}
 {-# LANGUAGE InstanceSigs       #-}
+{-# LANGUAGE TypeFamilies       #-}
 
 module HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L0
   ( RangeMinMaxL0(..)
@@ -58,6 +59,11 @@ instance MkRangeMinMaxL0 RangeMinMaxSimple where
 instance MkRangeMinMaxL0 (DVS.Vector Word64) where
   mkRangeMinMaxL0 = mkRangeMinMaxL0 . mkRangeMinMaxSimple
   {-# INLINE mkRangeMinMaxL0 #-}
+
+instance RangeMinMaxDerived RangeMinMaxL0 where
+  type RangeMinMaxBase RangeMinMaxL0 = RangeMinMaxSimple
+  rmmBase = rangeMinMaxSimple
+  {-# INLINE rmmBase #-}
 
 instance TestBit RangeMinMaxL0 where
   (.?.) = (.?.) . rangeMinMaxSimple
