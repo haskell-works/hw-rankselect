@@ -4,6 +4,7 @@ module HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
   ( RangeMinMax(..)
   , RangeMinMaxDerived(..)
   , RangeMinMaxLevel(..)
+  , (<||>)
   ) where
 
 import           HaskellWorks.Data.Bits.BitLength
@@ -30,3 +31,8 @@ class (OpenAt v, CloseAt v, BitLength v) => RangeMinMax v where
     then rmmFindCloseDispatch v s p
     else Nothing
   {-# INLINE rmmFindClose #-}
+
+(<||>) :: Maybe a -> Maybe a -> Maybe a
+(<||>) ma mb = case ma of
+  Just _  -> ma
+  Nothing -> mb
