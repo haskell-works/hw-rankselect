@@ -41,8 +41,8 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec" $ do
     it "Test 1b" $ findClose bs  8 `shouldBe` Just  8
     it "Test 1b" $ findClose bs  9 `shouldBe` Just  9
     it "Test 1b" $ findClose bs 10 `shouldBe` Just 10
-    -- it "Test 2a" $ findOpen  bs 10 `shouldBe` Just  1
-    -- it "Test 2b" $ findOpen  bs  3 `shouldBe` Just  2
+    it "Test 2a" $ findOpen  bs 10 `shouldBe` Just  1
+    it "Test 2b" $ findOpen  bs  3 `shouldBe` Just  2
     it "Test 3a" $ enclose   bs  2 `shouldBe` Just  1
     it "Test 3b" $ enclose   bs  7 `shouldBe` Just  4
   describe "For (()(()())) 1101101000" $ do
@@ -57,8 +57,8 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec" $ do
     it "Test 1b" $ findClose bs  8 `shouldBe` Just  8
     it "Test 1b" $ findClose bs  9 `shouldBe` Just  9
     it "Test 1b" $ findClose bs 10 `shouldBe` Just 10
-    -- it "Test 2a" $ findOpen  bs 10 `shouldBe` Just  1
-    -- it "Test 2b" $ findOpen  bs  3 `shouldBe` Just  2
+    it "Test 2a" $ findOpen  bs 10 `shouldBe` Just  1
+    it "Test 2b" $ findOpen  bs  3 `shouldBe` Just  2
     it "Test 3a" $ enclose   bs  2 `shouldBe` Just  1
     it "Test 3b" $ enclose   bs  7 `shouldBe` Just  4
     it "firstChild 1"   $ firstChild  bs 1 `shouldBe` Just 2
@@ -99,8 +99,8 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec" $ do
     it "Test 1b" $ findClose bs  8 `shouldBe` Just  8
     it "Test 1b" $ findClose bs  9 `shouldBe` Just  9
     it "Test 1b" $ findClose bs 10 `shouldBe` Just 10
-    -- it "Test 2a" $ findOpen  bs 10 `shouldBe` Just  1
-    -- it "Test 2b" $ findOpen  bs  3 `shouldBe` Just  2
+    it "Test 2a" $ findOpen  bs 10 `shouldBe` Just  1
+    it "Test 2b" $ findOpen  bs  3 `shouldBe` Just  2
     it "Test 3a" $ enclose   bs  2 `shouldBe` Just  1
     it "Test 3b" $ enclose   bs  7 `shouldBe` Just  4
     it "firstChild 1"  $ firstChild  bs 1 `shouldBe` Just 2

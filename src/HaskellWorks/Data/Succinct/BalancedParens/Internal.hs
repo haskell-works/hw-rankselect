@@ -35,7 +35,7 @@ class (OpenAt v, CloseAt v) => BalancedParens v where
   parent      :: v -> Count -> Maybe Count
   findOpen    :: v -> Count -> Maybe Count
   findClose   :: v -> Count -> Maybe Count
-  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 1) (p - 1)
+  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
   findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
   firstChild  v p = if openAt v p && openAt v (p + 1)   then Just (p + 1) else Nothing
   nextSibling v p = if closeAt v p
