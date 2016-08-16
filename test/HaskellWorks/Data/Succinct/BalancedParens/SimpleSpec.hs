@@ -43,8 +43,8 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec" $ do
     it "Test 1b" $ findClose bs 10 `shouldBe` Just 10
     -- it "Test 2a" $ findOpen  bs 10 `shouldBe` Just  1
     -- it "Test 2b" $ findOpen  bs  3 `shouldBe` Just  2
-    -- it "Test 3a" $ enclose   bs  2 `shouldBe` Just  1
-    -- it "Test 3b" $ enclose   bs  7 `shouldBe` Just  4
+    it "Test 3a" $ enclose   bs  2 `shouldBe` Just  1
+    it "Test 3b" $ enclose   bs  7 `shouldBe` Just  4
   describe "For (()(()())) 1101101000" $ do
     let bs = SimpleBalancedParens (fromJust (bitRead "1101101000") :: [Bool])
     it "Test 1a" $ findClose bs  1 `shouldBe` Just 10
@@ -59,14 +59,14 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec" $ do
     it "Test 1b" $ findClose bs 10 `shouldBe` Just 10
     -- it "Test 2a" $ findOpen  bs 10 `shouldBe` Just  1
     -- it "Test 2b" $ findOpen  bs  3 `shouldBe` Just  2
-    -- it "Test 3a" $ enclose   bs  2 `shouldBe` Just  1
-    -- it "Test 3b" $ enclose   bs  7 `shouldBe` Just  4
+    it "Test 3a" $ enclose   bs  2 `shouldBe` Just  1
+    it "Test 3b" $ enclose   bs  7 `shouldBe` Just  4
     it "firstChild 1"   $ firstChild  bs 1 `shouldBe` Just 2
     it "firstChild 4"   $ firstChild  bs 4 `shouldBe` Just 5
     it "nextSibling 2"  $ nextSibling bs 2 `shouldBe` Just 4
     it "nextSibling 5"  $ nextSibling bs 5 `shouldBe` Just 7
-    -- it "parent 2" $ parent  bs  2 `shouldBe` Just 1
-    -- it "parent 5" $ parent  bs  5 `shouldBe` Just 4
+    it "parent 2" $ parent  bs  2 `shouldBe` Just 1
+    it "parent 5" $ parent  bs  5 `shouldBe` Just 4
     -- it "depth  1" $ depth   bs  1 `shouldBe` Just 1
     -- it "depth  2" $ depth   bs  2 `shouldBe` Just 2
     -- it "depth  3" $ depth   bs  3 `shouldBe` Just 2
@@ -101,14 +101,14 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec" $ do
     it "Test 1b" $ findClose bs 10 `shouldBe` Just 10
     -- it "Test 2a" $ findOpen  bs 10 `shouldBe` Just  1
     -- it "Test 2b" $ findOpen  bs  3 `shouldBe` Just  2
-    -- it "Test 3a" $ enclose   bs  2 `shouldBe` Just  1
-    -- it "Test 3b" $ enclose   bs  7 `shouldBe` Just  4
+    it "Test 3a" $ enclose   bs  2 `shouldBe` Just  1
+    it "Test 3b" $ enclose   bs  7 `shouldBe` Just  4
     it "firstChild 1"  $ firstChild  bs 1 `shouldBe` Just 2
     it "firstChild 4"  $ firstChild  bs 4 `shouldBe` Just 5
     it "nextSibling 2" $ nextSibling bs 2 `shouldBe` Just 4
     it "nextSibling 5" $ nextSibling bs 5 `shouldBe` Just 7
-    -- it "parent 2" $ parent bs 2 `shouldBe` Just 1
-    -- it "parent 5" $ parent bs 5 `shouldBe` Just 4
+    it "parent 2" $ parent bs 2 `shouldBe` Just 1
+    it "parent 5" $ parent bs 5 `shouldBe` Just 4
     -- it "depth  1" $ depth bs  1 `shouldBe` Just 1
     -- it "depth  2" $ depth bs  2 `shouldBe` Just 2
     -- it "depth  3" $ depth bs  3 `shouldBe` Just 2

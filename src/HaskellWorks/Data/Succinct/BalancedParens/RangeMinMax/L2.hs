@@ -116,8 +116,8 @@ instance NewCloseAt RangeMinMaxL2 where
   {-# INLINE newCloseAt #-}
 
 instance BalancedParens RangeMinMaxL2 where
-  -- findOpenN         = findOpenN   . rangeMinMaxBP
-  findCloseN v s p = (+ 1) `fmap` rmmFindClose v (fromIntegral s) (p - 1)
+  findOpenN         = findOpenN . rangeMinMaxL2Base
+  findCloseN v s p  = (+ 1) `fmap` rmmFindClose v (fromIntegral s) (p - 1)
 
-  -- {-# INLINE findOpenN   #-}
+  {-# INLINE findOpenN   #-}
   {-# INLINE findCloseN  #-}

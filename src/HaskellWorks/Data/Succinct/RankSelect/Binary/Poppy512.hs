@@ -76,17 +76,17 @@ instance CloseAt Poppy512 where
   {-# INLINE closeAt #-}
 
 instance BalancedParens Poppy512 where
-  -- findOpenN   = findOpenN   . poppy512Bits
+  findOpenN   = findOpenN   . poppy512Bits
   findCloseN  = findCloseN  . poppy512Bits
-  -- findOpen    = findOpen    . poppy512Bits
+  findOpen    = findOpen    . poppy512Bits
   findClose   = findClose   . poppy512Bits
-  -- enclose     = enclose     . poppy512Bits
+  enclose     = enclose     . poppy512Bits
   firstChild  = firstChild  . poppy512Bits
   nextSibling = nextSibling . poppy512Bits
-  -- parent      = parent      . poppy512Bits
-  -- {-# INLINE findOpen    #-}
+  parent      = parent      . poppy512Bits
+  {-# INLINE findOpen    #-}
   {-# INLINE findClose   #-}
-  -- {-# INLINE enclose     #-}
+  {-# INLINE enclose     #-}
   {-# INLINE firstChild  #-}
   {-# INLINE nextSibling #-}
-  -- {-# INLINE parent      #-}
+  {-# INLINE parent      #-}
