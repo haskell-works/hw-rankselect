@@ -4,7 +4,7 @@ module HaskellWorks.Data.Succinct.BalancedParens.Internal
   ( BalancedParens(..)
   , OpenAt(..)
   , CloseAt(..)
-  -- , depth
+  , depth
   , subtreeSize
   ) where
 
@@ -15,8 +15,8 @@ import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitShown
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Positioning
--- import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
--- import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
+import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
+import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 
 class OpenAt v where
   openAt      :: v -> Count -> Bool
@@ -46,15 +46,15 @@ class (OpenAt v, CloseAt v) => BalancedParens v where
         else Nothing))
   parent      v p = enclose   v p >>= (\r -> if r >= 1 then return r      else Nothing)
   enclose     v   = findOpenN v (Count 1)
-  -- {-# INLINE findOpen     #-}
+  {-# INLINE findOpen     #-}
   {-# INLINE findClose    #-}
   {-# INLINE firstChild   #-}
   {-# INLINE nextSibling  #-}
   {-# INLINE parent       #-}
   {-# INLINE enclose      #-}
 
--- depth :: (BalancedParens v, Rank0 v, Rank1 v) => v -> Count -> Maybe Count
--- depth v p = (\q -> rank1 v q - rank0 v q) <$> findOpen v p
+depth :: (BalancedParens v, Rank0 v, Rank1 v) => v -> Count -> Maybe Count
+depth v p = (\q -> rank1 v q - rank0 v q) <$> findOpen v p
 
 subtreeSize :: BalancedParens v => v -> Count -> Maybe Count
 subtreeSize v p = (\q -> (q - p + 1) `quot` 2) <$> findClose v p

@@ -67,16 +67,16 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec" $ do
     it "nextSibling 5"  $ nextSibling bs 5 `shouldBe` Just 7
     it "parent 2" $ parent  bs  2 `shouldBe` Just 1
     it "parent 5" $ parent  bs  5 `shouldBe` Just 4
-    -- it "depth  1" $ depth   bs  1 `shouldBe` Just 1
-    -- it "depth  2" $ depth   bs  2 `shouldBe` Just 2
-    -- it "depth  3" $ depth   bs  3 `shouldBe` Just 2
-    -- it "depth  4" $ depth   bs  4 `shouldBe` Just 2
-    -- it "depth  5" $ depth   bs  5 `shouldBe` Just 3
-    -- it "depth  6" $ depth   bs  6 `shouldBe` Just 3
-    -- it "depth  7" $ depth   bs  7 `shouldBe` Just 3
-    -- it "depth  8" $ depth   bs  8 `shouldBe` Just 3
-    -- it "depth  9" $ depth   bs  9 `shouldBe` Just 2
-    -- it "depth 10" $ depth   bs 10 `shouldBe` Just 1
+    it "depth  1" $ depth   bs  1 `shouldBe` Just 1
+    it "depth  2" $ depth   bs  2 `shouldBe` Just 2
+    it "depth  3" $ depth   bs  3 `shouldBe` Just 2
+    it "depth  4" $ depth   bs  4 `shouldBe` Just 2
+    it "depth  5" $ depth   bs  5 `shouldBe` Just 3
+    it "depth  6" $ depth   bs  6 `shouldBe` Just 3
+    it "depth  7" $ depth   bs  7 `shouldBe` Just 3
+    it "depth  8" $ depth   bs  8 `shouldBe` Just 3
+    it "depth  9" $ depth   bs  9 `shouldBe` Just 2
+    it "depth 10" $ depth   bs 10 `shouldBe` Just 1
     it "subtreeSize  1" $ subtreeSize bs  1 `shouldBe` Just 5
     it "subtreeSize  2" $ subtreeSize bs  2 `shouldBe` Just 1
     it "subtreeSize  3" $ subtreeSize bs  3 `shouldBe` Just 0
@@ -109,16 +109,16 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec" $ do
     it "nextSibling 5" $ nextSibling bs 5 `shouldBe` Just 7
     it "parent 2" $ parent bs 2 `shouldBe` Just 1
     it "parent 5" $ parent bs 5 `shouldBe` Just 4
-    -- it "depth  1" $ depth bs  1 `shouldBe` Just 1
-    -- it "depth  2" $ depth bs  2 `shouldBe` Just 2
-    -- it "depth  3" $ depth bs  3 `shouldBe` Just 2
-    -- it "depth  4" $ depth bs  4 `shouldBe` Just 2
-    -- it "depth  5" $ depth bs  5 `shouldBe` Just 3
-    -- it "depth  6" $ depth bs  6 `shouldBe` Just 3
-    -- it "depth  7" $ depth bs  7 `shouldBe` Just 3
-    -- it "depth  8" $ depth bs  8 `shouldBe` Just 3
-    -- it "depth  9" $ depth bs  9 `shouldBe` Just 2
-    -- it "depth 10" $ depth bs 10 `shouldBe` Just 1
+    it "depth  1" $ depth bs  1 `shouldBe` Just 1
+    it "depth  2" $ depth bs  2 `shouldBe` Just 2
+    it "depth  3" $ depth bs  3 `shouldBe` Just 2
+    it "depth  4" $ depth bs  4 `shouldBe` Just 2
+    it "depth  5" $ depth bs  5 `shouldBe` Just 3
+    it "depth  6" $ depth bs  6 `shouldBe` Just 3
+    it "depth  7" $ depth bs  7 `shouldBe` Just 3
+    it "depth  8" $ depth bs  8 `shouldBe` Just 3
+    it "depth  9" $ depth bs  9 `shouldBe` Just 2
+    it "depth 10" $ depth bs 10 `shouldBe` Just 1
     it "subtreeSize  1" $ subtreeSize bs  1 `shouldBe` Just 5
     it "subtreeSize  2" $ subtreeSize bs  2 `shouldBe` Just 1
     it "subtreeSize  3" $ subtreeSize bs  3 `shouldBe` Just 0
