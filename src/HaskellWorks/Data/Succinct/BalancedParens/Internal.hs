@@ -2,6 +2,8 @@
 
 module HaskellWorks.Data.Succinct.BalancedParens.Internal
   ( BalancedParens(..)
+  , FindOpenN(..)
+  , FindCloseN(..)
   , OpenAt(..)
   , CloseAt(..)
   , depth
@@ -24,19 +26,20 @@ class OpenAt v where
 class CloseAt v where
   closeAt     :: v -> Count -> Bool
 
+class FindOpenN v where
+  findOpenN :: v -> Count -> Count -> Maybe Count
+
+class FindCloseN v where
+  findCloseN :: v -> Count -> Count -> Maybe Count
+
 class (OpenAt v, CloseAt v) => BalancedParens v where
   -- TODO Second argument should be Int
-  findOpenN   :: v -> Count -> Count -> Maybe Count
-  findCloseN  :: v -> Count -> Count -> Maybe Count
-
   enclose     :: v -> Count -> Maybe Count
   firstChild  :: v -> Count -> Maybe Count
   nextSibling :: v -> Count -> Maybe Count
   parent      :: v -> Count -> Maybe Count
   findOpen    :: v -> Count -> Maybe Count
   findClose   :: v -> Count -> Maybe Count
-  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
-  findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
   firstChild  v p = if openAt v p && openAt v (p + 1)   then Just (p + 1) else Nothing
   nextSibling v p = if closeAt v p
     then Nothing
@@ -45,13 +48,9 @@ class (OpenAt v, CloseAt v) => BalancedParens v where
         then return (q + 1)
         else Nothing))
   parent      v p = enclose   v p >>= (\r -> if r >= 1 then return r      else Nothing)
-  enclose     v   = findOpenN v (Count 1)
-  {-# INLINE findOpen     #-}
-  {-# INLINE findClose    #-}
   {-# INLINE firstChild   #-}
   {-# INLINE nextSibling  #-}
   {-# INLINE parent       #-}
-  {-# INLINE enclose      #-}
 
 depth :: (BalancedParens v, Rank0 v, Rank1 v) => v -> Count -> Maybe Count
 depth v p = (\q -> rank1 v q - rank0 v q) <$> findOpen v p
@@ -97,11 +96,21 @@ instance (BitLength a, TestBit a) => CloseAt (BitShown a) where
   closeAt = closeAt' . bitShown
   {-# INLINE closeAt     #-}
 
-instance (BalancedParens a, TestBit a, BitLength a) => BalancedParens (BitShown a) where
-  findOpenN  = findOpen'   . bitShown
-  findCloseN = findClose'  . bitShown
+instance (BalancedParens a, TestBit a, BitLength a) => FindOpenN (BitShown a) where
+  findOpenN  = findOpen' . bitShown
   {-# INLINE findOpenN   #-}
+
+instance (BalancedParens a, TestBit a, BitLength a) => FindCloseN (BitShown a) where
+  findCloseN = findClose' . bitShown
   {-# INLINE findCloseN  #-}
+
+instance (BalancedParens a, TestBit a, BitLength a) => BalancedParens (BitShown a) where
+  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
+  findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  enclose     v   = findOpenN v (Count 1)
+  {-# INLINE findOpen     #-}
+  {-# INLINE findClose    #-}
+  {-# INLINE enclose      #-}
 
 instance OpenAt [Bool] where
   openAt = openAt'
@@ -111,11 +120,21 @@ instance CloseAt [Bool] where
   closeAt = closeAt'
   {-# INLINE closeAt     #-}
 
-instance BalancedParens [Bool] where
-  findOpenN       = findOpen'
-  findCloseN      = findClose'
+instance FindOpenN [Bool] where
+  findOpenN = findOpen'
   {-# INLINE findOpenN   #-}
+
+instance FindCloseN [Bool] where
+  findCloseN = findClose'
   {-# INLINE findCloseN  #-}
+
+instance BalancedParens [Bool] where
+  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
+  findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  enclose     v   = findOpenN v (Count 1)
+  {-# INLINE findOpen     #-}
+  {-# INLINE findClose    #-}
+  {-# INLINE enclose      #-}
 
 instance OpenAt (DVS.Vector Word8) where
   openAt = openAt'
@@ -125,11 +144,21 @@ instance CloseAt (DVS.Vector Word8) where
   closeAt = closeAt'
   {-# INLINE closeAt     #-}
 
-instance BalancedParens (DVS.Vector Word8) where
+instance FindOpenN (DVS.Vector Word8) where
   findOpenN       = findOpen'
-  findCloseN      = findClose'
   {-# INLINE findOpenN   #-}
+
+instance FindCloseN (DVS.Vector Word8) where
+  findCloseN      = findClose'
   {-# INLINE findCloseN  #-}
+
+instance BalancedParens (DVS.Vector Word8) where
+  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
+  findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  enclose     v   = findOpenN v (Count 1)
+  {-# INLINE findOpen     #-}
+  {-# INLINE findClose    #-}
+  {-# INLINE enclose      #-}
 
 instance OpenAt (DVS.Vector Word16) where
   openAt = openAt'
@@ -139,11 +168,21 @@ instance CloseAt (DVS.Vector Word16) where
   closeAt = closeAt'
   {-# INLINE closeAt     #-}
 
-instance BalancedParens (DVS.Vector Word16) where
+instance FindOpenN (DVS.Vector Word16) where
   findOpenN       = findOpen'
-  findCloseN      = findClose'
   {-# INLINE findOpenN   #-}
+
+instance FindCloseN (DVS.Vector Word16) where
+  findCloseN      = findClose'
   {-# INLINE findCloseN  #-}
+
+instance BalancedParens (DVS.Vector Word16) where
+  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
+  findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  enclose     v   = findOpenN v (Count 1)
+  {-# INLINE findOpen     #-}
+  {-# INLINE findClose    #-}
+  {-# INLINE enclose      #-}
 
 instance OpenAt (DVS.Vector Word32) where
   openAt = openAt'
@@ -153,11 +192,21 @@ instance CloseAt (DVS.Vector Word32) where
   closeAt = closeAt'
   {-# INLINE closeAt     #-}
 
-instance BalancedParens (DVS.Vector Word32) where
+instance FindOpenN (DVS.Vector Word32) where
   findOpenN       = findOpen'
-  findCloseN      = findClose'
   {-# INLINE findOpenN   #-}
+
+instance FindCloseN (DVS.Vector Word32) where
+  findCloseN      = findClose'
   {-# INLINE findCloseN  #-}
+
+instance BalancedParens (DVS.Vector Word32) where
+  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
+  findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  enclose     v   = findOpenN v (Count 1)
+  {-# INLINE findOpen     #-}
+  {-# INLINE findClose    #-}
+  {-# INLINE enclose      #-}
 
 instance OpenAt (DVS.Vector Word64) where
   openAt = openAt'
@@ -167,11 +216,21 @@ instance CloseAt (DVS.Vector Word64) where
   closeAt = closeAt'
   {-# INLINE closeAt     #-}
 
-instance BalancedParens (DVS.Vector Word64) where
+instance FindOpenN (DVS.Vector Word64) where
   findOpenN       = findOpen'
-  findCloseN      = findClose'
   {-# INLINE findOpenN   #-}
+
+instance FindCloseN (DVS.Vector Word64) where
+  findCloseN      = findClose'
   {-# INLINE findCloseN  #-}
+
+instance BalancedParens (DVS.Vector Word64) where
+  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
+  findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  enclose     v   = findOpenN v (Count 1)
+  {-# INLINE findOpen     #-}
+  {-# INLINE findClose    #-}
+  {-# INLINE enclose      #-}
 
 instance OpenAt Word8 where
   openAt = openAt'
@@ -181,11 +240,21 @@ instance CloseAt Word8 where
   closeAt = closeAt'
   {-# INLINE closeAt     #-}
 
-instance BalancedParens Word8 where
+instance FindOpenN Word8 where
   findOpenN       = findOpen'
-  findCloseN      = findClose'
   {-# INLINE findOpenN   #-}
+
+instance FindCloseN Word8 where
+  findCloseN      = findClose'
   {-# INLINE findCloseN  #-}
+
+instance BalancedParens Word8 where
+  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
+  findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  enclose     v   = findOpenN v (Count 1)
+  {-# INLINE findOpen     #-}
+  {-# INLINE findClose    #-}
+  {-# INLINE enclose      #-}
 
 instance OpenAt Word16 where
   openAt = openAt'
@@ -195,11 +264,21 @@ instance CloseAt Word16 where
   closeAt = closeAt'
   {-# INLINE closeAt     #-}
 
-instance BalancedParens Word16 where
+instance FindOpenN Word16 where
   findOpenN       = findOpen'
-  findCloseN      = findClose'
   {-# INLINE findOpenN   #-}
+
+instance FindCloseN Word16 where
+  findCloseN      = findClose'
   {-# INLINE findCloseN  #-}
+
+instance BalancedParens Word16 where
+  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
+  findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  enclose     v   = findOpenN v (Count 1)
+  {-# INLINE findOpen     #-}
+  {-# INLINE findClose    #-}
+  {-# INLINE enclose      #-}
 
 instance OpenAt Word32 where
   openAt = openAt'
@@ -209,11 +288,21 @@ instance CloseAt Word32 where
   closeAt = closeAt'
   {-# INLINE closeAt     #-}
 
-instance BalancedParens Word32 where
+instance FindOpenN Word32 where
   findOpenN       = findOpen'
-  findCloseN      = findClose'
   {-# INLINE findOpenN   #-}
+
+instance FindCloseN Word32 where
+  findCloseN      = findClose'
   {-# INLINE findCloseN  #-}
+
+instance BalancedParens Word32 where
+  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
+  findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  enclose     v   = findOpenN v (Count 1)
+  {-# INLINE findOpen     #-}
+  {-# INLINE findClose    #-}
+  {-# INLINE enclose      #-}
 
 instance OpenAt Word64 where
   openAt = openAt'
@@ -223,8 +312,18 @@ instance CloseAt Word64 where
   closeAt = closeAt'
   {-# INLINE closeAt     #-}
 
+instance FindOpenN Word64 where
+  findOpenN = findOpen'
+  {-# INLINE findOpenN #-}
+
+instance FindCloseN Word64 where
+  findCloseN = findClose'
+  {-# INLINE findCloseN #-}
+
 instance BalancedParens Word64 where
-  findOpenN       = findOpen'
-  findCloseN      = findClose'
-  {-# INLINE findOpenN   #-}
-  {-# INLINE findCloseN  #-}
+  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
+  findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  enclose     v   = findOpenN v (Count 1)
+  {-# INLINE findOpen     #-}
+  {-# INLINE findClose    #-}
+  {-# INLINE enclose      #-}

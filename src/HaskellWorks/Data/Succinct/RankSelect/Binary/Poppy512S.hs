@@ -20,9 +20,9 @@ import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
 import           HaskellWorks.Data.Vector.VectorLike
 
 data Poppy512S = Poppy512S
-  { poppy512SBits     :: DVS.Vector Word64
-  , poppy512Index :: DVS.Vector Word64
-  , poppy512Samples  :: DVS.Vector Word64 -- Sampling position of each 8192 1-bit
+  { poppy512SBits   :: DVS.Vector Word64
+  , poppy512Index   :: DVS.Vector Word64
+  , poppy512Samples :: DVS.Vector Word64 -- Sampling position of each 8192 1-bit
   } deriving (Eq, Show)
 
 popCount1Range :: (DVS.Storable a, PopCount1 a) => Int -> Int -> DVS.Vector a -> Count
@@ -89,15 +89,13 @@ instance Select1 Poppy512S where
           iMax = fromIntegral $ ((sampleMax - 1) `div` 512) + 1 :: Position
 
 instance OpenAt Poppy512S where
-  openAt      = openAt      . poppy512SBits
-  {-# INLINE openAt      #-}
+  openAt = openAt . poppy512SBits
+  {-# INLINE openAt #-}
 
 instance CloseAt Poppy512S where
-  closeAt     = closeAt     . poppy512SBits
-  {-# INLINE closeAt     #-}
+  closeAt = closeAt . poppy512SBits
+  {-# INLINE closeAt #-}
 
-instance BalancedParens Poppy512S where
-  findOpenN   = findOpenN   . poppy512SBits
-  findCloseN  = findCloseN  . poppy512SBits
-  {-# INLINE findOpenN   #-}
-  {-# INLINE findCloseN  #-}
+instance FindOpenN Poppy512S where
+  findOpenN = findOpenN . poppy512SBits
+  {-# INLINE findOpenN #-}

@@ -14,6 +14,7 @@ import qualified Data.Vector.Storable                                     as DVS
 import           Data.Word
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitWise
+import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
 import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
@@ -114,9 +115,18 @@ instance NewCloseAt RangeMinMaxL1 where
   newCloseAt = newCloseAt . rangeMinMaxL1Base
   {-# INLINE newCloseAt #-}
 
-instance BalancedParens RangeMinMaxL1 where
-  findOpenN         = findOpenN . rangeMinMaxL1Base
-  findCloseN v s p  = (+ 1) `fmap` rmmFindClose v (fromIntegral s) (p - 1)
-
+instance FindOpenN RangeMinMaxL1 where
+  findOpenN = findOpenN . rangeMinMaxL1Base
   {-# INLINE findOpenN   #-}
+
+instance FindCloseN RangeMinMaxL1 where
+  findCloseN v s p = (+ 1) `fmap` rmmFindClose v (fromIntegral s) (p - 1)
   {-# INLINE findCloseN  #-}
+
+instance BalancedParens RangeMinMaxL1 where
+  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
+  findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  enclose     v   = findOpenN v (Count 1)
+  {-# INLINE findOpen     #-}
+  {-# INLINE findClose    #-}
+  {-# INLINE enclose      #-}
