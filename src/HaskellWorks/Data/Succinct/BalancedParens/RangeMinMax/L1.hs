@@ -123,10 +123,16 @@ instance FindCloseN RangeMinMaxL1 where
   findCloseN v s p = (+ 1) `fmap` rmmFindClose v (fromIntegral s) (p - 1)
   {-# INLINE findCloseN  #-}
 
-instance BalancedParens RangeMinMaxL1 where
-  findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
-  findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
-  enclose     v   = findOpenN v (Count 1)
-  {-# INLINE findOpen     #-}
-  {-# INLINE findClose    #-}
-  {-# INLINE enclose      #-}
+instance FindOpen RangeMinMaxL1 where
+  findOpen v p = if v `openAt` p then Just p else findOpenN  v (Count 0) (p - 1)
+  {-# INLINE findOpen #-}
+
+instance FindClose RangeMinMaxL1 where
+  findClose v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  {-# INLINE findClose #-}
+
+instance Enclose RangeMinMaxL1 where
+  enclose v = findOpenN v (Count 1)
+  {-# INLINE enclose #-}
+
+instance BalancedParens RangeMinMaxL1

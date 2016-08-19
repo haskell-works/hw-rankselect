@@ -57,5 +57,9 @@ instance CloseAt (Fast Word64) where
   {-# INLINE closeAt #-}
 
 -- instance BalancedParens (Fast Word64) where
---   findOpenN   :: v -> Count -> Count -> Maybe Count
---   findCloseN  :: v -> Count -> Count -> Maybe Count
+--   findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
+--   findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+--   enclose     v   = findOpenN v (Count 1)
+--   {-# INLINE findOpen     #-}
+--   {-# INLINE findClose    #-}
+--   {-# INLINE enclose      #-}

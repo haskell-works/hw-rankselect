@@ -17,7 +17,7 @@ import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
 import           Prelude                                                    as P
 
 newtype SimpleBalancedParens a = SimpleBalancedParens a
-  deriving (BalancedParens, OpenAt, CloseAt, BitLength, BitShow, Eq, Rank0, Rank1, Select0, Select1, TestBit)
+  deriving (BalancedParens, FindOpen, FindClose, Enclose, OpenAt, CloseAt, BitLength, BitShow, Eq, Rank0, Rank1, Select0, Select1, TestBit)
 
 instance Functor SimpleBalancedParens where
   fmap f (SimpleBalancedParens a) = SimpleBalancedParens (f a)
