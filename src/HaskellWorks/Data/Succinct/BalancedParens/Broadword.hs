@@ -1,4 +1,7 @@
 {-# LANGUAGE BangPatterns          #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE InstanceSigs          #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 
 module HaskellWorks.Data.Succinct.BalancedParens.Broadword
@@ -10,6 +13,13 @@ import           Data.Word
 -- import           HaskellWorks.Data.Bits.BitShown
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.Broadword
+import           HaskellWorks.Data.Positioning
+import           HaskellWorks.Data.Succinct.BalancedParens.Internal
+
+newtype Fast a = Fast a
+
+fast :: Fast Word64 -> Word64
+fast (Fast a) = a
 
 -- traceW :: String -> Word64 -> Word64
 -- traceW s w = trace (s ++ ": " ++ show (BitShown w) ++ " : " ++ show w) w
@@ -35,3 +45,17 @@ findCloseW64 x =
   let !p00 = lsb (z30 .>. 6 .&. l 8)                                                  in
   let !r00 = ((p00 + ((z30 .>. fromIntegral p00) .&. 0x3f)) .|. (p00 .>. 8)) .&. 0x7f in
   r00
+
+instance OpenAt (Fast Word64) where
+  openAt :: Fast Word64 -> Count -> Bool
+  openAt = openAt . fast
+  {-# INLINE openAt #-}
+
+instance CloseAt (Fast Word64) where
+  closeAt :: Fast Word64 -> Count -> Bool
+  closeAt = closeAt . fast
+  {-# INLINE closeAt #-}
+
+-- instance BalancedParens (Fast Word64) where
+--   findOpenN   :: v -> Count -> Count -> Maybe Count
+--   findCloseN  :: v -> Count -> Count -> Maybe Count
