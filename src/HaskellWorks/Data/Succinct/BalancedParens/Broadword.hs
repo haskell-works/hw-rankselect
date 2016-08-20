@@ -70,9 +70,12 @@ instance CloseAt (Fast Word64) where
   {-# INLINE closeAt #-}
 
 instance FindClose (Fast Word64) where
-  findClose (Fast w) p = case findCloseW64 (w .>. (p - 1)) of
-    127 -> Nothing
-    r   -> let r' = fromIntegral r + p in if r' > 64 then Nothing else Just r'
+  findClose (Fast w) p = let x = w .>. (p - 1) in
+    if x .&. 1 == 0
+      then Just p
+      else case findCloseW64 x of
+        127 -> Nothing
+        r   -> let r' = fromIntegral r + p in if r' > 64 then Nothing else Just r'
 
 -- instance BalancedParens (Fast Word64) where
 --   findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
