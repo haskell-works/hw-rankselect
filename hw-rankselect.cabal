@@ -109,6 +109,7 @@ benchmark bench
                       , bytestring
                       , conduit
                       , criterion
+                      , hw-bits                       >= 0.0.0.8
                       , hw-prim                       >= 0.0.3
                       , hw-rankselect
                       , mmap
