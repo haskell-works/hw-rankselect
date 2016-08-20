@@ -11,10 +11,11 @@ import           Data.Word
 -- import           HaskellWorks.Data.Bits.BitRead
 import           HaskellWorks.Data.Bits.BitShow
 import           HaskellWorks.Data.Bits.FromBitTextByteString
+import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.Broadword
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 import           Test.Hspec
--- import           Test.QuickCheck
+import           Test.QuickCheck
 
 {-# ANN module ("HLint: Ignore Redundant do"        :: String) #-}
 {-# ANN module ("HLint: Ignore Reduce duplication"  :: String) #-}
@@ -130,3 +131,7 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.BroadwordSpec" $ do
   --   it "when calling nextSibling from valid locations" $ do
   --     forAll (vectorSizedBetween 1 64) $ \(ShowVector v) -> do
   --       [nextSibling v p | p <- [1..bitLength v]] `shouldBe` [nextSibling v p | p <- [1..bitLength v]]
+  it "Broadword findClose should behave the same as Naive findClose" $ do
+    property $ \(w :: Word64) ->
+      forAll (choose (0, 64 :: Count)) $ \p ->
+        findClose w p == findClose (Fast w) p
