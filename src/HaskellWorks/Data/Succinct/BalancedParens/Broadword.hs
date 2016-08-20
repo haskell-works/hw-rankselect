@@ -8,6 +8,7 @@ module HaskellWorks.Data.Succinct.BalancedParens.Broadword
   ( Fast(..)
   , fast
   , findCloseW64
+  , kBitDiffPos
   ) where
 
 import           Data.Word
@@ -35,16 +36,22 @@ findCloseW64 x =                                                                
   let !b04 = kBitDiff 8 (h 8 .|. 0x4038302820181008) b03                              in let !_ = traceW "b04" b04 in
   let !u00 = (((((b04 .|. h 8) - l 8) .>. 7) .&. l 8) .|. h 8) - l 8                  in let !_ = traceW "u00" u00 in
   let !z00 =                         ((h 8 .>. 1) .|. (l 8 * 7)) .&. u00              in let !_ = traceW "z00" z00 in
-
-  let !b10 = b04 - (l 8 * 2 - ((x .>. 6 .&. l 8 .<. 1) + (x .>. 5 .&. l 8 .<. 1)))    in let !_ = traceW "b10" b10 in
+                                                                                         let !_ = trace "" False   in
+  let !c10 =            (((x .>. 6) .&. (l 8 .<. 1)) + ((x .>. 5) .&. (l 8 .<. 1)))   in let !_ = traceW "c10" c10 in
+  let !d10 = (l 8 * 2 - (((x .>. 6) .&. (l 8 .<. 1)) + ((x .>. 5) .&. (l 8 .<. 1))))  in let !_ = traceW "d10" d10 in
+  let !b10 = b04 - d10                                                                in let !_ = traceW "b10" b10 in
   let !u10 = (((((b10 .|. h 8) - l 8) .>. 7) .&. l 8) .|. h 8) - l 8                  in let !_ = traceW "u10" u10 in
   let !z10 = (z00 .&. comp u10) .|. (((h 8 .>. 1) .|. (l 8 * 5)) .&. u10)             in let !_ = traceW "z10" z10 in
-
-  let !b20 = b10 - (l 8 * 2 - ((x .>. 4 .&. l 8 .<. 1) + (x .>. 3 .&. l 8 .<. 1)))    in let !_ = traceW "b20" b20 in
+                                                                                         let !_ = trace "" False   in
+  let !c20 =            (((x .>. 4) .&. (l 8 .<. 1)) + ((x .>. 3) .&. (l 8 .<. 1)))   in let !_ = traceW "c20" c20 in
+  let !d20 = (l 8 * 2 - (((x .>. 4) .&. (l 8 .<. 1)) + ((x .>. 3) .&. (l 8 .<. 1))))  in let !_ = traceW "d20" d20 in
+  let !b20 = b10 - d20                                                                in let !_ = traceW "b20" b20 in
   let !u20 = (((((b20 .|. h 8) - l 8) .>. 7) .&. l 8) .|. h 8) - l 8                  in let !_ = traceW "u20" u20 in
   let !z20 = (z10 .&. comp u20) .|. (((h 8 .>. 1) .|. (l 8 * 3)) .&. u20)             in let !_ = traceW "z20" z20 in
-
-  let !b30 = b10 - (l 8 * 2 - ((x .>. 2 .&. l 8 .<. 1) + (x .>. 1 .&. l 8 .<. 1)))    in let !_ = traceW "b30" b30 in
+                                                                                         let !_ = trace "" False   in
+  let !c30 =            (((x .>. 2) .&. (l 8 .<. 1)) + ((x .>. 1) .&. (l 8 .<. 1)))   in let !_ = traceW "c30" c30 in
+  let !d30 = (l 8 * 2 - (((x .>. 2) .&. (l 8 .<. 1)) + ((x .>. 1) .&. (l 8 .<. 1))))  in let !_ = traceW "d30" d30 in
+  let !b30 = b20 - d30                                                                in let !_ = traceW "b30" b30 in
   let !u30 = (((((b30 .|. h 8) - l 8) .>. 7) .&. l 8) .|. h 8) - l 8                  in let !_ = traceW "u30" u30 in
   let !z30 = (z20 .&. comp u30) .|. (((h 8 .>. 1) .|.  l 8     ) .&. u30)             in let !_ = traceW "z30" z30 in
 
@@ -74,3 +81,7 @@ instance FindClose (Fast Word64) where
 --   {-# INLINE findOpen     #-}
 --   {-# INLINE findClose    #-}
 --   {-# INLINE enclose      #-}
+
+kBitDiffPos :: Int -> Word64 -> Word64 -> Word64
+kBitDiffPos k x y = let d = kBitDiff k x y in d .&. ((d .>. fromIntegral (k - 1)) - 1)
+{-# INLINE kBitDiffPos #-}

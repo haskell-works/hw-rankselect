@@ -4,17 +4,17 @@
 
 module HaskellWorks.Data.Succinct.BalancedParens.BroadwordSpec where
 
-import           Data.Maybe
+-- import           Data.Maybe
 import qualified Data.Vector.Storable                       as DVS
 import           Data.Word
-import           HaskellWorks.Data.Bits.BitLength
-import           HaskellWorks.Data.Bits.BitRead
+-- import           HaskellWorks.Data.Bits.BitLength
+-- import           HaskellWorks.Data.Bits.BitRead
 import           HaskellWorks.Data.Bits.BitShow
 import           HaskellWorks.Data.Bits.FromBitTextByteString
 import           HaskellWorks.Data.Succinct.BalancedParens.Broadword
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 import           Test.Hspec
-import           Test.QuickCheck
+-- import           Test.QuickCheck
 
 {-# ANN module ("HLint: Ignore Redundant do"        :: String) #-}
 {-# ANN module ("HLint: Ignore Reduce duplication"  :: String) #-}
