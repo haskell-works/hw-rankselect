@@ -19,7 +19,9 @@ import           Data.Word
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitShown
 import           HaskellWorks.Data.Bits.BitWise
+import           HaskellWorks.Data.Bits.Broadword
 import           HaskellWorks.Data.Positioning
+import           HaskellWorks.Data.Succinct.BalancedParens.Internal.Broadword
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 
@@ -391,3 +393,17 @@ instance Enclose Word64 where
   {-# INLINE enclose #-}
 
 instance BalancedParens Word64
+
+instance OpenAt (Broadword Word64) where
+  openAt = openAt . broadword
+  {-# INLINE openAt #-}
+
+instance CloseAt (Broadword Word64) where
+  closeAt = closeAt . broadword
+  {-# INLINE closeAt #-}
+
+instance FindClose (Broadword Word64) where
+  findClose (Broadword w) p = let x = w .>. (p - 1) in
+    case negate (x .&. 1) .&. findCloseW64 x of
+      127 -> Nothing
+      r   -> let r' = fromIntegral r + p in if r' > 64 then Nothing else Just r'

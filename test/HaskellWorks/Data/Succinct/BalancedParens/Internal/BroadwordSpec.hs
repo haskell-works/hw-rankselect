@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
 
-module HaskellWorks.Data.Succinct.BalancedParens.BroadwordSpec where
+module HaskellWorks.Data.Succinct.BalancedParens.Internal.BroadwordSpec where
 
 -- import           Data.Maybe
 import qualified Data.Vector.Storable                       as DVS
@@ -10,9 +10,9 @@ import           Data.Word
 -- import           HaskellWorks.Data.Bits.BitLength
 -- import           HaskellWorks.Data.Bits.BitRead
 import           HaskellWorks.Data.Bits.BitShow
+import           HaskellWorks.Data.Bits.Broadword
 import           HaskellWorks.Data.Bits.FromBitTextByteString
 import           HaskellWorks.Data.Positioning
-import           HaskellWorks.Data.Succinct.BalancedParens.Broadword
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 import           Test.Hspec
 import           Test.QuickCheck
@@ -28,7 +28,7 @@ instance BitShow a => Show (ShowVector a) where
 spec :: Spec
 spec = describe "HaskellWorks.Data.Succinct.BalancedParens.BroadwordSpec" $ do
   describe "For (()(()())) 1101101000" $ do
-    let bs = Fast (91 :: Word64)
+    let bs = Broadword (91 :: Word64)
     it "Test 1a" $ findClose bs  1 `shouldBe` Just 10
     it "Test 1b" $ findClose bs  2 `shouldBe` Just  3
     it "Test 1b" $ findClose bs  3 `shouldBe` Just  3
@@ -44,7 +44,7 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.BroadwordSpec" $ do
     -- it "Test 3a" $ enclose   bs  2 `shouldBe` Just  1
     -- it "Test 3b" $ enclose   bs  7 `shouldBe` Just  4
   -- describe "For (()(()())) 1101101000" $ do
-  --   let bs = Fast (fromJust (bitRead "1101101000") :: [Bool])
+  --   let bs = Broadword (fromJust (bitRead "1101101000") :: [Bool])
   --   it "Test 1a" $ findClose bs  1 `shouldBe` Just 10
   --   it "Test 1b" $ findClose bs  2 `shouldBe` Just  3
   --   it "Test 1b" $ findClose bs  3 `shouldBe` Just  3
@@ -86,7 +86,7 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.BroadwordSpec" $ do
     -- it "subtreeSize  9" $ subtreeSize bs  9 `shouldBe` Just 0
     -- it "subtreeSize 10" $ subtreeSize bs 10 `shouldBe` Just 0
   describe "For (()(()())) 11011010 00000000 :: DVS.Vector Word8" $ do
-    let bs = Fast (DVS.head (fromBitTextByteString "11011010 00000000") :: Word64)
+    let bs = Broadword (DVS.head (fromBitTextByteString "11011010 00000000") :: Word64)
     it "Test 1a" $ findClose bs  1 `shouldBe` Just 10
     it "Test 1b" $ findClose bs  2 `shouldBe` Just  3
     it "Test 1b" $ findClose bs  3 `shouldBe` Just  3
@@ -134,4 +134,4 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.BroadwordSpec" $ do
   it "Broadword findClose should behave the same as Naive findClose" $ do
     property $ \(w :: Word64) ->
       forAll (choose (0, 64 :: Count)) $ \p ->
-        findClose w p == findClose (Fast w) p
+        findClose w p == findClose (Broadword w) p

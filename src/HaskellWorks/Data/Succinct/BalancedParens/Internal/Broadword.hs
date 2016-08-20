@@ -4,10 +4,8 @@
 {-# LANGUAGE InstanceSigs          #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 
-module HaskellWorks.Data.Succinct.BalancedParens.Broadword
-  ( Fast(..)
-  , fast
-  , findCloseW64
+module HaskellWorks.Data.Succinct.BalancedParens.Internal.Broadword
+  ( findCloseW64
   , kBitDiffPos
   ) where
 
@@ -16,13 +14,6 @@ import           Debug.Trace
 import           HaskellWorks.Data.Bits.BitShown
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.Broadword
-import           HaskellWorks.Data.Positioning
-import           HaskellWorks.Data.Succinct.BalancedParens.Internal
-
-newtype Fast a = Fast a
-
-fast :: Fast Word64 -> Word64
-fast (Fast a) = a
 
 traceW :: String -> Word64 -> Word64
 traceW s w = trace (s ++ ": " ++ show (BitShown w) ++ " : " ++ show w) w
@@ -58,30 +49,6 @@ findCloseW64 x =                                                                
   let !p00 = lsb (z30 .>. 6 .&. l 8)                                                  in let !_ = traceW "p00" p00 in
   let !r00 = ((p00 + ((z30 .>. fromIntegral p00) .&. 0x3f)) .|. (p00 .>. 8)) .&. 0x7f in let !_ = traceW "r00" r00 in
   r00
-
-instance OpenAt (Fast Word64) where
-  openAt :: Fast Word64 -> Count -> Bool
-  openAt = openAt . fast
-  {-# INLINE openAt #-}
-
-instance CloseAt (Fast Word64) where
-  closeAt :: Fast Word64 -> Count -> Bool
-  closeAt = closeAt . fast
-  {-# INLINE closeAt #-}
-
-instance FindClose (Fast Word64) where
-  findClose (Fast w) p = let x = w .>. (p - 1) in
-    case negate (x .&. 1) .&. findCloseW64 x of
-      127 -> Nothing
-      r   -> let r' = fromIntegral r + p in if r' > 64 then Nothing else Just r'
-
--- instance BalancedParens (Fast Word64) where
---   findOpen    v p = if v `openAt`  p then Just p else findOpenN  v (Count 0) (p - 1)
---   findClose   v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
---   enclose     v   = findOpenN v (Count 1)
---   {-# INLINE findOpen     #-}
---   {-# INLINE findClose    #-}
---   {-# INLINE enclose      #-}
 
 kBitDiffPos :: Int -> Word64 -> Word64 -> Word64
 kBitDiffPos k x y = let d = kBitDiff k x y in d .&. ((d .>. fromIntegral (k - 1)) - 1)
