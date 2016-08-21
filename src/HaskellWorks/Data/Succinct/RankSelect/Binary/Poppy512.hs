@@ -15,6 +15,8 @@ import           HaskellWorks.Data.Bits.PopCount.PopCount1
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Search
 import           HaskellWorks.Data.Succinct.BalancedParens.CloseAt
+import           HaskellWorks.Data.Succinct.BalancedParens.FindCloseN
+import           HaskellWorks.Data.Succinct.BalancedParens.FindOpenN
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 import           HaskellWorks.Data.Succinct.BalancedParens.OpenAt
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0

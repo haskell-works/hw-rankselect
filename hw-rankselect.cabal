@@ -25,6 +25,8 @@ library
   hs-source-dirs:       src
   exposed-modules:      HaskellWorks.Data.Succinct.BalancedParens
                       , HaskellWorks.Data.Succinct.BalancedParens.CloseAt
+                      , HaskellWorks.Data.Succinct.BalancedParens.FindCloseN
+                      , HaskellWorks.Data.Succinct.BalancedParens.FindOpenN
                       , HaskellWorks.Data.Succinct.BalancedParens.Internal
                       , HaskellWorks.Data.Succinct.BalancedParens.Internal.Broadword
                       , HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt

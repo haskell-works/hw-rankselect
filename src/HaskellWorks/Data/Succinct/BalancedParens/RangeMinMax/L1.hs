@@ -16,6 +16,8 @@ import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.CloseAt
+import           HaskellWorks.Data.Succinct.BalancedParens.FindCloseN
+import           HaskellWorks.Data.Succinct.BalancedParens.FindOpenN
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal
 import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
 import           HaskellWorks.Data.Succinct.BalancedParens.OpenAt
