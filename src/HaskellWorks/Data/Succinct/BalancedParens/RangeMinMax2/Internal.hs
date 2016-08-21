@@ -86,9 +86,6 @@ instance FindCloseN RangeMinMax2 where
   findCloseN v s p  = (+ 1) `fmap` rmm2FindClose v (fromIntegral s) (p - 1)
   {-# INLINE findCloseN  #-}
 
-rmm2FindCloseDispatch :: RangeMinMax2 -> Int -> Count -> Maybe Count
-rmm2FindCloseDispatch = rmm2FindCloseN
-
 rmm2FindCloseN :: RangeMinMax2 -> Int -> Count -> Maybe Count
 rmm2FindCloseN v s p  = if v `newCloseAt` p
   then if s <= 1
@@ -98,6 +95,6 @@ rmm2FindCloseN v s p  = if v `newCloseAt` p
 
 rmm2FindClose  :: RangeMinMax2 -> Int -> Count -> Maybe Count
 rmm2FindClose v s p = if 0 <= p && p < bitLength v
-  then rmm2FindCloseDispatch v s p
+  then rmm2FindCloseN v s p
   else Nothing
 {-# INLINE rmm2FindClose #-}
