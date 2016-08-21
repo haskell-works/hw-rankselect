@@ -391,7 +391,7 @@ instance FindOpen Word64 where
   {-# INLINE findOpen #-}
 
 instance FindClose Word64 where
-  findClose v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  findClose = findClose . Broadword
   {-# INLINE findClose #-}
 
 instance Enclose Word64 where
