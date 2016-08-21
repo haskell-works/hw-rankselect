@@ -9,7 +9,7 @@ import           HaskellWorks.Data.Bits.Broadword
 import           HaskellWorks.Data.Bits.FromBitTextByteString
 import           HaskellWorks.Data.Naive
 import           HaskellWorks.Data.Positioning
-import           HaskellWorks.Data.Succinct.BalancedParens.Internal
+import           HaskellWorks.Data.Succinct.BalancedParens.FindClose
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic
 
 setupEnvVector :: Int -> IO (DVS.Vector Word64)

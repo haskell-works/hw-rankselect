@@ -13,7 +13,7 @@ import           HaskellWorks.Data.Bits.BitShow
 import           HaskellWorks.Data.Bits.Broadword
 import           HaskellWorks.Data.Bits.FromBitTextByteString
 import           HaskellWorks.Data.Positioning
-import           HaskellWorks.Data.Succinct.BalancedParens.Internal
+import           HaskellWorks.Data.Succinct.BalancedParens.FindClose
 import           Test.Hspec
 import           Test.QuickCheck
 
