@@ -7,8 +7,6 @@ module HaskellWorks.Data.Succinct.BalancedParens.Internal
   , FindClose(..)
   , FindOpenN(..)
   , FindCloseN(..)
-  , OpenAt(..)
-  , CloseAt(..)
   , depth
   , subtreeSize
   ) where
@@ -22,15 +20,11 @@ import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.Broadword
 import           HaskellWorks.Data.Naive
 import           HaskellWorks.Data.Positioning
+import           HaskellWorks.Data.Succinct.BalancedParens.CloseAt
 import           HaskellWorks.Data.Succinct.BalancedParens.Internal.Broadword
+import           HaskellWorks.Data.Succinct.BalancedParens.OpenAt
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
-
-class OpenAt v where
-  openAt      :: v -> Count -> Bool
-
-class CloseAt v where
-  closeAt     :: v -> Count -> Bool
 
 class FindOpenN v where
   findOpenN :: v -> Count -> Count -> Maybe Count
@@ -72,19 +66,11 @@ subtreeSize :: BalancedParens v => v -> Count -> Maybe Count
 subtreeSize v p = (\q -> (q - p + 1) `quot` 2) <$> findClose v p
 {-# INLINE subtreeSize #-}
 
-closeAt' :: TestBit a => a -> Count -> Bool
-closeAt' v c = not (v .?. toPosition (c - 1))
-{-# INLINE closeAt' #-}
-
-openAt' :: (BitLength a, TestBit a) => a -> Count -> Bool
-openAt' v c = (0 <= c && c < bitLength v) && (v .?. toPosition (c - 1))
-{-# INLINE openAt' #-}
-
 -----
 
-findOpen' :: (BitLength a, TestBit a) => a -> Count -> Count -> Maybe Count
+findOpen' :: (BitLength a, OpenAt a, TestBit a) => a -> Count -> Count -> Maybe Count
 findOpen' v c p = if 0 < p && p <= bitLength v
-  then if v `openAt'` p
+  then if v `openAt` p
     then if c == 0
       then Just p
       else findOpen' v (c - 1) (p - 1)
@@ -92,23 +78,15 @@ findOpen' v c p = if 0 < p && p <= bitLength v
   else Nothing
 {-# INLINE findOpen' #-}
 
-findClose' :: (BitLength a, TestBit a) => a -> Count -> Count -> Maybe Count
+findClose' :: (BitLength a, CloseAt a, TestBit a) => a -> Count -> Count -> Maybe Count
 findClose' v c p = if 0 < p && p <= bitLength v
-  then if v `closeAt'` p
+  then if v `closeAt` p
     then if c <= 1
       then Just p
       else findClose' v (c - 1) (p + 1)
     else findClose' v (c + 1) (p + 1)
   else Nothing
 {-# INLINE findClose' #-}
-
-instance (BitLength a, TestBit a) => OpenAt (BitShown a) where
-  openAt = openAt' . bitShown
-  {-# INLINE openAt #-}
-
-instance (BitLength a, TestBit a) => CloseAt (BitShown a) where
-  closeAt = closeAt' . bitShown
-  {-# INLINE closeAt #-}
 
 instance (BalancedParens a, TestBit a, BitLength a) => FindOpenN (BitShown a) where
   findOpenN  = findOpen' . bitShown
@@ -129,14 +107,6 @@ instance (FindClose a) => FindClose (BitShown a) where
 instance (Enclose a) => Enclose (BitShown a) where
   enclose = enclose . bitShown
   {-# INLINE enclose #-}
-
-instance OpenAt [Bool] where
-  openAt = openAt'
-  {-# INLINE openAt #-}
-
-instance CloseAt [Bool] where
-  closeAt = closeAt'
-  {-# INLINE closeAt #-}
 
 instance FindOpenN [Bool] where
   findOpenN = findOpen'
@@ -160,14 +130,6 @@ instance Enclose [Bool] where
 
 instance BalancedParens [Bool]
 
-instance OpenAt (DVS.Vector Word8) where
-  openAt = openAt'
-  {-# INLINE openAt #-}
-
-instance CloseAt (DVS.Vector Word8) where
-  closeAt = closeAt'
-  {-# INLINE closeAt #-}
-
 instance FindOpenN (DVS.Vector Word8) where
   findOpenN = findOpen'
   {-# INLINE findOpenN   #-}
@@ -189,14 +151,6 @@ instance Enclose (DVS.Vector Word8) where
   {-# INLINE enclose #-}
 
 instance BalancedParens (DVS.Vector Word8)
-
-instance OpenAt (DVS.Vector Word16) where
-  openAt = openAt'
-  {-# INLINE openAt #-}
-
-instance CloseAt (DVS.Vector Word16) where
-  closeAt = closeAt'
-  {-# INLINE closeAt #-}
 
 instance FindOpenN (DVS.Vector Word16) where
   findOpenN = findOpen'
@@ -220,14 +174,6 @@ instance Enclose (DVS.Vector Word16) where
 
 instance BalancedParens (DVS.Vector Word16)
 
-instance OpenAt (DVS.Vector Word32) where
-  openAt = openAt'
-  {-# INLINE openAt #-}
-
-instance CloseAt (DVS.Vector Word32) where
-  closeAt = closeAt'
-  {-# INLINE closeAt #-}
-
 instance FindOpenN (DVS.Vector Word32) where
   findOpenN = findOpen'
   {-# INLINE findOpenN #-}
@@ -249,14 +195,6 @@ instance Enclose (DVS.Vector Word32) where
   {-# INLINE enclose #-}
 
 instance BalancedParens (DVS.Vector Word32)
-
-instance OpenAt (DVS.Vector Word64) where
-  openAt = openAt'
-  {-# INLINE openAt #-}
-
-instance CloseAt (DVS.Vector Word64) where
-  closeAt = closeAt'
-  {-# INLINE closeAt #-}
 
 instance FindOpenN (DVS.Vector Word64) where
   findOpenN = findOpen'
@@ -280,14 +218,6 @@ instance Enclose (DVS.Vector Word64) where
 
 instance BalancedParens (DVS.Vector Word64)
 
-instance OpenAt Word8 where
-  openAt = openAt'
-  {-# INLINE openAt #-}
-
-instance CloseAt Word8 where
-  closeAt = closeAt'
-  {-# INLINE closeAt #-}
-
 instance FindOpenN Word8 where
   findOpenN = findOpen'
   {-# INLINE findOpenN #-}
@@ -309,14 +239,6 @@ instance Enclose Word8 where
   {-# INLINE enclose #-}
 
 instance BalancedParens Word8
-
-instance OpenAt Word16 where
-  openAt = openAt'
-  {-# INLINE openAt #-}
-
-instance CloseAt Word16 where
-  closeAt = closeAt'
-  {-# INLINE closeAt #-}
 
 instance FindOpenN Word16 where
   findOpenN = findOpen'
@@ -340,14 +262,6 @@ instance Enclose Word16 where
 
 instance BalancedParens Word16
 
-instance OpenAt Word32 where
-  openAt = openAt'
-  {-# INLINE openAt #-}
-
-instance CloseAt Word32 where
-  closeAt = closeAt'
-  {-# INLINE closeAt #-}
-
 instance FindOpenN Word32 where
   findOpenN = findOpen'
   {-# INLINE findOpenN   #-}
@@ -369,14 +283,6 @@ instance Enclose Word32 where
   {-# INLINE enclose #-}
 
 instance BalancedParens Word32
-
-instance OpenAt Word64 where
-  openAt = openAt'
-  {-# INLINE openAt #-}
-
-instance CloseAt Word64 where
-  closeAt = closeAt'
-  {-# INLINE closeAt     #-}
 
 instance FindOpenN Word64 where
   findOpenN = findOpen'
@@ -400,14 +306,6 @@ instance Enclose Word64 where
 
 instance BalancedParens Word64
 
-instance OpenAt (Naive Word64) where
-  openAt = openAt'
-  {-# INLINE openAt #-}
-
-instance CloseAt (Naive Word64) where
-  closeAt = closeAt'
-  {-# INLINE closeAt #-}
-
 instance FindOpenN (Naive Word64) where
   findOpenN = findOpen'
   {-# INLINE findOpenN #-}
@@ -429,14 +327,6 @@ instance Enclose (Naive Word64) where
   {-# INLINE enclose #-}
 
 instance BalancedParens (Naive Word64)
-
-instance OpenAt (Broadword Word64) where
-  openAt = openAt . broadword
-  {-# INLINE openAt #-}
-
-instance CloseAt (Broadword Word64) where
-  closeAt = closeAt . broadword
-  {-# INLINE closeAt #-}
 
 instance FindClose (Broadword Word64) where
   findClose (Broadword w) p = let x = w .>. (p - 1) in

@@ -9,7 +9,8 @@ module HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Internal
 
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Positioning
-import           HaskellWorks.Data.Succinct.BalancedParens.Internal
+import           HaskellWorks.Data.Succinct.BalancedParens.CloseAt
+import           HaskellWorks.Data.Succinct.BalancedParens.OpenAt
 
 class RangeMinMaxLevel v where
   rmmFactor   :: v -> Int
