@@ -133,5 +133,5 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.BroadwordSpec" $ do
   --       [nextSibling v p | p <- [1..bitLength v]] `shouldBe` [nextSibling v p | p <- [1..bitLength v]]
   it "Broadword findClose should behave the same as Naive findClose" $ do
     property $ \(w :: Word64) ->
-      forAll (choose (0, 64 :: Count)) $ \p ->
+      forAll (choose (1, 64 :: Count)) $ \p ->
         findClose w p == findClose (Broadword w) p
