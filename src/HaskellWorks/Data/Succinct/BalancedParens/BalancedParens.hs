@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module HaskellWorks.Data.Succinct.BalancedParens.Internal
+module HaskellWorks.Data.Succinct.BalancedParens.BalancedParens
   ( BalancedParens(..)
   , depth
   , subtreeSize

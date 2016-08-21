@@ -4,7 +4,7 @@
 {-# LANGUAGE InstanceSigs          #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 
-module HaskellWorks.Data.Succinct.BalancedParens.Internal.Broadword
+module HaskellWorks.Data.Succinct.BalancedParens.Broadword
   ( findCloseW64
   ) where
 

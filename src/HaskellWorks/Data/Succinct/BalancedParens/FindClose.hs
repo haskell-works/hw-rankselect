@@ -11,9 +11,9 @@ import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.Broadword
 import           HaskellWorks.Data.Naive
 import           HaskellWorks.Data.Positioning
+import           HaskellWorks.Data.Succinct.BalancedParens.Broadword
 import           HaskellWorks.Data.Succinct.BalancedParens.CloseAt
 import           HaskellWorks.Data.Succinct.BalancedParens.FindCloseN
-import           HaskellWorks.Data.Succinct.BalancedParens.Internal.Broadword
 
 class FindClose v where
   findClose   :: v -> Count -> Maybe Count
