@@ -42,6 +42,12 @@ library
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L2
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L3
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.Simple
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2.Internal
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2.L0
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2.L1
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2.L2
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2.L3
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2.Simple
                       , HaskellWorks.Data.Succinct.BalancedParens.Simple
                       , HaskellWorks.Data.Succinct.Excess
                       , HaskellWorks.Data.Succinct.Excess.Excess0
@@ -78,6 +84,10 @@ test-suite hw-rankselect-test
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L1Spec
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L2Spec
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax.L3Spec
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2.L0Spec
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2.L1Spec
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2.L2Spec
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2.L3Spec
                       , HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec
                       , HaskellWorks.Data.Succinct.Excess.MinMaxExcess0Spec
                       , HaskellWorks.Data.Succinct.Excess.MinMaxExcess1Spec
