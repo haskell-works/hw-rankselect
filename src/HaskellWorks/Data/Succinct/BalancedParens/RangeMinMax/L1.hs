@@ -63,9 +63,11 @@ instance MkRangeMinMaxL1 RangeMinMaxL0 where
             , rangeMinMaxL1Max      = DVS.constructN lenL1 (\v -> let (_, _, maxE) = allMinMaxL1 DV.! DVS.length v in fromIntegral maxE)
             , rangeMinMaxL1Excess   = rangeMinMaxL1ExcessA
             }
+  {-# INLINE mkRangeMinMaxL1 #-}
 
 instance MkRangeMinMaxL1 RangeMinMaxSimple where
   mkRangeMinMaxL1 = mkRangeMinMaxL1 . mkRangeMinMaxL0
+  {-# INLINE mkRangeMinMaxL1 #-}
 
 instance MkRangeMinMaxL1 (DVS.Vector Word64) where
   mkRangeMinMaxL1 = mkRangeMinMaxL1 . mkRangeMinMaxSimple
@@ -124,11 +126,11 @@ instance NewCloseAt RangeMinMaxL1 where
 
 instance FindOpenN RangeMinMaxL1 where
   findOpenN = findOpenN . rangeMinMaxL1Base
-  {-# INLINE findOpenN   #-}
+  {-# INLINE findOpenN #-}
 
 instance FindCloseN RangeMinMaxL1 where
   findCloseN v s p = (+ 1) `fmap` rmmFindClose v (fromIntegral s) (p - 1)
-  {-# INLINE findCloseN  #-}
+  {-# INLINE findCloseN #-}
 
 instance FindOpen RangeMinMaxL1 where
   findOpen v p = if v `openAt` p then Just p else findOpenN  v (Count 0) (p - 1)

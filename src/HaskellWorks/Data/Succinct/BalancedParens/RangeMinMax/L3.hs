@@ -65,9 +65,11 @@ instance MkRangeMinMaxL3 RangeMinMaxL2 where
             , rangeMinMaxL3Max      = DVS.constructN lenL3 (\v -> let (_, _, maxE) = allMinMaxL3 DV.! DVS.length v in fromIntegral maxE)
             , rangeMinMaxL3Excess   = rangeMinMaxL3ExcessA
             }
+  {-# INLINE mkRangeMinMaxL3 #-}
 
 instance MkRangeMinMaxL3 RangeMinMaxSimple where
   mkRangeMinMaxL3 = mkRangeMinMaxL3 . mkRangeMinMaxL2
+  {-# INLINE mkRangeMinMaxL3 #-}
 
 instance MkRangeMinMaxL3 (DVS.Vector Word64) where
   mkRangeMinMaxL3 = mkRangeMinMaxL3 . mkRangeMinMaxSimple

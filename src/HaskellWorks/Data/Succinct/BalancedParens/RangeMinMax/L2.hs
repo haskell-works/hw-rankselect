@@ -44,9 +44,9 @@ instance RangeMinMaxLevel RangeMinMaxL2 where
   rmmFactor _ = 32
   rmmBinWords v = rmmFactor v * rmmBinWords (rmmBase v)
   rmmBins = DVS.length . rangeMinMaxL2Min
-  {-# INLINE rmmFactor    #-}
-  {-# INLINE rmmBinWords  #-}
-  {-# INLINE rmmBins      #-}
+  {-# INLINE rmmFactor #-}
+  {-# INLINE rmmBinWords #-}
+  {-# INLINE rmmBins #-}
 
 class MkRangeMinMaxL2 a where
   mkRangeMinMaxL2 :: a -> RangeMinMaxL2
@@ -64,9 +64,11 @@ instance MkRangeMinMaxL2 RangeMinMaxL1 where
             , rangeMinMaxL2Max      = DVS.constructN lenL2 (\v -> let (_, _, maxE) = allMinMaxL2 DV.! DVS.length v in fromIntegral maxE)
             , rangeMinMaxL2Excess   = rangeMinMaxL2ExcessA
             }
+  {-# INLINE mkRangeMinMaxL2 #-}
 
 instance MkRangeMinMaxL2 RangeMinMaxSimple where
   mkRangeMinMaxL2 = mkRangeMinMaxL2 . mkRangeMinMaxL1
+  {-# INLINE mkRangeMinMaxL2 #-}
 
 instance MkRangeMinMaxL2 (DVS.Vector Word64) where
   mkRangeMinMaxL2 = mkRangeMinMaxL2 . mkRangeMinMaxSimple

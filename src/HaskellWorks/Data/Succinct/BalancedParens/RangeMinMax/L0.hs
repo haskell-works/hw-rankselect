@@ -42,9 +42,9 @@ instance RangeMinMaxLevel RangeMinMaxL0 where
   rmmFactor _ = 1
   rmmBinWords _ = 1
   rmmBins = DVS.length . rangeMinMaxL0Min
-  {-# INLINE rmmFactor    #-}
-  {-# INLINE rmmBinWords  #-}
-  {-# INLINE rmmBins      #-}
+  {-# INLINE rmmFactor #-}
+  {-# INLINE rmmBinWords #-}
+  {-# INLINE rmmBins #-}
 
 class MkRangeMinMaxL0 a where
   mkRangeMinMaxL0 :: a -> RangeMinMaxL0
@@ -125,7 +125,7 @@ instance FindOpenN RangeMinMaxL0 where
 
 instance FindCloseN RangeMinMaxL0 where
   findCloseN v s p = (+ 1) `fmap` rmmFindClose v (fromIntegral s) (p - 1)
-  {-# INLINE findCloseN  #-}
+  {-# INLINE findCloseN #-}
 
 instance FindOpen RangeMinMaxL0 where
   findOpen v p = if v `openAt` p then Just p else findOpenN  v (Count 0) (p - 1)
