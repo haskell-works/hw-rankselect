@@ -23,7 +23,7 @@ findCloseW64 x =                                                                
   let !b01 = (b00 .&. 0x3333333333333333) + ((b00 .>. 2) .&. 0x3333333333333333)      in -- let !_ = traceW "b01" b01 in
   let !b02 = (b01 + (b01 .>. 4)) .&. 0x0f0f0f0f0f0f0f0f                               in -- let !_ = traceW "b02" b02 in
   let !b03 = (b02 * 0x0101010101010101) .<. 1                                         in -- let !_ = traceW "b03" b03 in
-  let !b04 = kBitDiff 8 (h 8 .|. 0x4038302820181008) b03                              in -- let !_ = traceW "b04" b04 in
+  let !b04 = kBitDiffUnsafe 8 (h 8 .|. 0x4038302820181008) b03                        in -- let !_ = traceW "b04" b04 in
   let !u00 = (((((b04 .|. h 8) - l 8) .>. 7) .&. l 8) .|. h 8) - l 8                  in -- let !_ = traceW "u00" u00 in
   let !z00 =                         ((h 8 .>. 1) .|. (l 8 * 7)) .&. u00              in -- let !_ = traceW "z00" z00 in
                                                                                          -- let !_ = trace "" False   in
