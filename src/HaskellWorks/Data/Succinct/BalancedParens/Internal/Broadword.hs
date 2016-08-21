@@ -6,7 +6,6 @@
 
 module HaskellWorks.Data.Succinct.BalancedParens.Internal.Broadword
   ( findCloseW64
-  , kBitDiffPos
   ) where
 
 import           Data.Word
@@ -47,7 +46,3 @@ findCloseW64 x =                                                                
   let !r00 = ((p00 + ((z30 .>. fromIntegral p00) .&. 0x3f)) .|. (p00 .>. 8)) .&. 0x7f in -- let !_ = traceW "r00" r00 in
   r00
 {-# INLINE findCloseW64 #-}
-
-kBitDiffPos :: Int -> Word64 -> Word64 -> Word64
-kBitDiffPos k x y = let d = kBitDiff k x y in d .&. ((d .>. fromIntegral (k - 1)) - 1)
-{-# INLINE kBitDiffPos #-}
