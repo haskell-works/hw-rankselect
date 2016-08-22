@@ -8,12 +8,15 @@ import           Data.Word
 import           HaskellWorks.Data.Bits.Broadword
 import           HaskellWorks.Data.Bits.FromBitTextByteString
 import           HaskellWorks.Data.Naive
-import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.FindClose
+import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic
 
 setupEnvVector :: Int -> IO (DVS.Vector Word64)
 setupEnvVector n = return $ DVS.fromList (take n (cycle [maxBound, 0]))
+
+setupEnvRmmVector :: Int -> IO RangeMinMax2
+setupEnvRmmVector n = return $ mkRangeMinMax2 $ DVS.fromList (take n (cycle [maxBound, 0]))
 
 setupEnvBP2 :: IO Word64
 setupEnvBP2 = return $ DVS.head (fromBitTextByteString "10")
@@ -35,12 +38,7 @@ setupEnvBP64 = return $ DVS.head (fromBitTextByteString "11111000 11101000 11101
 
 benchRankSelect :: [Benchmark]
 benchRankSelect =
-  [ env (setupEnvVector 1000000) $ \bv -> bgroup "Rank"
-    [ bench "Rank - Once"   (whnf (rank1    bv) 1)
-    , bench "Select - Once" (whnf (select1  bv) 1)
-    , bench "Rank - Many"   (nf   (map (getCount . rank1  bv)) [0, 1000..10000000])
-    ]
-  , env setupEnvBP2 $ \w -> bgroup "FindClose 2-bit"
+  [ env setupEnvBP2 $ \w -> bgroup "FindClose 2-bit"
     [ bench "Broadword"     (whnf (findClose (Broadword w)) 1)
     , bench "Naive"         (whnf (findClose (Naive     w)) 1)
     ]
@@ -63,6 +61,14 @@ benchRankSelect =
   , env setupEnvBP64 $ \w -> bgroup "FindClose 64-bit"
     [ bench "Broadword"     (whnf (findClose (Broadword w)) 1)
     , bench "Naive"         (whnf (findClose (Naive     w)) 1)
+    ]
+  , env (setupEnvVector 1000000) $ \bv -> bgroup "RangeMinMax2"
+    [ bench "findClose"   (nf   (map (findClose bv)) [0, 1000..10000000])
+    ]
+  , env (setupEnvVector 1000000) $ \bv -> bgroup "Rank"
+    [ bench "Rank - Once"   (whnf (rank1    bv) 1)
+    , bench "Select - Once" (whnf (select1  bv) 1)
+    , bench "Rank - Many"   (nf   (map (rank1 bv)) [0, 1000..10000000])
     ]
   ]
 
