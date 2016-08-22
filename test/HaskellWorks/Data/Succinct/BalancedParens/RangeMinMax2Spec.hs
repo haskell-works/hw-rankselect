@@ -41,16 +41,16 @@ spec = describe "HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2Spec" $ d
       let len = bitLength v
       [findClose rmm i | i <- [1..len]] `shouldBe `[findClose v i | i <- [1..len]]
   it "findClose should return the same result over all counts" $ do
-    forAll (vectorSizedBetween 1 512) $ \(ShowVector v) -> do
+    forAll (vectorSizedBetween 1 16384) $ \(ShowVector v) -> do
       forAll (choose (1, bitLength v)) $ \p -> do
         let !rmm = mkRangeMinMax2 v
         findClose rmm p `shouldBe` findClose v p
   it "nextSibling should return the same result" $ do
-    forAll (vectorSizedBetween 1 512) $ \(ShowVector v) -> do
+    forAll (vectorSizedBetween 1 16384) $ \(ShowVector v) -> do
       let !rmm = mkRangeMinMax2 v
       nextSibling rmm 0 `shouldBe` nextSibling v 0
   it "nextSibling should return the same result over all counts" $ do
-    forAll (vectorSizedBetween 1 512) $ \(ShowVector v) -> do
+    forAll (vectorSizedBetween 1 16384) $ \(ShowVector v) -> do
       forAll (choose (1, bitLength v)) $ \p -> do
         let !rmm = mkRangeMinMax2 v
         nextSibling rmm p `shouldBe` nextSibling v p

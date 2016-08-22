@@ -38,6 +38,9 @@ data RangeMinMax2 = RangeMinMax2
   , rangeMinMaxL1Min    :: !(DVS.Vector Int16)
   , rangeMinMaxL1Max    :: !(DVS.Vector Int16)
   , rangeMinMaxL1Excess :: !(DVS.Vector Int16)
+  , rangeMinMaxL2Min    :: !(DVS.Vector Int16)
+  , rangeMinMaxL2Max    :: !(DVS.Vector Int16)
+  , rangeMinMaxL2Excess :: !(DVS.Vector Int16)
   }
 
 mkRangeMinMax2 :: DVS.Vector Word64 -> RangeMinMax2
@@ -49,6 +52,9 @@ mkRangeMinMax2 bp = RangeMinMax2
   , rangeMinMaxL1Min    = rmmL1Min
   , rangeMinMaxL1Max    = rmmL1Max
   , rangeMinMaxL1Excess = rmmL1ExcessA
+  , rangeMinMaxL2Min    = rmmL2Min
+  , rangeMinMaxL2Max    = rmmL2Max
+  , rangeMinMaxL2Excess = rmmL2ExcessA
   }
   where lenL0         = fromIntegral (vLength bp) :: Int
         allMinMaxL0   = DV.constructN (lenL0 + 1) genMinMaxL0
@@ -58,16 +64,23 @@ mkRangeMinMax2 bp = RangeMinMax2
         lenL1         = (DVS.length rmmL0Min `div` 32) + 1 :: Int
         allMinMaxL1   = DV.constructN lenL1 genMinMaxL1
         genMinMaxL1 v = let len = DV.length v in minMaxExcess1 (DVS.take 32 (DVS.drop (len * 32) bp))
+        lenL2         = (DVS.length rmmL0Min `div` 1024) + 1 :: Int
+        allMinMaxL2   = DV.constructN lenL2 genMinMaxL2
+        genMinMaxL2 v = let len = DV.length v in minMaxExcess1 (DVS.take 1024 (DVS.drop (len * 1024) bp))
         rmmL0Min      = DVS.constructN (lenL0 + 1) (\v -> let (minE, _, _)  = allMinMaxL0 DV.! DVS.length v in fromIntegral minE)
         rmmL0Max      = DVS.constructN (lenL0 + 1) (\v -> let (_, _, maxE)  = allMinMaxL0 DV.! DVS.length v in fromIntegral maxE)
         rmmL0Excess   = DVS.constructN (lenL0 + 1) (\v -> let (_, e,    _)  = allMinMaxL0 DV.! DVS.length v in fromIntegral e)
         rmmL1Min      = DVS.constructN lenL1 (\v -> let (minE, _, _)        = allMinMaxL1 DV.! DVS.length v in fromIntegral minE)
         rmmL1Max      = DVS.constructN lenL1 (\v -> let (_, _, maxE)        = allMinMaxL1 DV.! DVS.length v in fromIntegral maxE)
         rmmL1ExcessA  = DVS.constructN lenL1 (\v -> let (_, e,    _)        = allMinMaxL1 DV.! DVS.length v in fromIntegral e) :: DVS.Vector Int16
+        rmmL2Min      = DVS.constructN lenL2 (\v -> let (minE, _, _)        = allMinMaxL2 DV.! DVS.length v in fromIntegral minE)
+        rmmL2Max      = DVS.constructN lenL2 (\v -> let (_, _, maxE)        = allMinMaxL2 DV.! DVS.length v in fromIntegral maxE)
+        rmmL2ExcessA  = DVS.constructN lenL2 (\v -> let (_, e,    _)        = allMinMaxL2 DV.! DVS.length v in fromIntegral e) :: DVS.Vector Int16
 
 data FindState = FindBP
   | FindL0 | FindFromL0
   | FindL1 | FindFromL1
+  | FindL2 | FindFromL2
 
 rmm2FindClose  :: RangeMinMax2 -> Int -> Count -> FindState -> Maybe Count
 rmm2FindClose v s p FindBP = if v `newCloseAt` p
@@ -99,13 +112,30 @@ rmm2FindClose v s p FindL1 =
               let excess    = fromIntegral (excesses !!! fromIntegral i)  :: Int in
               rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + (64 * 32)) FindFromL1
       else Nothing
+rmm2FindClose v s p FindL2 =
+  let !i = p `div` (64 * 1024) in
+  let !mins = rangeMinMaxL2Min v in
+  let !minE = fromIntegral (mins !!! fromIntegral i) :: Int in
+  if fromIntegral s + minE <= 0
+    then rmm2FindClose v s p FindL1
+    else if 0 <= p && p < bitLength v
+      then if v `newCloseAt` p && s <= 1
+        then Just p
+        else  let excesses = rangeMinMaxL2Excess v in
+              let excess    = fromIntegral (excesses !!! fromIntegral i)  :: Int in
+              rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + (64 * 1024)) FindFromL2
+      else Nothing
 rmm2FindClose v s p FindFromL0
   | p `mod` 64 == 0             = rmm2FindClose v s p FindFromL1
   | 0 <= p && p < bitLength v   = rmm2FindClose v s p FindBP
   | otherwise                   = Nothing
 rmm2FindClose v s p FindFromL1
-  | p `mod` (64 * 32) == 0      = if 0 <= p && p < bitLength v then rmm2FindClose v s p FindL1 else Nothing
+  | p `mod` (64 * 32) == 0      = if 0 <= p && p < bitLength v then rmm2FindClose v s p FindFromL2 else Nothing
   | 0 <= p && p < bitLength v   = rmm2FindClose v s p FindL0
+  | otherwise                   = Nothing
+rmm2FindClose v s p FindFromL2
+  | p `mod` (64 * 1024) == 0 = if 0 <= p && p < bitLength v then rmm2FindClose v s p FindL2 else Nothing
+  | 0 <= p && p < bitLength v   = rmm2FindClose v s p FindL1
   | otherwise                   = Nothing
 {-# INLINE rmm2FindClose #-}
 
