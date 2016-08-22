@@ -5,8 +5,6 @@
 
 module HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2
   ( RangeMinMax2(..)
-  , RangeMinMax2Derived(..)
-  , RangeMinMax2Level(..)
   , mkRangeMinMax2
   ) where
 
@@ -26,18 +24,6 @@ import           HaskellWorks.Data.Succinct.BalancedParens.OpenAt
 import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
-
-class RangeMinMax2Level v where
-  rmm2Factor   :: v -> Int
-  rmm2BinWords :: v -> Int
-  rmm2Bins     :: v -> Int
-  rmm2BinBits  :: v -> Count
-  rmm2BinBits v = fromIntegral (rmm2BinWords v * 64)
-  {-# INLINE rmm2BinBits #-}
-
-class RangeMinMax2Derived v where
-  type RangeMinMax2Base v
-  rmm2Base :: v -> RangeMinMax2Base v
 
 data RangeMinMax2 = RangeMinMax2
   { rangeMinMax2BP :: !(DVS.Vector Word64)
