@@ -50,14 +50,14 @@ mkRangeMinMax2 bp = RangeMinMax2
                         then (0, 0, 0)
                         else minMaxExcess1 (bp !!! fromIntegral len)
 
-data FindState = FindBP | FindL0 | FindStart
+data FindState = FindBP | FindL0 | FindFromL0
 
 rmm2FindClose  :: RangeMinMax2 -> Int -> Count -> FindState -> Maybe Count
 rmm2FindClose v s p FindBP = if v `newCloseAt` p
   then if s <= 1
     then Just p
-    else rmm2FindClose v (s - 1) (p + 1) FindStart
-  else rmm2FindClose v (s + 1) (p + 1) FindStart
+    else rmm2FindClose v (s - 1) (p + 1) FindFromL0
+  else rmm2FindClose v (s + 1) (p + 1) FindFromL0
 rmm2FindClose v s p FindL0 = if 0 <= p && p < bitLength v
   then  let i = p `div` 64 in
         let mins = rangeMinMaxL0Min v in
@@ -68,9 +68,9 @@ rmm2FindClose v s p FindL0 = if 0 <= p && p < bitLength v
             then Just p
             else  let excesses = rangeMinMaxL0Excess v in
                   let excess    = fromIntegral (excesses !!! fromIntegral i)  :: Int in
-                  rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + 64) FindStart
+                  rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + 64) FindFromL0
   else Nothing
-rmm2FindClose v s p FindStart = if 0 <= p && p < bitLength v
+rmm2FindClose v s p FindFromL0 = if 0 <= p && p < bitLength v
   then if p `mod` 64 == 0
     then rmm2FindClose v s p FindL0
     else rmm2FindClose v s p FindBP
@@ -110,7 +110,7 @@ instance FindOpenN RangeMinMax2 where
   {-# INLINE findOpenN   #-}
 
 instance FindCloseN RangeMinMax2 where
-  findCloseN v s p  = (+ 1) `fmap` rmm2FindClose v (fromIntegral s) (p - 1) FindStart
+  findCloseN v s p  = (+ 1) `fmap` rmm2FindClose v (fromIntegral s) (p - 1) FindFromL0
   {-# INLINE findCloseN  #-}
 
 instance FindClose RangeMinMax2 where
