@@ -8,6 +8,8 @@ module HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2
   , mkRangeMinMax2
   ) where
 
+import           Data.Int
+import qualified Data.Vector                                                    as DV
 import qualified Data.Vector.Storable                                           as DVS
 import           Data.Word
 import           HaskellWorks.Data.Bits.BitLength
@@ -24,23 +26,54 @@ import           HaskellWorks.Data.Succinct.BalancedParens.OpenAt
 import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
+import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
+import           HaskellWorks.Data.Vector.VectorLike
 
 data RangeMinMax2 = RangeMinMax2
-  { rangeMinMax2BP :: !(DVS.Vector Word64)
+  { rangeMinMax2BP      :: !(DVS.Vector Word64)
+  , rangeMinMaxL0Min    :: !(DVS.Vector Int8)
+  , rangeMinMaxL0Max    :: !(DVS.Vector Int8)
+  , rangeMinMaxL0Excess :: !(DVS.Vector Int8)
   }
 
 mkRangeMinMax2 :: DVS.Vector Word64 -> RangeMinMax2
 mkRangeMinMax2 bp = RangeMinMax2
   { rangeMinMax2BP = bp
+  , rangeMinMaxL0Min    = DVS.constructN (len0 + 1) (\v -> let (minE, _, _) = allMinMax DV.! DVS.length v in fromIntegral minE)
+  , rangeMinMaxL0Max    = DVS.constructN (len0 + 1) (\v -> let (_, _, maxE) = allMinMax DV.! DVS.length v in fromIntegral maxE)
+  , rangeMinMaxL0Excess = DVS.constructN (len0 + 1) (\v -> let (_, e,    _) = allMinMax DV.! DVS.length v in fromIntegral e)
   }
+  where len0        = fromIntegral (vLength bp) :: Int
+        allMinMax   = DV.constructN (len0 + 1) genMinMax
+        genMinMax v = let len = DV.length v in
+                      if len == len0
+                        then (0, 0, 0)
+                        else minMaxExcess1 (bp !!! fromIntegral len)
 
-rmm2FindClose  :: RangeMinMax2 -> Int -> Count -> Maybe Count
-rmm2FindClose v s p = if 0 <= p && p < bitLength v
-  then if v `newCloseAt` p
-    then if s <= 1
-      then Just p
-      else rmm2FindClose v (s - 1) (p + 1)
-    else rmm2FindClose v (s + 1) (p + 1)
+data FindState = FindBP | FindL0 | FindStart
+
+rmm2FindClose  :: RangeMinMax2 -> Int -> Count -> FindState -> Maybe Count
+rmm2FindClose v s p FindBP = if v `newCloseAt` p
+  then if s <= 1
+    then Just p
+    else rmm2FindClose v (s - 1) (p + 1) FindStart
+  else rmm2FindClose v (s + 1) (p + 1) FindStart
+rmm2FindClose v s p FindL0 = if 0 <= p && p < bitLength v
+  then  let i = p `div` 64 in
+        let mins = rangeMinMaxL0Min v in
+        let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
+        if fromIntegral s + minE <= 0
+          then rmm2FindClose v s p FindBP
+          else if v `newCloseAt` p && s <= 1
+            then Just p
+            else  let excesses = rangeMinMaxL0Excess v in
+                  let excess    = fromIntegral (excesses !!! fromIntegral i)  :: Int in
+                  rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + 64) FindStart
+  else Nothing
+rmm2FindClose v s p FindStart = if 0 <= p && p < bitLength v
+  then if p `mod` 64 == 0
+    then rmm2FindClose v s p FindL0
+    else rmm2FindClose v s p FindBP
   else Nothing
 {-# INLINE rmm2FindClose #-}
 
@@ -77,7 +110,7 @@ instance FindOpenN RangeMinMax2 where
   {-# INLINE findOpenN   #-}
 
 instance FindCloseN RangeMinMax2 where
-  findCloseN v s p  = (+ 1) `fmap` rmm2FindClose v (fromIntegral s) (p - 1)
+  findCloseN v s p  = (+ 1) `fmap` rmm2FindClose v (fromIntegral s) (p - 1) FindStart
   {-# INLINE findCloseN  #-}
 
 instance FindClose RangeMinMax2 where
