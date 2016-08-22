@@ -99,18 +99,14 @@ rmm2FindClose v s p FindL1 =
               let excess    = fromIntegral (excesses !!! fromIntegral i)  :: Int in
               rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + (64 * 32)) FindFromL1
       else Nothing
-rmm2FindClose v s p FindFromL0 = if p `mod` 64 == 0
-  then rmm2FindClose v s p FindFromL1
-  else if 0 <= p && p < bitLength v
-    then rmm2FindClose v s p FindBP
-    else Nothing
-rmm2FindClose v s p FindFromL1 = if p `mod` (64 * 32) == 0
-  then if 0 <= p && p < bitLength v
-    then rmm2FindClose v s p FindL1
-    else Nothing
-  else if 0 <= p && p < bitLength v
-    then rmm2FindClose v s p FindL0
-    else Nothing
+rmm2FindClose v s p FindFromL0
+  | p `mod` 64 == 0             = rmm2FindClose v s p FindFromL1
+  | 0 <= p && p < bitLength v   = rmm2FindClose v s p FindBP
+  | otherwise                   = Nothing
+rmm2FindClose v s p FindFromL1
+  | p `mod` (64 * 32) == 0      = if 0 <= p && p < bitLength v then rmm2FindClose v s p FindL1 else Nothing
+  | 0 <= p && p < bitLength v   = rmm2FindClose v s p FindL0
+  | otherwise                   = Nothing
 {-# INLINE rmm2FindClose #-}
 
 instance TestBit RangeMinMax2 where
