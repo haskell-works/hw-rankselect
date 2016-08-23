@@ -46,9 +46,9 @@ data RangeMinMax = RangeMinMax
 mkRangeMinMax :: DVS.Vector Word64 -> RangeMinMax
 mkRangeMinMax bp = RangeMinMax
   { rangeMinMaxBP       = bp
-  , rangeMinMaxL0Min    = rmmL0Min
-  , rangeMinMaxL0Max    = rmmL0Max
-  , rangeMinMaxL0Excess = rmmL0Excess
+  , rangeMinMaxL0Min    = dvsReword rmmL0Min
+  , rangeMinMaxL0Max    = dvsReword rmmL0Max
+  , rangeMinMaxL0Excess = dvsReword rmmL0Excess
   , rangeMinMaxL1Min    = rmmL1Min
   , rangeMinMaxL1Max    = rmmL1Max
   , rangeMinMaxL1Excess = rmmL1Excess
@@ -61,17 +61,22 @@ mkRangeMinMax bp = RangeMinMax
         lenL1         = (DVS.length rmmL0Min `div` 32) + 1 :: Int
         lenL2         = (DVS.length rmmL0Min `div` 1024) + 1 :: Int
         allMinMaxL0   = dvConstructNI lenL0 (\i -> if i == lenBP then (0, 0, 0) else minMaxExcess1 (bp !!! fromIntegral i))
-        allMinMaxL1   = dvConstructNI lenL1 (\i -> minMaxExcess1 (dropTake (i * 32) 32 bp))
         allMinMaxL2   = dvConstructNI lenL2 (\i -> minMaxExcess1 (dropTake (i * 1024) 1024 bp))
-        rmmL0Excess   = dvsConstructNI lenL0 (\i -> let (_, e,    _) = allMinMaxL0 DV.! i in fromIntegral e)
-        rmmL0Min      = dvsConstructNI lenL0 (\i -> let (minE, _, _) = allMinMaxL0 DV.! i in fromIntegral minE)
-        rmmL0Max      = dvsConstructNI lenL0 (\i -> let (_, _, maxE) = allMinMaxL0 DV.! i in fromIntegral maxE)
-        rmmL1Excess   = dvsConstructNI lenL1 (\i -> DVS.foldr ((+) . fromIntegral) 0 (dropTake (i * 32) 32 rmmL0Excess)) :: DVS.Vector Int16
-        rmmL1Min      = dvsConstructNI lenL1 (\i -> let (minE, _, _) = allMinMaxL1 DV.! i in fromIntegral minE)
-        rmmL1Max      = dvsConstructNI lenL1 (\i -> let (_, _, maxE) = allMinMaxL1 DV.! i in fromIntegral maxE)
-        rmmL2Excess   = dvsConstructNI lenL1 (\i -> DVS.foldr (+)                  0 (dropTake (i * 32) 32 rmmL1Excess)) :: DVS.Vector Int16
+        rmmL0Excess   = dvsConstructNI lenL0 (\i -> let (_, e,    _) = allMinMaxL0 DV.! i in fromIntegral e) :: DVS.Vector Int16
+        rmmL1Excess   = dvsConstructNI lenL1 (\i -> DVS.foldr (+) 0 (dropTake (i * 32) 32 rmmL0Excess)) :: DVS.Vector Int16
+        rmmL2Excess   = dvsConstructNI lenL1 (\i -> DVS.foldr (+) 0 (dropTake (i * 32) 32 rmmL1Excess)) :: DVS.Vector Int16
+        rmmL0Min      = dvsConstructNI lenL0 (\i -> let (minE, _, _) = allMinMaxL0 DV.! i in fromIntegral minE) :: DVS.Vector Int16
+        rmmL1Min      = DVS.constructN lenL1 (\v -> let i = DVS.length v in genMin 0 (dropTake (i * 32) 32 rmmL0Min) (dropTake (i * 32) 32 rmmL0Excess))
         rmmL2Min      = dvsConstructNI lenL2 (\i -> let (minE, _, _) = allMinMaxL2 DV.! i in fromIntegral minE)
+        rmmL0Max      = dvsConstructNI lenL0 (\i -> let (_, _, maxE) = allMinMaxL0 DV.! i in fromIntegral maxE) :: DVS.Vector Int16
+        rmmL1Max      = DVS.constructN lenL1 (\v -> let i = DVS.length v in genMax 0 (dropTake (i * 32) 32 rmmL0Max) (dropTake (i * 32) 32 rmmL0Excess))
         rmmL2Max      = dvsConstructNI lenL2 (\i -> let (_, _, maxE) = allMinMaxL2 DV.! i in fromIntegral maxE)
+        genMin mL ms es = if not (DVS.null ms) || not (DVS.null es)
+          then genMin (dvsHeadOrZero ms `min` (mL + dvsHeadOrZero es)) (DVS.tail ms) (DVS.tail es)
+          else mL
+        genMax mL ms es = if not (DVS.null ms) || not (DVS.null es)
+          then genMax (dvsHeadOrZero ms `max` (mL + dvsHeadOrZero es)) (DVS.tail ms) (DVS.tail es)
+          else mL
 
 dropTake :: DVS.Storable a => Int -> Int -> DVS.Vector a -> DVS.Vector a
 dropTake n o = DVS.take o . DVS.drop n
@@ -84,6 +89,14 @@ dvConstructNI n g = DV.constructN n (g . DV.length)
 dvsConstructNI :: DVS.Storable a => Int -> (Int -> a) -> DVS.Vector a
 dvsConstructNI n g = DVS.constructN n (g . DVS.length)
 {-# INLINE dvsConstructNI #-}
+
+dvsReword :: (DVS.Storable a, Integral a, DVS.Storable b, Num b) => DVS.Vector a -> DVS.Vector b
+dvsReword v = dvsConstructNI (DVS.length v) (\i -> fromIntegral (v DVS.! i))
+{-# INLINE dvsReword #-}
+
+dvsHeadOrZero :: (DVS.Storable a, Integral a) => DVS.Vector a -> a
+dvsHeadOrZero v = if not (DVS.null v) then DVS.head v else 0
+{-# INLINE dvsHeadOrZero #-}
 
 data FindState = FindBP
   | FindL0 | FindFromL0
