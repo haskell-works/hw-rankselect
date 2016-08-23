@@ -51,10 +51,10 @@ mkRangeMinMax bp = RangeMinMax
   , rangeMinMaxL0Excess = rmmL0Excess
   , rangeMinMaxL1Min    = rmmL1Min
   , rangeMinMaxL1Max    = rmmL1Max
-  , rangeMinMaxL1Excess = rmmL1ExcessA
+  , rangeMinMaxL1Excess = rmmL1Excess
   , rangeMinMaxL2Min    = rmmL2Min
   , rangeMinMaxL2Max    = rmmL2Max
-  , rangeMinMaxL2Excess = rmmL2ExcessA
+  , rangeMinMaxL2Excess = rmmL2Excess
   }
   where lenBP         = fromIntegral (vLength bp) :: Int
         lenL0         = lenBP + 1
@@ -66,10 +66,10 @@ mkRangeMinMax bp = RangeMinMax
         rmmL0Excess   = dvsConstructNI lenL0 (\i -> let (_, e,    _) = allMinMaxL0 DV.! i in fromIntegral e)
         rmmL0Min      = dvsConstructNI lenL0 (\i -> let (minE, _, _) = allMinMaxL0 DV.! i in fromIntegral minE)
         rmmL0Max      = dvsConstructNI lenL0 (\i -> let (_, _, maxE) = allMinMaxL0 DV.! i in fromIntegral maxE)
-        rmmL1ExcessA  = dvsConstructNI lenL1 (\i -> let (_, e,    _) = allMinMaxL1 DV.! i in fromIntegral e) :: DVS.Vector Int16
+        rmmL1Excess   = dvsConstructNI lenL1 (\i -> DVS.foldr ((+) . fromIntegral) 0 (dropTake (i * 32) 32 rmmL0Excess)) :: DVS.Vector Int16
         rmmL1Min      = dvsConstructNI lenL1 (\i -> let (minE, _, _) = allMinMaxL1 DV.! i in fromIntegral minE)
         rmmL1Max      = dvsConstructNI lenL1 (\i -> let (_, _, maxE) = allMinMaxL1 DV.! i in fromIntegral maxE)
-        rmmL2ExcessA  = dvsConstructNI lenL2 (\i -> let (_, e,    _) = allMinMaxL2 DV.! i in fromIntegral e) :: DVS.Vector Int16
+        rmmL2Excess   = dvsConstructNI lenL1 (\i -> DVS.foldr (+)                  0 (dropTake (i * 32) 32 rmmL1Excess)) :: DVS.Vector Int16
         rmmL2Min      = dvsConstructNI lenL2 (\i -> let (minE, _, _) = allMinMaxL2 DV.! i in fromIntegral minE)
         rmmL2Max      = dvsConstructNI lenL2 (\i -> let (_, _, maxE) = allMinMaxL2 DV.! i in fromIntegral maxE)
 
