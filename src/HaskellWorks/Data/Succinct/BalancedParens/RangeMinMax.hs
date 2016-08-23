@@ -67,19 +67,23 @@ mkRangeMinMax bp = RangeMinMax
         lenL2         = (DVS.length rmmL0Min `div` 1024) + 1 :: Int
         allMinMaxL2   = DV.constructN lenL2 genMinMaxL2
         genMinMaxL2 v = let len = DV.length v in minMaxExcess1 (dropTake (len * 1024) 1024 bp)
-        rmmL0Min      = DVS.constructN (lenL0 + 1) (\v -> let (minE, _, _)  = allMinMaxL0 DV.! DVS.length v in fromIntegral minE)
-        rmmL0Max      = DVS.constructN (lenL0 + 1) (\v -> let (_, _, maxE)  = allMinMaxL0 DV.! DVS.length v in fromIntegral maxE)
-        rmmL0Excess   = DVS.constructN (lenL0 + 1) (\v -> let (_, e,    _)  = allMinMaxL0 DV.! DVS.length v in fromIntegral e)
-        rmmL1Min      = DVS.constructN lenL1 (\v -> let (minE, _, _)        = allMinMaxL1 DV.! DVS.length v in fromIntegral minE)
-        rmmL1Max      = DVS.constructN lenL1 (\v -> let (_, _, maxE)        = allMinMaxL1 DV.! DVS.length v in fromIntegral maxE)
-        rmmL1ExcessA  = DVS.constructN lenL1 (\v -> let (_, e,    _)        = allMinMaxL1 DV.! DVS.length v in fromIntegral e) :: DVS.Vector Int16
-        rmmL2Min      = DVS.constructN lenL2 (\v -> let (minE, _, _)        = allMinMaxL2 DV.! DVS.length v in fromIntegral minE)
-        rmmL2Max      = DVS.constructN lenL2 (\v -> let (_, _, maxE)        = allMinMaxL2 DV.! DVS.length v in fromIntegral maxE)
-        rmmL2ExcessA  = DVS.constructN lenL2 (\v -> let (_, e,    _)        = allMinMaxL2 DV.! DVS.length v in fromIntegral e) :: DVS.Vector Int16
+        rmmL0Min      = constructNI (lenL0 + 1) (\i -> let (minE, _, _) = allMinMaxL0 DV.! i in fromIntegral minE)
+        rmmL0Max      = constructNI (lenL0 + 1) (\i -> let (_, _, maxE) = allMinMaxL0 DV.! i in fromIntegral maxE)
+        rmmL0Excess   = constructNI (lenL0 + 1) (\i -> let (_, e,    _) = allMinMaxL0 DV.! i in fromIntegral e)
+        rmmL1Min      = constructNI lenL1       (\i -> let (minE, _, _) = allMinMaxL1 DV.! i in fromIntegral minE)
+        rmmL1Max      = constructNI lenL1       (\i -> let (_, _, maxE) = allMinMaxL1 DV.! i in fromIntegral maxE)
+        rmmL1ExcessA  = constructNI lenL1       (\i -> let (_, e,    _) = allMinMaxL1 DV.! i in fromIntegral e) :: DVS.Vector Int16
+        rmmL2Min      = constructNI lenL2       (\i -> let (minE, _, _) = allMinMaxL2 DV.! i in fromIntegral minE)
+        rmmL2Max      = constructNI lenL2       (\i -> let (_, _, maxE) = allMinMaxL2 DV.! i in fromIntegral maxE)
+        rmmL2ExcessA  = constructNI lenL2       (\i -> let (_, e,    _) = allMinMaxL2 DV.! i in fromIntegral e) :: DVS.Vector Int16
 
 dropTake :: DVS.Storable a => Int -> Int -> DVS.Vector a -> DVS.Vector a
 dropTake n o = DVS.take o . DVS.drop n
 {-# INLINE dropTake #-}
+
+constructNI :: DVS.Storable a => Int -> (Int -> a) -> DVS.Vector a
+constructNI n g = DVS.constructN n (g . DVS.length)
+{-# INLINE constructNI #-}
 
 data FindState = FindBP
   | FindL0 | FindFromL0
