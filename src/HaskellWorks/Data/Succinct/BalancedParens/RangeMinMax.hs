@@ -60,7 +60,7 @@ mkRangeMinMax bp = RangeMinMax
         lenL0         = lenBP + 1
         lenL1         = (DVS.length rmmL0Min `div` 32) + 1 :: Int
         lenL2         = (DVS.length rmmL0Min `div` 1024) + 1 :: Int
-        allMinMaxL0   = dvConstructNI lenL0 (\i -> if i == lenBP then (0, 0, 0) else minMaxExcess1 (bp !!! fromIntegral i))
+        allMinMaxL0   = dvConstructNI lenL0 (\i -> if i == lenBP then (-64, -64, 0) else minMaxExcess1 (bp !!! fromIntegral i))
         allMinMaxL1   = dvConstructNI lenL1 (\i -> minMaxExcess1 (dropTake (i * 32) 32 bp))
         allMinMaxL2   = dvConstructNI lenL2 (\i -> minMaxExcess1 (dropTake (i * 1024) 1024 bp))
         rmmL0Excess   = dvsConstructNI lenL0 (\i -> let (_, e,    _) = allMinMaxL0 DV.! i in fromIntegral e)

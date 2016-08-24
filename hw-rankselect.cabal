@@ -70,6 +70,7 @@ test-suite hw-rankselect-test
   main-is:              Spec.hs
   other-modules:        HaskellWorks.Data.Succinct.BalancedParens.Internal.BroadwordSpec
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMaxSpec
+                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2Spec
                       , HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec
                       , HaskellWorks.Data.Succinct.Excess.MinMaxExcess0Spec
                       , HaskellWorks.Data.Succinct.Excess.MinMaxExcess1Spec

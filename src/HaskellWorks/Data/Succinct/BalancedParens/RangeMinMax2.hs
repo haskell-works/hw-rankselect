@@ -5,8 +5,8 @@
 {-# LANGUAGE TypeFamilies       #-}
 
 module HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2
-  ( RangeMinMax(..)
-  , mkRangeMinMax
+  ( RangeMinMax2(..)
+  , mkRangeMinMax2
   ) where
 
 import           Data.Int
@@ -30,31 +30,31 @@ import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
 import           HaskellWorks.Data.Vector.VectorLike
 
-data RangeMinMax = RangeMinMax
-  { rangeMinMaxBP       :: !(DVS.Vector Word64)
-  , rangeMinMaxL0Min    :: !(DVS.Vector Int8)
-  , rangeMinMaxL0Max    :: !(DVS.Vector Int8)
-  , rangeMinMaxL0Excess :: !(DVS.Vector Int8)
-  , rangeMinMaxL1Min    :: !(DVS.Vector Int16)
-  , rangeMinMaxL1Max    :: !(DVS.Vector Int16)
-  , rangeMinMaxL1Excess :: !(DVS.Vector Int16)
-  , rangeMinMaxL2Min    :: !(DVS.Vector Int16)
-  , rangeMinMaxL2Max    :: !(DVS.Vector Int16)
-  , rangeMinMaxL2Excess :: !(DVS.Vector Int16)
+data RangeMinMax2 = RangeMinMax2
+  { rangeMinMax2BP       :: !(DVS.Vector Word64)
+  , rangeMinMax2L0Min    :: !(DVS.Vector Int8)
+  , rangeMinMax2L0Max    :: !(DVS.Vector Int8)
+  , rangeMinMax2L0Excess :: !(DVS.Vector Int8)
+  , rangeMinMax2L1Min    :: !(DVS.Vector Int16)
+  , rangeMinMax2L1Max    :: !(DVS.Vector Int16)
+  , rangeMinMax2L1Excess :: !(DVS.Vector Int16)
+  , rangeMinMax2L2Min    :: !(DVS.Vector Int16)
+  , rangeMinMax2L2Max    :: !(DVS.Vector Int16)
+  , rangeMinMax2L2Excess :: !(DVS.Vector Int16)
   }
 
-mkRangeMinMax :: DVS.Vector Word64 -> RangeMinMax
-mkRangeMinMax bp = RangeMinMax
-  { rangeMinMaxBP       = bp
-  , rangeMinMaxL0Min    = dvsReword rmmL0Min
-  , rangeMinMaxL0Max    = dvsReword rmmL0Max
-  , rangeMinMaxL0Excess = dvsReword rmmL0Excess
-  , rangeMinMaxL1Min    = rmmL1Min
-  , rangeMinMaxL1Max    = rmmL1Max
-  , rangeMinMaxL1Excess = rmmL1Excess
-  , rangeMinMaxL2Min    = rmmL2Min
-  , rangeMinMaxL2Max    = rmmL2Max
-  , rangeMinMaxL2Excess = rmmL2Excess
+mkRangeMinMax2 :: DVS.Vector Word64 -> RangeMinMax2
+mkRangeMinMax2 bp = RangeMinMax2
+  { rangeMinMax2BP       = bp
+  , rangeMinMax2L0Min    = dvsReword rmmL0Min
+  , rangeMinMax2L0Max    = dvsReword rmmL0Max
+  , rangeMinMax2L0Excess = dvsReword rmmL0Excess
+  , rangeMinMax2L1Min    = rmmL1Min
+  , rangeMinMax2L1Max    = rmmL1Max
+  , rangeMinMax2L1Excess = rmmL1Excess
+  , rangeMinMax2L2Min    = rmmL2Min
+  , rangeMinMax2L2Max    = rmmL2Max
+  , rangeMinMax2L2Excess = rmmL2Excess
   }
   where lenBP         = fromIntegral (vLength bp) :: Int
         lenL0         = lenBP + 1
@@ -107,7 +107,7 @@ data FindState = FindBP
   | FindL1 | FindFromL1
   | FindL2 | FindFromL2
 
-rmm2FindClose  :: RangeMinMax -> Int -> Count -> FindState -> Maybe Count
+rmm2FindClose  :: RangeMinMax2 -> Int -> Count -> FindState -> Maybe Count
 rmm2FindClose v s p FindBP = if v `newCloseAt` p
   then if s <= 1
     then Just p
@@ -115,38 +115,38 @@ rmm2FindClose v s p FindBP = if v `newCloseAt` p
   else rmm2FindClose v (s + 1) (p + 1) FindFromL0
 rmm2FindClose v s p FindL0 =
   let i = p `div` 64 in
-  let mins = rangeMinMaxL0Min v in
+  let mins = rangeMinMax2L0Min v in
   let minE = fromIntegral (mins !!! fromIntegral i) :: Int in
   if fromIntegral s + minE <= 0
     then rmm2FindClose v s p FindBP
     else if v `newCloseAt` p && s <= 1
       then Just p
-      else  let excesses = rangeMinMaxL0Excess v in
+      else  let excesses = rangeMinMax2L0Excess v in
             let excess    = fromIntegral (excesses !!! fromIntegral i)  :: Int in
             rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + 64) FindFromL0
 rmm2FindClose v s p FindL1 =
   let !i = p `div` (64 * 32) in
-  let !mins = rangeMinMaxL1Min v in
+  let !mins = rangeMinMax2L1Min v in
   let !minE = fromIntegral (mins !!! fromIntegral i) :: Int in
   if fromIntegral s + minE <= 0
     then rmm2FindClose v s p FindL0
     else if 0 <= p && p < bitLength v
       then if v `newCloseAt` p && s <= 1
         then Just p
-        else  let excesses = rangeMinMaxL1Excess v in
+        else  let excesses = rangeMinMax2L1Excess v in
               let excess    = fromIntegral (excesses !!! fromIntegral i)  :: Int in
               rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + (64 * 32)) FindFromL1
       else Nothing
 rmm2FindClose v s p FindL2 =
   let !i = p `div` (64 * 1024) in
-  let !mins = rangeMinMaxL2Min v in
+  let !mins = rangeMinMax2L2Min v in
   let !minE = fromIntegral (mins !!! fromIntegral i) :: Int in
   if fromIntegral s + minE <= 0
     then rmm2FindClose v s p FindL1
     else if 0 <= p && p < bitLength v
       then if v `newCloseAt` p && s <= 1
         then Just p
-        else  let excesses = rangeMinMaxL2Excess v in
+        else  let excesses = rangeMinMax2L2Excess v in
               let excess    = fromIntegral (excesses !!! fromIntegral i)  :: Int in
               rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + (64 * 1024)) FindFromL2
       else Nothing
@@ -164,52 +164,52 @@ rmm2FindClose v s p FindFromL2
   | otherwise                   = Nothing
 {-# INLINE rmm2FindClose #-}
 
-instance TestBit RangeMinMax where
-  (.?.) = (.?.) . rangeMinMaxBP
+instance TestBit RangeMinMax2 where
+  (.?.) = (.?.) . rangeMinMax2BP
   {-# INLINE (.?.) #-}
 
-instance Rank1 RangeMinMax where
-  rank1 = rank1 . rangeMinMaxBP
+instance Rank1 RangeMinMax2 where
+  rank1 = rank1 . rangeMinMax2BP
   {-# INLINE rank1 #-}
 
-instance Rank0 RangeMinMax where
-  rank0 = rank0 . rangeMinMaxBP
+instance Rank0 RangeMinMax2 where
+  rank0 = rank0 . rangeMinMax2BP
   {-# INLINE rank0 #-}
 
-instance BitLength RangeMinMax where
-  bitLength = bitLength . rangeMinMaxBP
+instance BitLength RangeMinMax2 where
+  bitLength = bitLength . rangeMinMax2BP
   {-# INLINE bitLength #-}
 
-instance OpenAt RangeMinMax where
-  openAt = openAt . rangeMinMaxBP
+instance OpenAt RangeMinMax2 where
+  openAt = openAt . rangeMinMax2BP
   {-# INLINE openAt #-}
 
-instance CloseAt RangeMinMax where
-  closeAt = closeAt . rangeMinMaxBP
+instance CloseAt RangeMinMax2 where
+  closeAt = closeAt . rangeMinMax2BP
   {-# INLINE closeAt #-}
 
-instance NewCloseAt RangeMinMax where
-  newCloseAt = newCloseAt . rangeMinMaxBP
+instance NewCloseAt RangeMinMax2 where
+  newCloseAt = newCloseAt . rangeMinMax2BP
   {-# INLINE newCloseAt #-}
 
-instance FindOpenN RangeMinMax where
-  findOpenN = findOpenN . rangeMinMaxBP
+instance FindOpenN RangeMinMax2 where
+  findOpenN = findOpenN . rangeMinMax2BP
   {-# INLINE findOpenN #-}
 
-instance FindCloseN RangeMinMax where
+instance FindCloseN RangeMinMax2 where
   findCloseN v s p  = (+ 1) `fmap` rmm2FindClose v (fromIntegral s) (p - 1) FindFromL0
   {-# INLINE findCloseN  #-}
 
-instance FindClose RangeMinMax where
+instance FindClose RangeMinMax2 where
   findClose v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
   {-# INLINE findClose #-}
 
-instance FindOpen RangeMinMax where
+instance FindOpen RangeMinMax2 where
   findOpen = undefined
   {-# INLINE findOpen #-}
 
-instance Enclose RangeMinMax where
+instance Enclose RangeMinMax2 where
   enclose = undefined
   {-# INLINE enclose #-}
 
-instance BalancedParens RangeMinMax
+instance BalancedParens RangeMinMax2
