@@ -32,11 +32,10 @@ _patch=$(
 case $1 in
 major)
   _new_version="$(($_major + 1)).0.0.0"
-  _new_branch="$(($_major + 1)).0"
+  _new_branch="$(($_major + 1))"
   ;;
 minor)
   _new_version="$_major.$(($_minor + 1)).0.0"
-  _new_branch="$_major.$(($_minor + 1))"
   ;;
 point)
   _new_version="$_major.$_minor.$(($_point + 1))"
