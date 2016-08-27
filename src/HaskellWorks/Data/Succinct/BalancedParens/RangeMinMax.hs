@@ -143,7 +143,7 @@ rmm2FindClose v s p FindL0 =
     then rmm2FindClose v s p FindBP
     else if v `newCloseAt` p && s <= 1
       then Just p
-      else  let excesses = rangeMinMaxL0Excess v in
+      else  let excesses  = rangeMinMaxL0Excess v in
             let excess    = fromIntegral (excesses !!! fromIntegral i)  :: Int in
             rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + 64) FindFromL0
 rmm2FindClose v s p FindL1 =
@@ -155,7 +155,7 @@ rmm2FindClose v s p FindL1 =
     else if 0 <= p && p < bitLength v
       then if v `newCloseAt` p && s <= 1
         then Just p
-        else  let excesses = rangeMinMaxL1Excess v in
+        else  let excesses  = rangeMinMaxL1Excess v in
               let excess    = fromIntegral (excesses !!! fromIntegral i)  :: Int in
               rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + (64 * pageSizeL1)) FindFromL1
       else Nothing
@@ -168,7 +168,7 @@ rmm2FindClose v s p FindL2 =
     else if 0 <= p && p < bitLength v
       then if v `newCloseAt` p && s <= 1
         then Just p
-        else  let excesses = rangeMinMaxL2Excess v in
+        else  let excesses  = rangeMinMaxL2Excess v in
               let excess    = fromIntegral (excesses !!! fromIntegral i)  :: Int in
               rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + (64 * pageSizeL2)) FindFromL2
       else Nothing
@@ -177,13 +177,13 @@ rmm2FindClose v s p FindFromL0
   | 0 <= p && p < bitLength v   = rmm2FindClose v s p FindBP
   | otherwise                   = Nothing
 rmm2FindClose v s p FindFromL1
-  | p `mod` (64 * pageSizeL1) == 0      = if 0 <= p && p < bitLength v then rmm2FindClose v s p FindFromL2 else Nothing
-  | 0 <= p && p < bitLength v   = rmm2FindClose v s p FindL0
-  | otherwise                   = Nothing
+  | p `mod` (64 * pageSizeL1) == 0  = if 0 <= p && p < bitLength v then rmm2FindClose v s p FindFromL2 else Nothing
+  | 0 <= p && p < bitLength v       = rmm2FindClose v s p FindL0
+  | otherwise                       = Nothing
 rmm2FindClose v s p FindFromL2
-  | p `mod` (64 * pageSizeL2) == 0 = if 0 <= p && p < bitLength v then rmm2FindClose v s p FindL2 else Nothing
-  | 0 <= p && p < bitLength v   = rmm2FindClose v s p FindL1
-  | otherwise                   = Nothing
+  | p `mod` (64 * pageSizeL2) == 0  = if 0 <= p && p < bitLength v then rmm2FindClose v s p FindL2 else Nothing
+  | 0 <= p && p < bitLength v       = rmm2FindClose v s p FindL1
+  | otherwise                       = Nothing
 {-# INLINE rmm2FindClose #-}
 
 instance TestBit RangeMinMax where

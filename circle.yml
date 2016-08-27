@@ -18,7 +18,7 @@ dependencies:
 test:
   override:
     - nox when build nix-build -v:
-        timeout: 1200
+        timeout: 1800
 
 deployment:
   release_branch:

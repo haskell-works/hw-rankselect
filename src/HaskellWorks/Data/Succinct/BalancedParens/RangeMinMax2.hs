@@ -47,6 +47,9 @@ data RangeMinMax2 = RangeMinMax2
   , rangeMinMax2L3Min    :: !(DVS.Vector Int16)
   , rangeMinMax2L3Max    :: !(DVS.Vector Int16)
   , rangeMinMax2L3Excess :: !(DVS.Vector Int16)
+  , rangeMinMax2L4Min    :: !(DVS.Vector Int16)
+  , rangeMinMax2L4Max    :: !(DVS.Vector Int16)
+  , rangeMinMax2L4Excess :: !(DVS.Vector Int16)
   }
 
 factorL0 :: Integral a => a
@@ -65,6 +68,10 @@ factorL3 :: Integral a => a
 factorL3 = 32
 {-# INLINE factorL3 #-}
 
+factorL4 :: Integral a => a
+factorL4 = 32
+{-# INLINE factorL4 #-}
+
 pageSizeL0 :: Integral a => a
 pageSizeL0 = factorL0
 {-# INLINE pageSizeL0 #-}
@@ -81,6 +88,10 @@ pageSizeL3 :: Integral a => a
 pageSizeL3 = pageSizeL2 * factorL3
 {-# INLINE pageSizeL3 #-}
 
+pageSizeL4 :: Integral a => a
+pageSizeL4 = pageSizeL3 * factorL4
+{-# INLINE pageSizeL4 #-}
+
 mkRangeMinMax2 :: DVS.Vector Word64 -> RangeMinMax2
 mkRangeMinMax2 bp = RangeMinMax2
   { rangeMinMax2BP       = bp
@@ -96,25 +107,32 @@ mkRangeMinMax2 bp = RangeMinMax2
   , rangeMinMax2L3Min    = rmmL3Min
   , rangeMinMax2L3Max    = rmmL3Max
   , rangeMinMax2L3Excess = rmmL3Excess
+  , rangeMinMax2L4Min    = rmmL4Min
+  , rangeMinMax2L4Max    = rmmL4Max
+  , rangeMinMax2L4Excess = rmmL4Excess
   }
   where lenBP         = fromIntegral (vLength bp) :: Int
         lenL0         = lenBP
         lenL1         = (DVS.length rmmL0Min `div` pageSizeL1) + 1 :: Int
         lenL2         = (DVS.length rmmL0Min `div` pageSizeL2) + 1 :: Int
         lenL3         = (DVS.length rmmL0Min `div` pageSizeL3) + 1 :: Int
+        lenL4         = (DVS.length rmmL0Min `div` pageSizeL4) + 1 :: Int
         allMinMaxL0   = dvConstructNI  lenL0 (\i -> if i == lenBP then (-64, -64, 0) else minMaxExcess1 (bp !!! fromIntegral i))
         rmmL0Excess   = dvsConstructNI lenL0 (\i -> fromIntegral (allExcess1 (pageFill i pageSizeL0 (-64) bp))) :: DVS.Vector Int16
         rmmL1Excess   = dvsConstructNI lenL1 (\i -> fromIntegral (allExcess1 (pageFill i pageSizeL1 (-64) bp))) :: DVS.Vector Int16
         rmmL2Excess   = dvsConstructNI lenL2 (\i -> fromIntegral (allExcess1 (pageFill i pageSizeL2 (-64) bp))) :: DVS.Vector Int16
         rmmL3Excess   = dvsConstructNI lenL3 (\i -> fromIntegral (allExcess1 (pageFill i pageSizeL3 (-64) bp))) :: DVS.Vector Int16
+        rmmL4Excess   = dvsConstructNI lenL4 (\i -> fromIntegral (allExcess1 (pageFill i pageSizeL4 (-64) bp))) :: DVS.Vector Int16
         rmmL0Min      = dvsConstructNI lenL0 (\i -> let (minE, _, _) = allMinMaxL0 DV.! i in fromIntegral minE) :: DVS.Vector Int16
         rmmL1Min      = dvsConstructNI lenL1 (\i -> genMin 0 (pageFill i factorL1 0 rmmL0Min) (pageFill i factorL1 0 rmmL0Excess))
         rmmL2Min      = dvsConstructNI lenL2 (\i -> genMin 0 (pageFill i factorL2 0 rmmL1Min) (pageFill i factorL2 0 rmmL1Excess))
-        rmmL3Min      = dvsConstructNI lenL3 (\i -> genMin 0 (pageFill i factorL3 0 rmmL1Min) (pageFill i factorL3 0 rmmL1Excess))
+        rmmL3Min      = dvsConstructNI lenL3 (\i -> genMin 0 (pageFill i factorL3 0 rmmL2Min) (pageFill i factorL3 0 rmmL2Excess))
+        rmmL4Min      = dvsConstructNI lenL4 (\i -> genMin 0 (pageFill i factorL4 0 rmmL3Min) (pageFill i factorL4 0 rmmL3Excess))
         rmmL0Max      = dvsConstructNI lenL0 (\i -> let (_, _, maxE) = allMinMaxL0 DV.! i in fromIntegral maxE) :: DVS.Vector Int16
         rmmL1Max      = dvsConstructNI lenL1 (\i -> genMax 0 (pageFill i factorL1 0 rmmL0Max) (pageFill i factorL1 0 rmmL0Excess))
         rmmL2Max      = dvsConstructNI lenL2 (\i -> genMax 0 (pageFill i factorL2 0 rmmL1Max) (pageFill i factorL2 0 rmmL1Excess))
-        rmmL3Max      = dvsConstructNI lenL3 (\i -> genMax 0 (pageFill i factorL3 0 rmmL1Max) (pageFill i factorL3 0 rmmL1Excess))
+        rmmL3Max      = dvsConstructNI lenL3 (\i -> genMax 0 (pageFill i factorL3 0 rmmL2Max) (pageFill i factorL3 0 rmmL2Excess))
+        rmmL4Max      = dvsConstructNI lenL4 (\i -> genMax 0 (pageFill i factorL4 0 rmmL3Max) (pageFill i factorL4 0 rmmL3Excess))
 
 genMin :: (Integral a, DVS.Storable a) => a -> DVS.Vector a -> DVS.Vector a -> a
 genMin mL mins excesses = if not (DVS.null mins) || not (DVS.null excesses)
@@ -157,6 +175,7 @@ data FindState = FindBP
   | FindL1 | FindFromL1
   | FindL2 | FindFromL2
   | FindL3 | FindFromL3
+  | FindL4 | FindFromL4
 
 rmm2FindClose  :: RangeMinMax2 -> Int -> Count -> FindState -> Maybe Count
 rmm2FindClose v s p FindBP = if v `newCloseAt` p
@@ -214,6 +233,19 @@ rmm2FindClose v s p FindL3 =
               let excess    = fromIntegral (excesses !!! fromIntegral i)  :: Int in
               rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + (64 * pageSizeL3)) FindFromL3
         else Nothing
+rmm2FindClose v s p FindL4 =
+  let !i = p `div` (64 * pageSizeL4) in
+  let !mins = rangeMinMax2L4Min v in
+  let !minE = fromIntegral (mins !!! fromIntegral i) :: Int in
+  if fromIntegral s + minE <= 0
+    then rmm2FindClose v s p FindL3
+    else if 0 <= p && p < bitLength v
+      then if v `newCloseAt` p && s <= 1
+        then Just p
+        else  let excesses  = rangeMinMax2L4Excess v in
+              let excess    = fromIntegral (excesses !!! fromIntegral i)  :: Int in
+              rmm2FindClose v (fromIntegral (excess + fromIntegral s)) (p + (64 * pageSizeL4)) FindFromL4
+        else Nothing
 rmm2FindClose v s p FindFromL0
   | p `mod` 64 == 0             = rmm2FindClose v s p FindFromL1
   | 0 <= p && p < bitLength v   = rmm2FindClose v s p FindBP
@@ -227,8 +259,12 @@ rmm2FindClose v s p FindFromL2
   | 0 <= p && p < bitLength v       = rmm2FindClose v s p FindL1
   | otherwise                       = Nothing
 rmm2FindClose v s p FindFromL3
-  | p `mod` (64 * pageSizeL3) == 0  = if 0 <= p && p < bitLength v then rmm2FindClose v s p FindL3 else Nothing
-  | 0 <= p && p < bitLength v       = rmm2FindClose v s p FindL1
+  | p `mod` (64 * pageSizeL3) == 0  = if 0 <= p && p < bitLength v then rmm2FindClose v s p FindFromL4 else Nothing
+  | 0 <= p && p < bitLength v       = rmm2FindClose v s p FindL2
+  | otherwise                       = Nothing
+rmm2FindClose v s p FindFromL4
+  | p `mod` (64 * pageSizeL4) == 0  = if 0 <= p && p < bitLength v then rmm2FindClose v s p FindL4 else Nothing
+  | 0 <= p && p < bitLength v       = rmm2FindClose v s p FindL3
   | otherwise                       = Nothing
 {-# INLINE rmm2FindClose #-}
 
