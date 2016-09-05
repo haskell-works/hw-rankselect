@@ -71,36 +71,36 @@ findCloseW64 x =                                                                
 
 ocCalc64 :: Word64 -> (Word64, Word64)
 ocCalc64 x =
-  let b0  =   x .&. 0x5555555555555555                          in let !_ = traceW "b0 " b0  in
-  let b1  =  (x .&. 0xAAAAAAAAAAAAAAAA) .>. 1                   in let !_ = traceW "b1 " b1  in
-  let ll  =  (b0 .^. b1) .&. b1                                 in let !_ = traceW "ll " ll  in
-  let o1  =  (b0 .&. b1) .<. 1 .|. ll                           in let !_ = traceW "o1 " o1  in
-  let c1  = ((b0 .|. b1) .^. 0x5555555555555555) .<. 1 .|. ll   in let !_ = traceW "c1 " c1  in
+  let b0  =   x .&. 0x5555555555555555                            in let !_ = traceW "b0 " b0  in
+  let b1  =  (x .&. 0xAAAAAAAAAAAAAAAA) .>. 1                     in let !_ = traceW "b1 " b1  in
+  let ll  =  (b0 .^. b1) .&. b1                                   in let !_ = traceW "ll " ll  in
+  let o1  =  (b0 .&. b1) .<. 1 .|. ll                             in let !_ = traceW "o1 " o1  in
+  let c1  = ((b0 .|. b1) .^. 0x5555555555555555) .<. 1 .|. ll     in let !_ = traceW "c1 " c1  in
 
-  let eo1 =    o1 .&. µ1                                        in let !_ = traceW "eo1" eo1 in
-  let ec1 =  ((c1 .&. µ1) .<.  2) .>.  2                        in let !_ = traceW "ec1" ec1 in
-  let o2  = (((o1 .&. µ1) .<.  2) .>.  2) + kBitDiff 8 eo1 ec1  in let !_ = traceW "o2 " o2  in
-  let c2  =   (c1 .&. µ1)                 + kBitDiff 8 ec1 eo1  in let !_ = traceW "c2 " c2  in
+  let eo1 =    o1 .&. µ1                                          in let !_ = traceW "eo1" eo1 in
+  let ec1 =  ((c1 .&. µ1) .<.  2) .>.  2                          in let !_ = traceW "ec1" ec1 in
+  let o2  = (((o1 .&. µ1) .<.  2) .>.  2) + kBitDiffPos 8 eo1 ec1 in let !_ = traceW "o2 " o2  in
+  let c2  =   (c1 .&. µ1)                 + kBitDiffPos 8 ec1 eo1 in let !_ = traceW "c2 " c2  in
 
-  let eo2 =    o2 .&. µ2                                        in let !_ = traceW "eo2" eo2 in
-  let ec2 =  ((c2 .&. µ2) .<.  4) .>.  4                        in let !_ = traceW "ec2" ec2 in
-  let o3  = (((o2 .&. µ2) .<.  4) .>.  4) + kBitDiff 8 eo2 ec2  in let !_ = traceW "o3 " o3  in
-  let c3  =   (c2 .&. µ2)                 + kBitDiff 8 ec2 eo2  in let !_ = traceW "c3 " c3  in
+  let eo2 =    o2 .&. µ2                                          in let !_ = traceW "eo2" eo2 in
+  let ec2 =  ((c2 .&. µ2) .<.  4) .>.  4                          in let !_ = traceW "ec2" ec2 in
+  let o3  = (((o2 .&. µ2) .<.  4) .>.  4) + kBitDiffPos 8 eo2 ec2 in let !_ = traceW "o3 " o3  in
+  let c3  =   (c2 .&. µ2)                 + kBitDiffPos 8 ec2 eo2 in let !_ = traceW "c3 " c3  in
 
-  let eo3 =    o3 .&. µ3                                        in let !_ = traceW "eo3" eo3 in
-  let ec3 =  ((c3 .&. µ3) .<.  8) .>.  8                        in let !_ = traceW "ec3" ec3 in
-  let o4  = (((o3 .&. µ3) .<.  8) .>.  8) + kBitDiff 8 eo3 ec3  in let !_ = traceW "o4 " o4  in
-  let c4  =   (c3 .&. µ3)                 + kBitDiff 8 ec3 eo3  in let !_ = traceW "c4 " c4  in
+  let eo3 =    o3 .&. µ3                                          in let !_ = traceW "eo3" eo3 in
+  let ec3 =  ((c3 .&. µ3) .<.  8) .>.  8                          in let !_ = traceW "ec3" ec3 in
+  let o4  = (((o3 .&. µ3) .<.  8) .>.  8) + kBitDiffPos 8 eo3 ec3 in let !_ = traceW "o4 " o4  in
+  let c4  =   (c3 .&. µ3)                 + kBitDiffPos 8 ec3 eo3 in let !_ = traceW "c4 " c4  in
 
-  let eo4 =    o4 .&. µ4                                        in let !_ = traceW "eo4" eo4 in
-  let ec4 =  ((c4 .&. µ4) .<. 16) .>. 16                        in let !_ = traceW "ec4" ec4 in
-  let o5  = (((o4 .&. µ4) .<. 16) .>. 16) + kBitDiff 8 eo4 ec4  in let !_ = traceW "o5 " o5  in
-  let c5  =   (c4 .&. µ4)                 + kBitDiff 8 ec4 eo4  in let !_ = traceW "c5 " c5  in
+  let eo4 =    o4 .&. µ4                                          in let !_ = traceW "eo4" eo4 in
+  let ec4 =  ((c4 .&. µ4) .<. 16) .>. 16                          in let !_ = traceW "ec4" ec4 in
+  let o5  = (((o4 .&. µ4) .<. 16) .>. 16) + kBitDiffPos 8 eo4 ec4 in let !_ = traceW "o5 " o5  in
+  let c5  =   (c4 .&. µ4)                 + kBitDiffPos 8 ec4 eo4 in let !_ = traceW "c5 " c5  in
 
-  let eo5 =    o5 .&. µ5                                        in let !_ = traceW "eo5" eo5 in
-  let ec5 =  ((c5 .&. µ5) .<. 32) .>. 32                        in let !_ = traceW "ec5" ec5 in
-  let o6  = (((o5 .&. µ5) .<. 32) .>. 32) + kBitDiff 8 eo5 ec5  in let !_ = traceW "o6 " o6  in
-  let c6  =   (c5 .&. µ5)                 + kBitDiff 8 ec5 eo5  in let !_ = traceW "c6 " c6  in
+  let eo5 =    o5 .&. µ5                                          in let !_ = traceW "eo5" eo5 in
+  let ec5 =  ((c5 .&. µ5) .<. 32) .>. 32                          in let !_ = traceW "ec5" ec5 in
+  let o6  = (((o5 .&. µ5) .<. 32) .>. 32) + kBitDiffPos 8 eo5 ec5 in let !_ = traceW "o6 " o6  in
+  let c6  =   (c5 .&. µ5)                 + kBitDiffPos 8 ec5 eo5 in let !_ = traceW "c6 " c6  in
 
   (o6, c6)
 
@@ -135,7 +135,12 @@ traceWW :: String -> Word8 -> Word8
 traceWW s w = trace (s ++ ": " ++ show (BitShown w) ++ " : " ++ show w) w
 
 (.>+.) :: Word8 -> Int -> Word8
-(.>+.) w n = fromIntegral ((fromIntegral w :: Int8) `DB.shift` n)
+(.>+.) w n = fromIntegral ((fromIntegral w :: Int8) `DB.shift` (-n))
+
+-- import qualified Data.Vector.Storable as DVS
+-- import HaskellWorks.Data.Bits.FromBitTextByteString
+-- import Data.Word
+-- import HaskellWorks.Data.Succinct.BalancedParens.Broadword
 
 ocCalc8 :: Word8 -> Word8 -> Word8
 ocCalc8 p x =
@@ -155,17 +160,21 @@ ocCalc8 p x =
   let o3  = (((o2 .&. µµ2) .<.  4) .>.  4) + kkBitDiffPos 8 eo2 ec2                 in let !_ = traceWW "o3 " o3  in
   let c3  =   (c2 .&. µµ2)                 + kkBitDiffPos 8 ec2 eo2                 in let !_ = traceWW "c3 " c3  in
 
-  let bb2  = ((p - (c2 .>. 0 .&. 15)) .>+. 7) - 1                                   in let !_ = traceWW "bb2" bb2 in
+  let nnn  =       ((c2 .>. 0) .&. 15)                                              in let !_ = traceWW "nnn" nnn in
+  let qqq  =  (p - ((c2 .>. 0) .&. 15))                                             in let !_ = traceWW "qqq" qqq in
+  let bb2  = ((p - ((c2 .>. 0) .&. 15)) .>+. 7)                                     in let !_ = traceWW "bb2" bb2 in
   let mm2  = bb2 .&. 15                                                             in let !_ = traceWW "mm2" mm2 in
-  let pa2  = p   - c2 .&. mm2                                                       in let !_ = traceWW "pa2" pa2 in
-  let pb2  = pa2 + o2 .&. mm2                                                       in let !_ = traceWW "pb2" pb2 in
-  let ss2  = 16 .&. bb2                                                             in let !_ = traceWW "ss2" ss2 in
+  let pa2  = p   - (c2 .&. mm2)                                                     in let !_ = traceWW "pa2" pa2 in
+  let pb2  = pa2 + (o2 .&. mm2)                                                     in let !_ = traceWW "pb2" pb2 in
+  let ss2  = 4 .&. bb2                                                              in let !_ = traceWW "ss2" ss2 in
 
-  let bb1  = ((p - (c1 .>. 0 .&. 3)) .>+. 7) - 1                                    in let !_ = traceWW "bb1" bb1 in
+  let nnn  =         ((c1 .>. fromIntegral ss2) .&. 3)                              in let !_ = traceWW "nnn" nnn in
+  let qqq  =  (pb2 - ((c1 .>. fromIntegral ss2) .&. 3))                             in let !_ = traceWW "qqq" qqq in
+  let bb1  = ((pb2 - ((c1 .>. fromIntegral ss2) .&. 3)) .>+. 7)                     in let !_ = traceWW "bb1" bb1 in
   let mm1  = bb1 .&. 3                                                              in let !_ = traceWW "mm1" mm1 in
-  let pa1  = p   - c1 .&. mm1                                                       in let !_ = traceWW "pa1" pa1 in
-  let pb1  = pa1 + o1 .&. mm1                                                       in let !_ = traceWW "pb1" pb1 in
-  let ss1  = 4  .&. bb1                                                             in let !_ = traceWW "ss1" ss1 in
+  let pa1  = pa2 - (c1 .&. mm1)                                                     in let !_ = traceWW "pa1" pa1 in
+  let pb1  = pa1 + (o1 .&. mm1)                                                     in let !_ = traceWW "pb1" pb1 in
+  let ss1  = ss2 + (2  .&. bb1)                                                     in let !_ = traceWW "ss1" ss1 in
 
   let rrr  = ss1 + pb1 + ((x .>. fromIntegral ss1 .&. ((pb1 .<. 1) .|. 1)) .<. 1)   in let !_ = traceWW "rrr" rrr in
 
