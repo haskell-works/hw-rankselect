@@ -12,9 +12,9 @@ import           Data.Word
 import           HaskellWorks.Data.Bits.BitShown
 import           HaskellWorks.Data.Bits.ElemFixedBitSize
 import           HaskellWorks.Data.Bits.PopCount.PopCount0
+import           HaskellWorks.Data.IndexedSeq
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1 as X
-import           HaskellWorks.Data.Vector.VectorLike
 import           Prelude                                                  as P
 
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}

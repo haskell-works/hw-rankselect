@@ -55,8 +55,8 @@ findCloseW64 x =                                                                
   r00
 {-# INLINE findCloseW64 #-}
 
-µ0 :: Word64
-µ0 = 0x5555555555555555
+-- µ0 :: Word64
+-- µ0 = 0x5555555555555555
 
 µ1 :: Word64
 µ1 = 0x3333333333333333
@@ -108,8 +108,8 @@ ocCalc64 x =
 
   (o6, c6)
 
-µµ0 :: Word8
-µµ0 = 0x55
+-- µµ0 :: Word8
+-- µµ0 = 0x55
 
 µµ1 :: Word8
 µµ1 = 0x33
@@ -186,8 +186,8 @@ ocCalc8 p x =
   let pb2  = pa2 + (o2 .&. mm2)                                                     in let !_ = traceWW "pb2" pb2 in
   let ss2  = 4 .&. bb2                                                              in let !_ = traceWW "ss2" ss2 in
 
-  let nnn  =   ((c1 .>. fromIntegral ss2) .&. 3)                                    in let !_ = traceWW "nnn" nnn in
-  let qqq  =  (((c1 .>. fromIntegral ss2) .&. 3) - pb2)                             in let !_ = traceWW "qqq" qqq in
+  -- let nnn  =   ((c1 .>. fromIntegral ss2) .&. 3)                                    in let !_ = traceWW "nnn" nnn in
+  -- let qqq  =  (((c1 .>. fromIntegral ss2) .&. 3) - pb2)                             in let !_ = traceWW "qqq" qqq in
   let bb1  = ((((c1 .>. fromIntegral ss2) .&. 3) - pb2) .>+. 7)                     in let !_ = traceWW "bb1" bb1 in
   let mm1  = bb1 .&. 3                                                              in let !_ = traceWW "mm1" mm1 in
   let pa1  = pa2 - (c1 .&. mm1)                                                     in let !_ = traceWW "pa1" pa1 in

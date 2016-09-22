@@ -16,6 +16,7 @@ import           Data.Word
 import           HaskellWorks.Data.Bits.AllExcess.AllExcess1
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitWise
+import           HaskellWorks.Data.IndexedSeq
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.BalancedParens
 import           HaskellWorks.Data.Succinct.BalancedParens.CloseAt
@@ -29,7 +30,6 @@ import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
-import           HaskellWorks.Data.Vector.VectorLike
 
 data RangeMinMax = RangeMinMax
   { rangeMinMaxBP       :: !(DVS.Vector Word64)

@@ -11,11 +11,11 @@ import           Data.Word
 import           HaskellWorks.Data.Bits.BitRead
 import           HaskellWorks.Data.Bits.BitShow
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
+import           HaskellWorks.Data.IndexedSeq
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.BasicGen
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy2
-import           HaskellWorks.Data.Vector.VectorLike
 import           Test.Hspec
 import           Test.QuickCheck
 
