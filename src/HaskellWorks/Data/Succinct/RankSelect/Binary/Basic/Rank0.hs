@@ -9,15 +9,15 @@ module HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import qualified Data.Vector                                              as DV
 import qualified Data.Vector.Storable                                     as DVS
 import           Data.Word
+import           HaskellWorks.Data.AtIndex
 import           HaskellWorks.Data.Bits.BitShown
 import           HaskellWorks.Data.Bits.ElemFixedBitSize
 import           HaskellWorks.Data.Bits.PopCount.PopCount0
-import           HaskellWorks.Data.IndexedSeq
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1 as X
 import           Prelude                                                  as P
 
-{-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
+{-# ANN module ("HLint: Ignore Reduce duplication"  :: String) #-}
 
 class Rank0 v where
   rank0 :: v -> Count -> Count

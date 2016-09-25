@@ -8,17 +8,18 @@ import           GHC.Exts
 import           Data.Maybe
 import qualified Data.Vector.Storable                                       as DVS
 import           Data.Word
+import           HaskellWorks.Data.AtIndex
 import           HaskellWorks.Data.Bits.BitRead
 import           HaskellWorks.Data.Bits.BitShow
 import           HaskellWorks.Data.Bits.PopCount.PopCount0
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
-import           HaskellWorks.Data.IndexedSeq
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.BasicGen
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512
+import           Prelude hiding (length)
 import           Test.Hspec
 import           Test.QuickCheck
 
@@ -47,17 +48,17 @@ spec = describe "HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512.Rank1Spec
       rank1 v i === rank1 w i
     it "on one basic block" $
       forAll (vectorSizedBetween 1 8) $ \(ShowVector v) ->
-      forAll (choose (0, vLength v * 8)) $ \i ->
+      forAll (choose (0, length v * 8)) $ \i ->
       let w = makePoppy512 v in
       rank1 v i === rank1 w i
     it "on two basic blocks" $
       forAll (vectorSizedBetween 9 16) $ \(ShowVector v) ->
-      forAll (choose (0, vLength v * 8)) $ \i ->
+      forAll (choose (0, length v * 8)) $ \i ->
       let w = makePoppy512 v in
       rank1 v i === rank1 w i
     it "on three basic blocks" $
       forAll (vectorSizedBetween 17 24) $ \(ShowVector v) ->
-      forAll (choose (0, vLength v * 8)) $ \i ->
+      forAll (choose (0, length v * 8)) $ \i ->
       let w = makePoppy512 v in
       rank1 v i === rank1 w i
   describe "rank0 for Vector Word64 is equivalent to rank0 for Poppy512" $ do
@@ -68,17 +69,17 @@ spec = describe "HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512.Rank1Spec
       rank0 v i === rank0 w i
     it "on one basic block" $
       forAll (vectorSizedBetween 1 8) $ \(ShowVector v) ->
-      forAll (choose (0, vLength v * 8)) $ \i ->
+      forAll (choose (0, length v * 8)) $ \i ->
       let w = makePoppy512 v in
       rank0 v i === rank0 w i
     it "on two basic blocks" $
       forAll (vectorSizedBetween 9 16) $ \(ShowVector v) ->
-      forAll (choose (0, vLength v * 8)) $ \i ->
+      forAll (choose (0, length v * 8)) $ \i ->
       let w = makePoppy512 v in
       rank0 v i === rank0 w i
     it "on three basic blocks" $
       forAll (vectorSizedBetween 17 24) $ \(ShowVector v) ->
-      forAll (choose (0, vLength v * 8)) $ \i ->
+      forAll (choose (0, length v * 8)) $ \i ->
       let w = makePoppy512 v in
       rank0 v i === rank0 w i
   describe "select0 for Vector Word64 is equivalent to select0 for Poppy512" $ do

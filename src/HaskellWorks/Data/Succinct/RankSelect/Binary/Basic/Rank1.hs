@@ -9,11 +9,11 @@ module HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import qualified Data.Vector                               as DV
 import qualified Data.Vector.Storable                      as DVS
 import           Data.Word
+import           HaskellWorks.Data.AtIndex
 import           HaskellWorks.Data.Bits.BitShown
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.ElemFixedBitSize
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
-import           HaskellWorks.Data.IndexedSeq
 import           HaskellWorks.Data.Positioning
 import           Prelude                                   as P
 

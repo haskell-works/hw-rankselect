@@ -15,10 +15,10 @@ import           Data.Int
 import qualified Data.Vector                                                    as DV
 import qualified Data.Vector.Storable                                           as DVS
 import           Data.Word
+import           HaskellWorks.Data.AtIndex
 import           HaskellWorks.Data.Bits.AllExcess.AllExcess1
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitWise
-import           HaskellWorks.Data.IndexedSeq
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Succinct.BalancedParens.BalancedParens
 import           HaskellWorks.Data.Succinct.BalancedParens.CloseAt
@@ -32,6 +32,7 @@ import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
+import           Prelude hiding (length)
 
 data RangeMinMax2 = RangeMinMax2
   { rangeMinMax2BP       :: !(DVS.Vector Word64)
@@ -111,7 +112,7 @@ mkRangeMinMax2 bp = RangeMinMax2
   , rangeMinMax2L4Max    = rmmL4Max
   , rangeMinMax2L4Excess = rmmL4Excess
   }
-  where lenBP         = fromIntegral (vLength bp) :: Int
+  where lenBP         = fromIntegral (length bp) :: Int
         lenL0         = lenBP
         lenL1         = (DVS.length rmmL0Min `div` pageSizeL1) + 1 :: Int
         lenL2         = (DVS.length rmmL0Min `div` pageSizeL2) + 1 :: Int

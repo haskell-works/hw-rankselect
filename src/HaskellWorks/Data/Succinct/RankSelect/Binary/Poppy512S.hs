@@ -7,11 +7,11 @@ module HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512S
 
 import qualified Data.Vector.Storable                                       as DVS
 import           Data.Word
+import           HaskellWorks.Data.AtIndex
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitRead
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
-import           HaskellWorks.Data.IndexedSeq
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Search
 import           HaskellWorks.Data.Succinct.BalancedParens.BalancedParens
@@ -24,6 +24,7 @@ import           HaskellWorks.Data.Succinct.BalancedParens.OpenAt
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
+import           Prelude hiding (length)
 
 data Poppy512S = Poppy512S
   { poppy512SBits   :: DVS.Vector Word64
@@ -45,7 +46,7 @@ makePoppy512S v = Poppy512S
             then 0
             else getCount (popCount1Range (indexN *           8)           8 v) + DVS.last u
         genS :: (Count, Position) -> Maybe (Word64, (Count, Position))
-        genS (pca, n) = if n < vEnd v
+        genS (pca, n) = if n < end v
           then  let w = v !!! n in
                 let pcz = pca + popCount1 w in
                 if (8192 - 1 + pca) `div` 8192 /= (8192 - 1 + pcz) `div` 8192
@@ -54,7 +55,7 @@ makePoppy512S v = Poppy512S
           else Nothing
 
 instance BitLength Poppy512S where
-  bitLength v = vLength (poppy512SBits v) * bitLength (poppy512SBits v !!! 0)
+  bitLength v = length (poppy512SBits v) * bitLength (poppy512SBits v !!! 0)
   {-# INLINE bitLength #-}
 
 instance TestBit Poppy512S where

@@ -7,10 +7,10 @@ module HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy2
 
 import qualified Data.Vector.Storable                                       as DVS
 import           Data.Word
+import           HaskellWorks.Data.AtIndex
 import           HaskellWorks.Data.Bits.BitRead
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
-import           HaskellWorks.Data.IndexedSeq
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Search
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
@@ -60,7 +60,7 @@ makeCsPoppy2 v = CsPoppy2
           .|. ((b .<. 42) .&. 0x000ffc0000000000)
           .|. ((c .<. 52) .&. 0x3ff0000000000000)) -- zhou-sea2013 fig 5 (c)
         genS :: (Count, Position) -> Maybe (Word64, (Count, Position))
-        genS (pca, n) = if n < vEnd v
+        genS (pca, n) = if n < end v
           then  let w = v !!! n in
                 let pcz = pca + popCount1 w in
                 if (8192 - 1 + pca) `div` 8192 /= (8192 - 1 + pcz) `div` 8192
