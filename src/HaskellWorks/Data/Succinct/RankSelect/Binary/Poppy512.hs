@@ -42,7 +42,7 @@ makePoppy512 v = Poppy512
   where gen512Index u = let indexN = DVS.length u - 1 in
           if indexN == -1
             then 0
-            else getCount (popCount1 (DVS.take 8 (DVS.drop (indexN * 8) v))) + DVS.last u
+            else popCount1 (DVS.take 8 (DVS.drop (indexN * 8) v)) + DVS.last u
 
 instance BitLength Poppy512 where
   bitLength v = length (poppy512Bits v) * bitLength (poppy512Bits v !!! 0)
@@ -57,22 +57,22 @@ instance BitRead Poppy512 where
 
 instance Rank1 Poppy512 where
   rank1 (Poppy512 v i) p =
-    Count (i !!! toPosition (p `div` 512)) + rank1 (DVS.drop ((fromIntegral p `div` 512) * 8) v) (p `mod` 512)
+    (i !!! toPosition (p `div` 512)) + rank1 (DVS.drop ((fromIntegral p `div` 512) * 8) v) (p `mod` 512)
 
 instance Rank0 Poppy512 where
   rank0 (Poppy512 v i) p =
-    p `div` 512 * 512 - Count (i !!! toPosition (p `div` 512)) + rank0 (DVS.drop ((fromIntegral p `div` 512) * 8) v) (p `mod` 512)
+    p `div` 512 * 512 - (i !!! toPosition (p `div` 512)) + rank0 (DVS.drop ((fromIntegral p `div` 512) * 8) v) (p `mod` 512)
 
 instance Select1 Poppy512 where
   select1 (Poppy512 v i) p = toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)
     where q = binarySearch (fromIntegral p) wordAt 0 (fromIntegral $ DVS.length i - 1)
-          s = Count (i !!! q)
+          s = (i !!! q) :: Count
           wordAt = (i !!!)
 
 instance Select0 Poppy512 where
   select0 (Poppy512 v i) p = toCount q * 512 + select0 (DVS.drop (fromIntegral q * 8) v) (p - s)
     where q = binarySearch (fromIntegral p) wordAt 0 (fromIntegral $ DVS.length i - 1)
-          s = Count (fromIntegral q * 512 - (i !!! q))
+          s = (fromIntegral q * 512 - (i !!! q)) :: Count
           wordAt o = fromIntegral o * 512 - (i !!! o)
 
 instance OpenAt Poppy512 where

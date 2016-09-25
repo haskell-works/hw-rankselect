@@ -14,6 +14,7 @@ import           HaskellWorks.Data.Bits.BitShown
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.ElemFixedBitSize
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
+import           HaskellWorks.Data.Narrow
 import           HaskellWorks.Data.Positioning
 import           Prelude                                   as P
 
@@ -39,7 +40,7 @@ instance Select1 Word16 where
     let c = (b .&. 0x0f0f) + ((b .>.  4) .&. 0x0f0f)    in
     let d = (c .&. 0x00ff) + ((c .>.  8) .&. 0x00ff)    in
     -- Now do branchless select!
-    let r0 = d + 1 - (fromIntegral (getCount rn) :: Word16)                     in
+    let r0 = d + 1 - narrow16 rn                                                in
     let s0 = 64 :: Word16                                                       in
     let t0 = (d .>. 32) + (d .>. 48)                                            in
     let s1 = s0 - ((t0 - r0) .&. 256) .>. 3                                     in
@@ -73,7 +74,7 @@ instance Select1 Word32 where
     let d = (c .&. 0x00ff00ff) + ((c .>.  8) .&. 0x00ff00ff)    in
     let e = (d .&. 0x000000ff) + ((d .>. 16) .&. 0x000000ff)    in
     -- Now do branchless select!
-    let r0 = e + 1 - (fromIntegral (getCount rn) :: Word32)                     in
+    let r0 = e + 1 - narrow32 rn                                                in
     let s0 = 64 :: Word32                                                       in
     let t0 = (d .>. 32) + (d .>. 48)                                            in
     let s1 = s0 - ((t0 - r0) .&. 256) .>. 3                                     in
@@ -107,7 +108,7 @@ instance Select1 Word64 where
     let e = (d .&. 0x0000ffff0000ffff) + ((d .>. 16) .&. 0x0000ffff0000ffff)    in
     let f = (e .&. 0x00000000ffffffff) + ((e .>. 32) .&. 0x00000000ffffffff)    in
     -- Now do branchless select!
-    let r0 = f + 1 - fromIntegral (getCount rn) :: Word64                       in
+    let r0 = f + 1 - narrow64 rn                                                in
     let s0 = 64 :: Word64                                                       in
     let t0 = (d .>. 32) + (d .>. 48)                                            in
     let s1 = s0 - ((t0 - r0) .&. 256) .>. 3                                     in

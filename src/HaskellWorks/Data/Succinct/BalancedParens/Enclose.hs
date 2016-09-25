@@ -19,41 +19,41 @@ instance (Enclose a) => Enclose (BitShown a) where
   {-# INLINE enclose #-}
 
 instance Enclose [Bool] where
-  enclose v = findOpenN v (Count 1)
+  enclose v = findOpenN v 1
   {-# INLINE enclose #-}
 
 instance Enclose (DVS.Vector Word8) where
-  enclose v = findOpenN v (Count 1)
+  enclose v = findOpenN v 1
   {-# INLINE enclose #-}
 
 instance Enclose (DVS.Vector Word16) where
-  enclose v = findOpenN v (Count 1)
+  enclose v = findOpenN v 1
   {-# INLINE enclose #-}
 
 instance Enclose (DVS.Vector Word32) where
-  enclose v = findOpenN v (Count 1)
+  enclose v = findOpenN v 1
   {-# INLINE enclose #-}
 
 instance Enclose (DVS.Vector Word64) where
-  enclose v = findOpenN v (Count 1)
+  enclose v = findOpenN v 1
   {-# INLINE enclose #-}
 
 instance Enclose Word8 where
-  enclose v = findOpenN v (Count 1)
+  enclose v = findOpenN v 1
   {-# INLINE enclose #-}
 
 instance Enclose Word16 where
-  enclose v = findOpenN v (Count 1)
+  enclose v = findOpenN v 1
   {-# INLINE enclose #-}
 
 instance Enclose Word32 where
-  enclose v = findOpenN v (Count 1)
+  enclose v = findOpenN v 1
   {-# INLINE enclose #-}
 
 instance Enclose Word64 where
-  enclose v = findOpenN v (Count 1)
+  enclose v = findOpenN v 1
   {-# INLINE enclose #-}
 
 instance Enclose (Naive Word64) where
-  enclose v = findOpenN v (Count 1)
+  enclose v = findOpenN v 1
   {-# INLINE enclose #-}

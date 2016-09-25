@@ -39,22 +39,22 @@ makeCsPoppy v = CsPoppy
         gen512Index u = let indexN = DVS.length u - 1 in
           if indexN == -1
             then 0
-            else getCount (popCount1Range (indexN *           8)           8 v) + DVS.last u
+            else popCount1Range (indexN *           8)           8 v + DVS.last u
         genCum2048 u = let indexN = DVS.length u in
           if indexN .&. 0xffffffff == 0
             then 0
-            else getCount (popCount1Range ((indexN - 1) *    32)          32 v) + DVS.last u
+            else popCount1Range ((indexN - 1) *    32)          32 v + DVS.last u
         genLayer0 u = let indexN = DVS.length u in
           if indexN == 0
             then 0
-            else getCount (popCount1Range (indexN * 0x100000000) 0x100000000 v) + DVS.last u
+            else popCount1Range (indexN * 0x100000000) 0x100000000 v + DVS.last u
         genLayer1 u = let indexN = DVS.length u in
           let cum = if indexN == 0 -- TODO Check boundary at 4G???
               then  0
               else  csPoppyCum2048 !!! fromIntegral indexN in
-          let a = getCount (popCount1Range (indexN * 32 +  0)  8 v) in
-          let b = getCount (popCount1Range (indexN * 32 +  8)  8 v) in
-          let c = getCount (popCount1Range (indexN * 32 + 16)  8 v) in
+          let a = popCount1Range (indexN * 32 +  0) 8 v in
+          let b = popCount1Range (indexN * 32 +  8) 8 v in
+          let c = popCount1Range (indexN * 32 + 16) 8 v in
           (   ( cum       .&. 0x00000000ffffffff)
           .|. ((a .<. 32) .&. 0x000003ff00000000)
           .|. ((b .<. 42) .&. 0x000ffc0000000000)
@@ -89,7 +89,7 @@ instance Rank1 CsPoppy where
                       | q == 2    = rankLayer1A + rankLayer1B + rankLayer1C
                       | q == 3    = rankLayer1A + rankLayer1B + rankLayer1C + rankLayer1D
                       | otherwise = undefined
-          rankPrior               = Count (rankLayer0 + rankLayer1)
+          rankPrior               = (rankLayer0 + rankLayer1) :: Count
           rankInBasicBlock        = rank1 (DVS.drop (fromIntegral p `div` 512) v) (p `mod` 512)
 
 instance Select1 CsPoppy where
@@ -97,7 +97,7 @@ instance Select1 CsPoppy where
       then toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)
       else 0
     where q = binarySearch (fromIntegral p) wordAt iMin iMax
-          s = Count (i !!! q)
+          s = (i !!! q) :: Count
           wordAt = (i !!!)
           (sampleMin, sampleMax) = sampleRange iv p
           iMin = fromIntegral $  (sampleMin - 1) `div` 512      :: Position

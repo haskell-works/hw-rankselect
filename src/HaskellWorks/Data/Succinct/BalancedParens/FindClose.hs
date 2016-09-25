@@ -23,35 +23,35 @@ instance (FindClose a) => FindClose (BitShown a) where
   {-# INLINE findClose #-}
 
 instance FindClose [Bool] where
-  findClose v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  findClose v p = if v `closeAt` p then Just p else findCloseN v 1 (p + 1)
   {-# INLINE findClose #-}
 
 instance FindClose (DVS.Vector Word8) where
-  findClose v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  findClose v p = if v `closeAt` p then Just p else findCloseN v 1 (p + 1)
   {-# INLINE findClose #-}
 
 instance FindClose (DVS.Vector Word16) where
-  findClose v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  findClose v p = if v `closeAt` p then Just p else findCloseN v 1 (p + 1)
   {-# INLINE findClose #-}
 
 instance FindClose (DVS.Vector Word32) where
-  findClose v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  findClose v p = if v `closeAt` p then Just p else findCloseN v 1 (p + 1)
   {-# INLINE findClose #-}
 
 instance FindClose (DVS.Vector Word64) where
-  findClose v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  findClose v p = if v `closeAt` p then Just p else findCloseN v 1 (p + 1)
   {-# INLINE findClose #-}
 
 instance FindClose Word8 where
-  findClose v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  findClose v p = if v `closeAt` p then Just p else findCloseN v 1 (p + 1)
   {-# INLINE findClose #-}
 
 instance FindClose Word16 where
-  findClose v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  findClose v p = if v `closeAt` p then Just p else findCloseN v 1 (p + 1)
   {-# INLINE findClose #-}
 
 instance FindClose Word32 where
-  findClose v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  findClose v p = if v `closeAt` p then Just p else findCloseN v 1 (p + 1)
   {-# INLINE findClose #-}
 
 instance FindClose Word64 where
@@ -59,7 +59,7 @@ instance FindClose Word64 where
   {-# INLINE findClose #-}
 
 instance FindClose (Naive Word64) where
-  findClose v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  findClose v p = if v `closeAt` p then Just p else findCloseN v 1 (p + 1)
   {-# INLINE findClose #-}
 
 instance FindClose (Broadword Word64) where

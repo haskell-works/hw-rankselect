@@ -15,9 +15,10 @@ import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.ElemFixedBitSize
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
 import           HaskellWorks.Data.Positioning
+import           HaskellWorks.Data.Widen.Widen64
 import           Prelude                                   as P
 
-{-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
+{-# ANN module ("HLint: Ignore Reduce duplication"  :: String) #-}
 
 class Rank1 v where
   rank1 :: v -> Count -> Count
@@ -34,7 +35,7 @@ instance Rank1 Word8 where
     let r2 = (r1 .&. 0x33) + ((r1 .>. 2) .&. 0x33)  in
     let r3 = (r2 .&. 0x0f) + ((r2 .>. 4) .&. 0x0f)  in
     let r4 = r3 `mod` 255                           in
-    Count $ fromIntegral r4
+    widen64 r4
   {-# INLINABLE rank1 #-}
 
 instance Rank1 Word16 where
@@ -47,7 +48,7 @@ instance Rank1 Word16 where
     let r2 = (r1 .&. 0x3333) + ((r1 .>. 2) .&. 0x3333)  in
     let r3 = (r2 .&. 0x0f0f) + ((r2 .>. 4) .&. 0x0f0f)  in
     let r4 = r3 `mod` 255                               in
-    Count $ fromIntegral r4
+    widen64 r4
   {-# INLINABLE rank1 #-}
 
 instance Rank1 Word32 where
@@ -60,7 +61,7 @@ instance Rank1 Word32 where
     let r2 = (r1 .&. 0x33333333) + ((r1 .>. 2) .&. 0x33333333)  in
     let r3 = (r2 .&. 0x0f0f0f0f) + ((r2 .>. 4) .&. 0x0f0f0f0f)  in
     let r4 = r3 `mod` 255                                       in
-    Count $ fromIntegral r4
+    widen64 r4
   {-# INLINABLE rank1 #-}
 
 instance Rank1 Word64 where
@@ -73,7 +74,7 @@ instance Rank1 Word64 where
     let r2 = (r1 .&. 0x3333333333333333) + ((r1 .>. 2) .&. 0x3333333333333333)  in
     let r3 = (r2 .&. 0x0f0f0f0f0f0f0f0f) + ((r2 .>. 4) .&. 0x0f0f0f0f0f0f0f0f)  in
     let r4 = r3 `mod` 255                                                       in
-    Count $ fromIntegral r4
+    r4
   {-# INLINABLE rank1 #-}
 
 instance Rank1 [Bool] where

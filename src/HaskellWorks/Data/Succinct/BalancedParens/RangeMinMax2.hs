@@ -306,7 +306,7 @@ instance FindCloseN RangeMinMax2 where
   {-# INLINE findCloseN  #-}
 
 instance FindClose RangeMinMax2 where
-  findClose v p = if v `closeAt` p then Just p else findCloseN v (Count 1) (p + 1)
+  findClose v p = if v `closeAt` p then Just p else findCloseN v 1 (p + 1)
   {-# INLINE findClose #-}
 
 instance FindOpen RangeMinMax2 where
