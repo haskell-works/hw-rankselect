@@ -10,10 +10,10 @@ import qualified Data.Vector.Storable                 as DVS
 import           Data.Word
 import           HaskellWorks.Data.AtIndex
 import           HaskellWorks.Data.Bits.BitWise
-import           HaskellWorks.Data.Bits.EliasFano64.Internal
 import           HaskellWorks.Data.Bits.Log2
 import           HaskellWorks.Data.Bits.PackedVector  as PV
 import           HaskellWorks.Data.Positioning
+import           HaskellWorks.Data.Succinct.EliasFano64.Internal
 import           HaskellWorks.Data.Take
 import           Safe
 import           Prelude hiding (length, take)
