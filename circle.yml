@@ -17,7 +17,7 @@ dependencies:
 
 test:
   override:
-    - nox when build nix-build -vvv
+    - poll '[n]ox' nox when build nix-build -v
 
 deployment:
   release_branch:
