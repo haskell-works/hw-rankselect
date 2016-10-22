@@ -17,7 +17,7 @@ dependencies:
 
 test:
   override:
-    - nox when build nix-build --verbose=3
+    - nox when build nix-build -vvv
 
 deployment:
   release_branch:
