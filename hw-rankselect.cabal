@@ -59,8 +59,9 @@ library
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512S
                       , HaskellWorks.Data.Succinct.RankSelect.Internal
   build-depends:        base                          >= 4          && < 5
-                      , hw-bits                       >= 0.2.0.1
-                      , hw-prim                       >= 0.3.0.1
+                      , hw-bits                       >= 0.3.0.0
+                      , hw-prim                       >= 0.3.0.5
+                      , hw-string-parse               >= 0.0.0.2
                       , safe
                       , vector
 
@@ -91,8 +92,8 @@ test-suite hw-rankselect-test
                       , HaskellWorks.Data.Succinct.SimpleSpec
   build-depends:        base                          >= 4          && < 5
                       , hspec
-                      , hw-bits                       >= 0.2.0.1
-                      , hw-prim                       >= 0.3.0.1
+                      , hw-bits                       >= 0.3.0.0
+                      , hw-prim                       >= 0.3.0.5
                       , hw-rankselect
                       , QuickCheck
                       , vector
@@ -113,8 +114,8 @@ benchmark bench
                       , bytestring
                       , conduit
                       , criterion
-                      , hw-bits                       >= 0.2.0.1
-                      , hw-prim                       >= 0.3.0.1
+                      , hw-bits                       >= 0.3.0.0
+                      , hw-prim                       >= 0.3.0.5
                       , hw-rankselect
                       , mmap
                       , vector

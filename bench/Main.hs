@@ -15,7 +15,7 @@ import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic
 setupEnvVector :: Int -> IO (DVS.Vector Word64)
 setupEnvVector n = return $ DVS.fromList (take n (cycle [maxBound, 0]))
 
-setupEnvRmmVector :: Int -> IO RangeMinMax
+setupEnvRmmVector :: Int -> IO (RangeMinMax (DVS.Vector Word64))
 setupEnvRmmVector n = return $ mkRangeMinMax $ DVS.fromList (take n (cycle [maxBound, 0]))
 
 setupEnvBP2 :: IO Word64

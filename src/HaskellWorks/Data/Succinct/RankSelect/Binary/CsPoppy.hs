@@ -15,6 +15,7 @@ import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.Search
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
+import           HaskellWorks.Data.Vector.AsVector64
 
 data CsPoppy = CsPoppy
   { csPoppyBits     :: DVS.Vector Word64
@@ -23,6 +24,10 @@ data CsPoppy = CsPoppy
   , csPoppyLayer1   :: DVS.Vector Word64
   , csPoppyLayerS   :: DVS.Vector Word64 -- Sampling position of each 8192 1-bit
   } deriving (Eq, Show)
+
+instance AsVector64 CsPoppy where
+  asVector64 = asVector64 . csPoppyBits
+  {-# INLINE asVector64 #-}
 
 popCount1Range :: (DVS.Storable a, PopCount1 a) => Int -> Int -> DVS.Vector a -> Count
 popCount1Range start len = popCount1 . DVS.take len . DVS.drop start

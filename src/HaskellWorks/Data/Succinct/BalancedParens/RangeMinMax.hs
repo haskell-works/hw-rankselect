@@ -12,7 +12,6 @@ module HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax
 import           Data.Int
 import qualified Data.Vector                                                    as DV
 import qualified Data.Vector.Storable                                           as DVS
-import           Data.Word
 import           HaskellWorks.Data.AtIndex
 import           HaskellWorks.Data.Bits.AllExcess.AllExcess1
 import           HaskellWorks.Data.Bits.BitLength
@@ -30,10 +29,11 @@ import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
+import           HaskellWorks.Data.Vector.AsVector64
 import           Prelude hiding (length)
 
-data RangeMinMax = RangeMinMax
-  { rangeMinMaxBP       :: !(DVS.Vector Word64)
+data RangeMinMax a = RangeMinMax
+  { rangeMinMaxBP       :: !a
   , rangeMinMaxL0Min    :: !(DVS.Vector Int8)
   , rangeMinMaxL0Max    :: !(DVS.Vector Int8)
   , rangeMinMaxL0Excess :: !(DVS.Vector Int8)
@@ -69,7 +69,7 @@ pageSizeL2 :: Integral a => a
 pageSizeL2 = pageSizeL1 * factorL2
 {-# INLINE pageSizeL2 #-}
 
-mkRangeMinMax :: DVS.Vector Word64 -> RangeMinMax
+mkRangeMinMax :: AsVector64 a => a -> RangeMinMax a
 mkRangeMinMax bp = RangeMinMax
   { rangeMinMaxBP       = bp
   , rangeMinMaxL0Min    = rmmL0Min
@@ -82,16 +82,17 @@ mkRangeMinMax bp = RangeMinMax
   , rangeMinMaxL2Max    = rmmL2Max
   , rangeMinMaxL2Excess = rmmL2Excess
   }
-  where lenBP         = fromIntegral (length bp) :: Int
+  where bpv           = asVector64 bp
+        lenBP         = fromIntegral (length bpv) :: Int
         lenL0         = lenBP
         lenL1         = (DVS.length rmmL0Min `div` pageSizeL1) + 1 :: Int
         lenL2         = (DVS.length rmmL0Min `div` pageSizeL2) + 1 :: Int
-        allMinMaxL0   = dvConstructNI  lenL0 (\i -> if i == lenBP then (-64, -64, 0) else minMaxExcess1 (bp !!! fromIntegral i))
-        allMinMaxL1   = dvConstructNI  lenL1 (\i -> minMaxExcess1 (dropTake (i * pageSizeL1) pageSizeL1 bp))
-        allMinMaxL2   = dvConstructNI  lenL2 (\i -> minMaxExcess1 (dropTake (i * pageSizeL2) pageSizeL2 bp))
-        rmmL0Excess   = dvsConstructNI lenL0 (\i -> fromIntegral (allExcess1 (pageFill i pageSizeL0 (-64) bp))) :: DVS.Vector Int16
-        rmmL1Excess   = dvsConstructNI lenL1 (\i -> fromIntegral (allExcess1 (pageFill i pageSizeL1 (-64) bp))) :: DVS.Vector Int16
-        rmmL2Excess   = dvsConstructNI lenL2 (\i -> fromIntegral (allExcess1 (pageFill i pageSizeL2 (-64) bp))) :: DVS.Vector Int16
+        allMinMaxL0   = dvConstructNI  lenL0 (\i -> if i == lenBP then (-64, -64, 0) else minMaxExcess1 (bpv !!! fromIntegral i))
+        allMinMaxL1   = dvConstructNI  lenL1 (\i -> minMaxExcess1 (dropTake (i * pageSizeL1) pageSizeL1 bpv))
+        allMinMaxL2   = dvConstructNI  lenL2 (\i -> minMaxExcess1 (dropTake (i * pageSizeL2) pageSizeL2 bpv))
+        rmmL0Excess   = dvsConstructNI lenL0 (\i -> fromIntegral (allExcess1 (pageFill i pageSizeL0 (-64) bpv))) :: DVS.Vector Int16
+        rmmL1Excess   = dvsConstructNI lenL1 (\i -> fromIntegral (allExcess1 (pageFill i pageSizeL1 (-64) bpv))) :: DVS.Vector Int16
+        rmmL2Excess   = dvsConstructNI lenL2 (\i -> fromIntegral (allExcess1 (pageFill i pageSizeL2 (-64) bpv))) :: DVS.Vector Int16
         rmmL0Min      = dvsConstructNI lenL0 (\i -> let (minE, _, _) = allMinMaxL0 DV.! i in fromIntegral minE)
         rmmL1Min      = dvsConstructNI lenL1 (\i -> let (minE, _, _) = allMinMaxL1 DV.! i in fromIntegral minE)
         rmmL2Min      = dvsConstructNI lenL2 (\i -> let (minE, _, _) = allMinMaxL2 DV.! i in fromIntegral minE)
@@ -130,7 +131,7 @@ data FindState = FindBP
   | FindL1 | FindFromL1
   | FindL2 | FindFromL2
 
-rmm2FindClose  :: RangeMinMax -> Int -> Count -> FindState -> Maybe Count
+rmm2FindClose  :: (BitLength a, NewCloseAt a) => RangeMinMax a -> Int -> Count -> FindState -> Maybe Count
 rmm2FindClose v s p FindBP = if v `newCloseAt` p
   then if s <= 1
     then Just p
@@ -187,52 +188,52 @@ rmm2FindClose v s p FindFromL2
   | otherwise                       = Nothing
 {-# INLINE rmm2FindClose #-}
 
-instance TestBit RangeMinMax where
+instance TestBit a => TestBit (RangeMinMax a) where
   (.?.) = (.?.) . rangeMinMaxBP
   {-# INLINE (.?.) #-}
 
-instance Rank1 RangeMinMax where
+instance Rank1 a => Rank1 (RangeMinMax a) where
   rank1 = rank1 . rangeMinMaxBP
   {-# INLINE rank1 #-}
 
-instance Rank0 RangeMinMax where
+instance Rank0 a => Rank0 (RangeMinMax a) where
   rank0 = rank0 . rangeMinMaxBP
   {-# INLINE rank0 #-}
 
-instance BitLength RangeMinMax where
+instance BitLength a => BitLength (RangeMinMax a) where
   bitLength = bitLength . rangeMinMaxBP
   {-# INLINE bitLength #-}
 
-instance OpenAt RangeMinMax where
+instance OpenAt a => OpenAt (RangeMinMax a) where
   openAt = openAt . rangeMinMaxBP
   {-# INLINE openAt #-}
 
-instance CloseAt RangeMinMax where
+instance CloseAt a => CloseAt (RangeMinMax a) where
   closeAt = closeAt . rangeMinMaxBP
   {-# INLINE closeAt #-}
 
-instance NewCloseAt RangeMinMax where
+instance NewCloseAt a => NewCloseAt (RangeMinMax a) where
   newCloseAt = newCloseAt . rangeMinMaxBP
   {-# INLINE newCloseAt #-}
 
-instance FindOpenN RangeMinMax where
+instance FindOpenN a => FindOpenN (RangeMinMax a) where
   findOpenN = findOpenN . rangeMinMaxBP
   {-# INLINE findOpenN #-}
 
-instance FindCloseN RangeMinMax where
+instance (BitLength a, NewCloseAt a) => FindCloseN (RangeMinMax a) where
   findCloseN v s p  = (+ 1) `fmap` rmm2FindClose v (fromIntegral s) (p - 1) FindFromL0
   {-# INLINE findCloseN  #-}
 
-instance FindClose RangeMinMax where
+instance (BitLength a, CloseAt a, NewCloseAt a, FindCloseN a) => FindClose (RangeMinMax a) where
   findClose v p = if v `closeAt` p then Just p else findCloseN v 1 (p + 1)
   {-# INLINE findClose #-}
 
-instance FindOpen RangeMinMax where
+instance FindOpen (RangeMinMax a) where
   findOpen = undefined
   {-# INLINE findOpen #-}
 
-instance Enclose RangeMinMax where
+instance Enclose (RangeMinMax a) where
   enclose = undefined
   {-# INLINE enclose #-}
 
-instance BalancedParens RangeMinMax
+instance (BitLength a, NewCloseAt a, CloseAt a, OpenAt a, FindCloseN a) => BalancedParens (RangeMinMax a)

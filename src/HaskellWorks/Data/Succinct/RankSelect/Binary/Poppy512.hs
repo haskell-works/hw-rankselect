@@ -1,4 +1,4 @@
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeFamilies   #-}
 
 module HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512
     ( Poppy512(..)
@@ -22,17 +22,23 @@ import           HaskellWorks.Data.Succinct.BalancedParens.FindClose
 import           HaskellWorks.Data.Succinct.BalancedParens.FindOpen
 import           HaskellWorks.Data.Succinct.BalancedParens.FindCloseN
 import           HaskellWorks.Data.Succinct.BalancedParens.FindOpenN
+import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
 import           HaskellWorks.Data.Succinct.BalancedParens.OpenAt
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
+import           HaskellWorks.Data.Vector.AsVector64
 import           Prelude hiding (length)
 
 data Poppy512 = Poppy512
   { poppy512Bits  :: DVS.Vector Word64
   , poppy512Index :: DVS.Vector Word64
   } deriving (Eq, Show)
+
+instance AsVector64 Poppy512 where
+  asVector64 = asVector64 . poppy512Bits
+  {-# INLINE asVector64 #-}
 
 makePoppy512 :: DVS.Vector Word64 -> Poppy512
 makePoppy512 v = Poppy512
@@ -98,6 +104,10 @@ instance FindOpen Poppy512 where
 instance FindClose Poppy512 where
   findClose = findClose . poppy512Bits
   {-# INLINE findClose #-}
+
+instance NewCloseAt Poppy512 where
+  newCloseAt = newCloseAt . poppy512Bits
+  {-# INLINE newCloseAt #-}
 
 instance Enclose Poppy512 where
   enclose = enclose . poppy512Bits

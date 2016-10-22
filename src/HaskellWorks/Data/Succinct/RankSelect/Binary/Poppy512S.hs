@@ -18,12 +18,15 @@ import           HaskellWorks.Data.Succinct.BalancedParens.BalancedParens
 import           HaskellWorks.Data.Succinct.BalancedParens.CloseAt
 import           HaskellWorks.Data.Succinct.BalancedParens.Enclose
 import           HaskellWorks.Data.Succinct.BalancedParens.FindClose
+import           HaskellWorks.Data.Succinct.BalancedParens.FindCloseN
 import           HaskellWorks.Data.Succinct.BalancedParens.FindOpen
 import           HaskellWorks.Data.Succinct.BalancedParens.FindOpenN
+import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
 import           HaskellWorks.Data.Succinct.BalancedParens.OpenAt
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
+import           HaskellWorks.Data.Vector.AsVector64
 import           Prelude hiding (length)
 
 data Poppy512S = Poppy512S
@@ -31,6 +34,10 @@ data Poppy512S = Poppy512S
   , poppy512Index   :: DVS.Vector Word64
   , poppy512Samples :: DVS.Vector Word64 -- Sampling position of each 8192 1-bit
   } deriving (Eq, Show)
+
+instance AsVector64 Poppy512S where
+  asVector64 = asVector64 . poppy512SBits
+  {-# INLINE asVector64 #-}
 
 popCount1Range :: (DVS.Storable a, PopCount1 a) => Int -> Int -> DVS.Vector a -> Count
 popCount1Range start len = popCount1 . DVS.take len . DVS.drop start
@@ -103,6 +110,10 @@ instance CloseAt Poppy512S where
   closeAt = closeAt . poppy512SBits
   {-# INLINE closeAt #-}
 
+instance NewCloseAt Poppy512S where
+  newCloseAt = newCloseAt . poppy512SBits
+  {-# INLINE newCloseAt #-}
+
 instance FindOpenN Poppy512S where
   findOpenN = findOpenN . poppy512SBits
   {-# INLINE findOpenN #-}
@@ -114,6 +125,10 @@ instance FindOpen Poppy512S where
 instance FindClose Poppy512S where
   findClose = findClose . poppy512SBits
   {-# INLINE findClose #-}
+
+instance FindCloseN Poppy512S where
+  findCloseN = findCloseN . poppy512SBits
+  {-# INLINE findCloseN #-}
 
 instance Enclose Poppy512S where
   enclose = enclose . poppy512SBits
