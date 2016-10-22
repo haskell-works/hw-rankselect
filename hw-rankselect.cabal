@@ -40,11 +40,6 @@ library
                       , HaskellWorks.Data.Succinct.BalancedParens.Simple
                       , HaskellWorks.Data.Succinct.EliasFano64
                       , HaskellWorks.Data.Succinct.EliasFano64.Internal
-                      , HaskellWorks.Data.Succinct.Excess
-                      , HaskellWorks.Data.Succinct.Excess.Excess0
-                      , HaskellWorks.Data.Succinct.Excess.Excess1
-                      , HaskellWorks.Data.Succinct.Excess.MinMaxExcess0
-                      , HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
                       , HaskellWorks.Data.Succinct.NearestNeighbour
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy2
@@ -52,6 +47,7 @@ library
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512S
   build-depends:        base                          >= 4          && < 5
                       , hw-bits                       >= 0.3.0.0
+                      , hw-excess                     >= 0.0.0.1
                       , hw-prim                       >= 0.3.0.5
                       , hw-rankselect-base            >= 0.1.0.0
                       , hw-string-parse               >= 0.0.0.2
@@ -70,8 +66,6 @@ test-suite hw-rankselect-test
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2Spec
                       , HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec
                       , HaskellWorks.Data.Succinct.EliasFano64Spec
-                      , HaskellWorks.Data.Succinct.Excess.MinMaxExcess0Spec
-                      , HaskellWorks.Data.Succinct.Excess.MinMaxExcess1Spec
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.BasicGen
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppySpec
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy2Spec

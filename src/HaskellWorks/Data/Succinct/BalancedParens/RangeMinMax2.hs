@@ -19,6 +19,7 @@ import           HaskellWorks.Data.AtIndex
 import           HaskellWorks.Data.Bits.AllExcess.AllExcess1
 import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitWise
+import           HaskellWorks.Data.Excess.MinMaxExcess1
 import           HaskellWorks.Data.Positioning
 import           HaskellWorks.Data.RankSelect.Base.Rank0
 import           HaskellWorks.Data.RankSelect.Base.Rank1
@@ -31,7 +32,6 @@ import           HaskellWorks.Data.Succinct.BalancedParens.FindOpen
 import           HaskellWorks.Data.Succinct.BalancedParens.FindOpenN
 import           HaskellWorks.Data.Succinct.BalancedParens.OpenAt
 import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
-import           HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
 import           HaskellWorks.Data.Vector.AsVector64
 import           Prelude hiding (length)
 

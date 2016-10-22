@@ -1,4 +1,5 @@
 hw-bits
+hw-excess
 hw-prim
 hw-rankselect-base
 hw-string-parse
