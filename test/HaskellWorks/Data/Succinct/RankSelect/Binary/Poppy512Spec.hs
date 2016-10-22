@@ -13,10 +13,10 @@ import           HaskellWorks.Data.Bits.BitRead
 import           HaskellWorks.Data.Bits.BitShow
 import           HaskellWorks.Data.Bits.PopCount.PopCount0
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select0
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
+import           HaskellWorks.Data.RankSelect.Base.Rank0
+import           HaskellWorks.Data.RankSelect.Base.Rank1
+import           HaskellWorks.Data.RankSelect.Base.Select0
+import           HaskellWorks.Data.RankSelect.Base.Select1
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.BasicGen
 import           HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512
 import           Prelude hiding (length)

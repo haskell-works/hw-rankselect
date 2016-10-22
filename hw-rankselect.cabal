@@ -46,21 +46,14 @@ library
                       , HaskellWorks.Data.Succinct.Excess.MinMaxExcess0
                       , HaskellWorks.Data.Succinct.Excess.MinMaxExcess1
                       , HaskellWorks.Data.Succinct.NearestNeighbour
-                      , HaskellWorks.Data.Succinct.RankSelect
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select0
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy2
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512S
-                      , HaskellWorks.Data.Succinct.RankSelect.Internal
   build-depends:        base                          >= 4          && < 5
                       , hw-bits                       >= 0.3.0.0
                       , hw-prim                       >= 0.3.0.5
+                      , hw-rankselect-base            >= 0.1.0.0
                       , hw-string-parse               >= 0.0.0.2
                       , safe
                       , vector
@@ -79,10 +72,6 @@ test-suite hw-rankselect-test
                       , HaskellWorks.Data.Succinct.EliasFano64Spec
                       , HaskellWorks.Data.Succinct.Excess.MinMaxExcess0Spec
                       , HaskellWorks.Data.Succinct.Excess.MinMaxExcess1Spec
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0Spec
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1Spec
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select0Spec
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1Spec
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.BasicGen
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppySpec
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy2Spec
@@ -95,6 +84,7 @@ test-suite hw-rankselect-test
                       , hw-bits                       >= 0.3.0.0
                       , hw-prim                       >= 0.3.0.5
                       , hw-rankselect
+                      , hw-rankselect-base            >= 0.1.0.0
                       , QuickCheck
                       , vector
   ghc-options:          -threaded -rtsopts -with-rtsopts=-N -Wall
@@ -117,5 +107,6 @@ benchmark bench
                       , hw-bits                       >= 0.3.0.0
                       , hw-prim                       >= 0.3.0.5
                       , hw-rankselect
+                      , hw-rankselect-base            >= 0.1.0.0
                       , mmap
                       , vector

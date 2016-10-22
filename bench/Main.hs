@@ -8,9 +8,9 @@ import           Data.Word
 import           HaskellWorks.Data.Bits.Broadword
 import           HaskellWorks.Data.Bits.FromBitTextByteString
 import           HaskellWorks.Data.Naive
+import           HaskellWorks.Data.RankSelect.Base
 import           HaskellWorks.Data.Succinct.BalancedParens.FindClose
 import           HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic
 
 setupEnvVector :: Int -> IO (DVS.Vector Word64)
 setupEnvVector n = return $ DVS.fromList (take n (cycle [maxBound, 0]))

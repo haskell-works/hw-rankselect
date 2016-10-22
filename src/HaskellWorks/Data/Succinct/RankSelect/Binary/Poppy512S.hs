@@ -13,6 +13,9 @@ import           HaskellWorks.Data.Bits.BitRead
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
 import           HaskellWorks.Data.Positioning
+import           HaskellWorks.Data.RankSelect.Base.Rank0
+import           HaskellWorks.Data.RankSelect.Base.Rank1
+import           HaskellWorks.Data.RankSelect.Base.Select1
 import           HaskellWorks.Data.Search
 import           HaskellWorks.Data.Succinct.BalancedParens.BalancedParens
 import           HaskellWorks.Data.Succinct.BalancedParens.CloseAt
@@ -23,9 +26,6 @@ import           HaskellWorks.Data.Succinct.BalancedParens.FindOpen
 import           HaskellWorks.Data.Succinct.BalancedParens.FindOpenN
 import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
 import           HaskellWorks.Data.Succinct.BalancedParens.OpenAt
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Select1
 import           HaskellWorks.Data.Vector.AsVector64
 import           Prelude hiding (length)
 

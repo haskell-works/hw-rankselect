@@ -11,13 +11,13 @@ import qualified Data.Vector.Storable                                       as D
 import           Data.Word
 import           HaskellWorks.Data.Naive
 import           HaskellWorks.Data.Positioning
+import           HaskellWorks.Data.RankSelect.Base.Rank0
+import           HaskellWorks.Data.RankSelect.Base.Rank1
 import           HaskellWorks.Data.Succinct.BalancedParens.CloseAt
 import           HaskellWorks.Data.Succinct.BalancedParens.Enclose
 import           HaskellWorks.Data.Succinct.BalancedParens.FindClose
 import           HaskellWorks.Data.Succinct.BalancedParens.FindOpen
 import           HaskellWorks.Data.Succinct.BalancedParens.OpenAt
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank0
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
 
 class (OpenAt v, CloseAt v, FindOpen v, FindClose v, Enclose v) => BalancedParens v where
   -- TODO Second argument should be Int

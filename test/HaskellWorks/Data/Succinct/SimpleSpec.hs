@@ -8,7 +8,7 @@ import           Data.Word
 import           HaskellWorks.Data.Bits.BitShown
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Positioning
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.Basic.Rank1
+import           HaskellWorks.Data.RankSelect.Base.Rank1
 import           Test.Hspec
 import           Test.QuickCheck
 

@@ -6,7 +6,8 @@ module HaskellWorks.Data.Succinct.RankSelect.InternalSpec (spec) where
 import           HaskellWorks.Data.Bits.BitRead
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
 import           HaskellWorks.Data.Positioning
-import           HaskellWorks.Data.Succinct.RankSelect.Internal
+import           HaskellWorks.Data.RankSelect.Base.Rank
+import           HaskellWorks.Data.RankSelect.Base.Select
 import           Test.Hspec
 import           Test.QuickCheck
 
