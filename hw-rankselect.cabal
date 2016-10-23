@@ -38,8 +38,6 @@ library
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2
                       , HaskellWorks.Data.Succinct.BalancedParens.Simple
-                      , HaskellWorks.Data.Succinct.EliasFano64
-                      , HaskellWorks.Data.Succinct.EliasFano64.Internal
                       , HaskellWorks.Data.Succinct.NearestNeighbour
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy2
@@ -65,7 +63,6 @@ test-suite hw-rankselect-test
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMaxSpec
                       , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2Spec
                       , HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec
-                      , HaskellWorks.Data.Succinct.EliasFano64Spec
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.BasicGen
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppySpec
                       , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy2Spec
