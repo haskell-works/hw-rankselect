@@ -13,37 +13,14 @@ build-type:             Simple
 extra-source-files:     README.md
 cabal-version:          >= 1.22
 
-executable hw-rankselect-example
-  hs-source-dirs:       app
-  main-is:              Main.hs
-  ghc-options:          -threaded -rtsopts -with-rtsopts=-N -O2 -Wall -msse4.2
-  build-depends:        base                          >= 4          && < 5
-                      , hw-rankselect
-  default-language:     Haskell2010
-
 library
   hs-source-dirs:       src
-  exposed-modules:      HaskellWorks.Data.Succinct.BalancedParens
-                      , HaskellWorks.Data.Succinct.BalancedParens.BalancedParens
-                      , HaskellWorks.Data.Succinct.BalancedParens.Broadword
-                      , HaskellWorks.Data.Succinct.BalancedParens.CloseAt
-                      , HaskellWorks.Data.Succinct.BalancedParens.Enclose
-                      , HaskellWorks.Data.Succinct.BalancedParens.FindClose
-                      , HaskellWorks.Data.Succinct.BalancedParens.FindCloseN
-                      , HaskellWorks.Data.Succinct.BalancedParens.FindOpen
-                      , HaskellWorks.Data.Succinct.BalancedParens.FindOpenN
-                      , HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
-                      , HaskellWorks.Data.Succinct.BalancedParens.NewOpenAt
-                      , HaskellWorks.Data.Succinct.BalancedParens.OpenAt
-                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax
-                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2
-                      , HaskellWorks.Data.Succinct.BalancedParens.Simple
-                      , HaskellWorks.Data.Succinct.NearestNeighbour
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy2
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512S
+  exposed-modules:      HaskellWorks.Data.RankSelect.CsPoppy
+                      , HaskellWorks.Data.RankSelect.CsPoppy2
+                      , HaskellWorks.Data.RankSelect.Poppy512
+                      , HaskellWorks.Data.RankSelect.Poppy512S
   build-depends:        base                          >= 4          && < 5
+                      , hw-balancedparens             >= 0.0.0.1
                       , hw-bits                       >= 0.3.0.0
                       , hw-excess                     >= 0.0.0.1
                       , hw-prim                       >= 0.3.0.5
@@ -59,17 +36,13 @@ test-suite hw-rankselect-test
   type:                 exitcode-stdio-1.0
   hs-source-dirs:       test
   main-is:              Spec.hs
-  other-modules:        HaskellWorks.Data.Succinct.BalancedParens.Internal.BroadwordSpec
-                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMaxSpec
-                      , HaskellWorks.Data.Succinct.BalancedParens.RangeMinMax2Spec
-                      , HaskellWorks.Data.Succinct.BalancedParens.SimpleSpec
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.BasicGen
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppySpec
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy2Spec
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512Spec
-                      , HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512SSpec
-                      , HaskellWorks.Data.Succinct.RankSelect.InternalSpec
-                      , HaskellWorks.Data.Succinct.SimpleSpec
+  other-modules:        HaskellWorks.Data.RankSelect.BasicGen
+                      , HaskellWorks.Data.RankSelect.CsPoppySpec
+                      , HaskellWorks.Data.RankSelect.CsPoppy2Spec
+                      , HaskellWorks.Data.RankSelect.Poppy512Spec
+                      , HaskellWorks.Data.RankSelect.Poppy512SSpec
+                      , HaskellWorks.Data.RankSelect.InternalSpec
+                      , HaskellWorks.Data.RankSelect.SimpleSpec
   build-depends:        base                          >= 4          && < 5
                       , hspec
                       , hw-bits                       >= 0.3.0.0

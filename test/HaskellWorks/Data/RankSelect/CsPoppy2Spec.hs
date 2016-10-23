@@ -1,8 +1,8 @@
 {-# OPTIONS_GHC -fno-warn-incomplete-patterns #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE ScopedTypeVariables        #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving       #-}
+{-# LANGUAGE ScopedTypeVariables              #-}
 
-module HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppySpec (spec) where
+module HaskellWorks.Data.RankSelect.CsPoppy2Spec (spec) where
 
 import           GHC.Exts
 import           Data.Maybe
@@ -14,8 +14,8 @@ import           HaskellWorks.Data.Bits.BitShow
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
 import           HaskellWorks.Data.RankSelect.Base.Rank1
 import           HaskellWorks.Data.RankSelect.Base.Select1
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.BasicGen
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy
+import           HaskellWorks.Data.RankSelect.BasicGen
+import           HaskellWorks.Data.RankSelect.CsPoppy2
 import           Prelude hiding (length)
 import           Test.Hspec
 import           Test.QuickCheck
@@ -35,60 +35,60 @@ vectorSizedBetween a b = do
   return $ ShowVector (fromList xs)
 
 spec :: Spec
-spec = describe "HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy.Rank1Spec" $ do
-  genBinaryRank1Select1Spec (undefined :: CsPoppy)
-  describe "rank1 for Vector Word64 is equivalent to rank1 for CsPoppy" $ do
+spec = describe "HaskellWorks.Data.RankSelect.CsPoppy2.Rank1Spec" $ do
+  genRank1Select1Spec (undefined :: CsPoppy2)
+  describe "rank1 for Vector Word64 is equivalent to rank1 for CsPoppy2" $ do
     it "on empty bitvector" $
       let v = DVS.empty in
-      let w = makeCsPoppy v in
+      let w = makeCsPoppy2 v in
       let i = 0 in
       rank1 v i === rank1 w i
     it "on one basic block" $
       forAll (vectorSizedBetween 1 8) $ \(ShowVector v) ->
       forAll (choose (0, length v * 8)) $ \i ->
-      let w = makeCsPoppy v in
+      let w = makeCsPoppy2 v in
       rank1 v i === rank1 w i
     it "on two basic blocks" $
       forAll (vectorSizedBetween 9 16) $ \(ShowVector v) ->
       forAll (choose (0, length v * 8)) $ \i ->
-      let w = makeCsPoppy v in
+      let w = makeCsPoppy2 v in
       rank1 v i === rank1 w i
     it "on three basic blocks" $
       forAll (vectorSizedBetween 17 24) $ \(ShowVector v) ->
       forAll (choose (0, length v * 8)) $ \i ->
-      let w = makeCsPoppy v in
+      let w = makeCsPoppy2 v in
       rank1 v i === rank1 w i
-  describe "select1 for Vector Word64 is equivalent to select1 for CsPoppy" $ do
+  describe "select1 for Vector Word64 is equivalent to select1 for CsPoppy2" $ do
     it "on empty bitvector" $
       let v = DVS.empty in
-      let w = makeCsPoppy v in
+      let w = makeCsPoppy2 v in
       let i = 0 in
       select1 v i === select1 w i
     it "on one full zero basic block" $
       let v = fromList [0, 0, 0, 0, 0, 0, 0, 0] :: DVS.Vector Word64 in
-      let w = makeCsPoppy v in
+      let w = makeCsPoppy2 v in
       select1 v 0 === select1 w 0
     it "on one basic block" $
       forAll (vectorSizedBetween 1 8) $ \(ShowVector v) ->
       forAll (choose (0, popCount1 v)) $ \i ->
-      let w = makeCsPoppy v in
+      let w = makeCsPoppy2 v in
       select1 v i === select1 w i
     it "on two basic blocks" $
       forAll (vectorSizedBetween 9 16) $ \(ShowVector v) ->
       forAll (choose (0, popCount1 v)) $ \i ->
-      let w = makeCsPoppy v in
+      let w = makeCsPoppy2 v in
       select1 v i === select1 w i
     it "on three basic blocks" $
       forAll (vectorSizedBetween 17 24) $ \(ShowVector v) ->
       forAll (choose (0, popCount1 v)) $ \i ->
-      let w = makeCsPoppy v in
+      let w = makeCsPoppy2 v in
       select1 v i === select1 w i
   describe "Rank select over large buffer" $ do
     it "Rank works" $ do
       let cs = fromJust (bitRead (take 4096 (cycle "10"))) :: DVS.Vector Word64
-      let ps = makeCsPoppy cs
+      let ps = makeCsPoppy2 cs
       (rank1 ps `map` [1 .. 4096]) `shouldBe` [(x - 1) `div` 2 + 1 | x <- [1 .. 4096]]
     it "Select works" $ do
       let cs = fromJust (bitRead (take 4096 (cycle "10"))) :: DVS.Vector Word64
-      let ps = makeCsPoppy cs
+      let ps = makeCsPoppy2 cs
       (select1 ps `map` [1 .. 2048]) `shouldBe` [1, 3 .. 4096]

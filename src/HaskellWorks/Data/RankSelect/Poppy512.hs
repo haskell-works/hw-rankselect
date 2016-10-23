@@ -1,6 +1,6 @@
 {-# LANGUAGE TypeFamilies   #-}
 
-module HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512
+module HaskellWorks.Data.RankSelect.Poppy512
     ( Poppy512(..)
     , Rank1(..)
     , makePoppy512
@@ -19,15 +19,15 @@ import           HaskellWorks.Data.RankSelect.Base.Rank1
 import           HaskellWorks.Data.RankSelect.Base.Select0
 import           HaskellWorks.Data.RankSelect.Base.Select1
 import           HaskellWorks.Data.Search
-import           HaskellWorks.Data.Succinct.BalancedParens.BalancedParens
-import           HaskellWorks.Data.Succinct.BalancedParens.CloseAt
-import           HaskellWorks.Data.Succinct.BalancedParens.Enclose
-import           HaskellWorks.Data.Succinct.BalancedParens.FindClose
-import           HaskellWorks.Data.Succinct.BalancedParens.FindOpen
-import           HaskellWorks.Data.Succinct.BalancedParens.FindCloseN
-import           HaskellWorks.Data.Succinct.BalancedParens.FindOpenN
-import           HaskellWorks.Data.Succinct.BalancedParens.NewCloseAt
-import           HaskellWorks.Data.Succinct.BalancedParens.OpenAt
+import           HaskellWorks.Data.BalancedParens.BalancedParens
+import           HaskellWorks.Data.BalancedParens.CloseAt
+import           HaskellWorks.Data.BalancedParens.Enclose
+import           HaskellWorks.Data.BalancedParens.FindClose
+import           HaskellWorks.Data.BalancedParens.FindOpen
+import           HaskellWorks.Data.BalancedParens.FindCloseN
+import           HaskellWorks.Data.BalancedParens.FindOpenN
+import           HaskellWorks.Data.BalancedParens.NewCloseAt
+import           HaskellWorks.Data.BalancedParens.OpenAt
 import           HaskellWorks.Data.Vector.AsVector64
 import           Prelude hiding (length)
 

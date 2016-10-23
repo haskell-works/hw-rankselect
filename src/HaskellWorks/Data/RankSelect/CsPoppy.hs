@@ -1,4 +1,4 @@
-module HaskellWorks.Data.Succinct.RankSelect.Binary.CsPoppy
+module HaskellWorks.Data.RankSelect.CsPoppy
     ( CsPoppy(..)
     , Rank1(..)
     , makeCsPoppy

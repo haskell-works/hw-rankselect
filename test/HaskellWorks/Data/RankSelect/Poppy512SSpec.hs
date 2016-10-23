@@ -2,7 +2,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving       #-}
 {-# LANGUAGE ScopedTypeVariables              #-}
 
-module HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512SSpec (spec) where
+module HaskellWorks.Data.RankSelect.Poppy512SSpec (spec) where
 
 import           GHC.Exts
 import           Data.Maybe
@@ -14,8 +14,8 @@ import           HaskellWorks.Data.Bits.BitShow
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
 import           HaskellWorks.Data.RankSelect.Base.Rank1
 import           HaskellWorks.Data.RankSelect.Base.Select1
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.BasicGen
-import           HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512S
+import           HaskellWorks.Data.RankSelect.BasicGen
+import           HaskellWorks.Data.RankSelect.Poppy512S
 import           Prelude hiding (length)
 import           Test.Hspec
 import           Test.QuickCheck
@@ -35,8 +35,8 @@ vectorSizedBetween a b = do
   return $ ShowVector (fromList xs)
 
 spec :: Spec
-spec = describe "HaskellWorks.Data.Succinct.RankSelect.Binary.Poppy512S.Rank1Spec" $ do
-  genBinaryRank1Select1Spec (undefined :: Poppy512S)
+spec = describe "HaskellWorks.Data.RankSelect.Poppy512S.Rank1Spec" $ do
+  genRank1Select1Spec (undefined :: Poppy512S)
   describe "rank1 for Vector Word64 is equivalent to rank1 for Poppy512S" $ do
     it "on empty bitvector" $
       let v = DVS.empty in

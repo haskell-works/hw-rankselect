@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-incomplete-patterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module HaskellWorks.Data.Succinct.SimpleSpec (spec) where
+module HaskellWorks.Data.RankSelect.SimpleSpec (spec) where
 
 import           Data.Vector
 import           Data.Word

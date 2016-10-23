@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fno-warn-incomplete-patterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module HaskellWorks.Data.Succinct.RankSelect.InternalSpec (spec) where
+module HaskellWorks.Data.RankSelect.InternalSpec (spec) where
 
 import           HaskellWorks.Data.Bits.BitRead
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
@@ -15,7 +15,7 @@ import           Test.QuickCheck
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
 
 spec :: Spec
-spec = describe "HaskellWorks.Data.Succinct.RankSelect.InternalSpec" $ do
+spec = describe "HaskellWorks.Data.RankSelect.InternalSpec" $ do
   describe "For [Bool]" $ do
     it "rank True 10010010 over [0..8] should be 011122233" $
       let (Just bs) = bitRead "10010010" :: Maybe [Bool] in
