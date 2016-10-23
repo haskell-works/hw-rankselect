@@ -1,9 +1,9 @@
 name:                   hw-rankselect
 version:                0.6.0.0
-synopsis:               Conduits for tokenizing streams.
+synopsis:               Rank-select
 description:            Please see README.md
 homepage:               http://github.com/haskell-works/hw-rankselect#readme
-license:                MIT
+license:                BSD3
 license-file:           LICENSE
 author:                 John Ky
 maintainer:             newhoggy@gmail.com
