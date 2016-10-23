@@ -1,6 +1,7 @@
 hw-balancedparens
 hw-bits
 hw-excess
+hw-int
 hw-prim
 hw-rankselect-base
 hw-string-parse
