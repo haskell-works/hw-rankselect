@@ -57,20 +57,3 @@ test-suite hw-rankselect-test
 source-repository head
   type:     git
   location: https://github.com/haskell-works/hw-rankselect
-
-benchmark bench
-    Type: exitcode-stdio-1.0
-    HS-Source-Dirs: bench
-    Main-Is: Main.hs
-    GHC-Options: -O2 -Wall -msse4.2
-    Default-Language: Haskell2010
-    Build-Depends:      base                          >= 4          && < 5
-                      , bytestring
-                      , conduit
-                      , criterion
-                      , hw-bits                       >= 0.3.0.0
-                      , hw-prim                       >= 0.3.0.5
-                      , hw-rankselect
-                      , hw-rankselect-base            >= 0.1.0.0
-                      , mmap
-                      , vector
