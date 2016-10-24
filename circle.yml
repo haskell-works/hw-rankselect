@@ -1,33 +1,28 @@
-machine:
-  post:
-    - curl https://nixos.org/nix/install | sh
-
 dependencies:
   cache_directories:
     - "~/.cabal"
-    - "~/.ghc"
+    - "~/.stack"
   pre:
+    - wget -qO- https://get.haskellstack.org/ | sh
     - cp ./scripts/* ~/bin/
   override:
-    # Fix to latest stable release
-    - nox nix-channel --add https://nixos.org/channels/nixos-16.03/ nixpkgs
-    - nox nix-channel --update
-    - nox when deps nix-mk
-    - nox when deps nix-deps
+    - fetch
+    - stack init --resolver lts-7.2
+    - stack build --only-dependencies
 
 test:
   override:
-    - nox when build nix-build -v
+    - stack test
 
 deployment:
   release_branch:
     owner: haskell-works
     branch: /.*-branch/
     commands:
-      - nox when tag autotag
+      - when tag autotag
 
   hackage:
     owner: haskell-works
     tag: /v.*/
     commands:
-      - nox when deploy nix-shell shell.nix --command publish
+      - ./publish
