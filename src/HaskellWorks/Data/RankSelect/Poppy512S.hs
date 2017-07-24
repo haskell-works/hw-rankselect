@@ -1,3 +1,5 @@
+{-# LANGUAGE BangPatterns #-}
+
 module HaskellWorks.Data.RankSelect.Poppy512S
     ( Poppy512S(..)
     , Rank1(..)
@@ -30,9 +32,9 @@ import           HaskellWorks.Data.Vector.AsVector64
 import           Prelude hiding (length)
 
 data Poppy512S = Poppy512S
-  { poppy512SBits   :: DVS.Vector Word64
-  , poppy512Index   :: DVS.Vector Word64
-  , poppy512Samples :: DVS.Vector Word64 -- Sampling position of each 8192 1-bit
+  { poppy512SBits   :: !(DVS.Vector Word64)
+  , poppy512Index   :: !(DVS.Vector Word64)
+  , poppy512Samples :: !(DVS.Vector Word64) -- Sampling position of each 8192 1-bit
   } deriving (Eq, Show)
 
 instance AsVector64 Poppy512S where
@@ -45,20 +47,27 @@ popCount1Range start len = popCount1 . DVS.take len . DVS.drop start
 makePoppy512S :: DVS.Vector Word64 -> Poppy512S
 makePoppy512S v = Poppy512S
   { poppy512SBits     = v
-  , poppy512Index = DVS.constructN (((DVS.length v +           8 - 1) `div`           8) + 1) gen512Index
-  , poppy512Samples  = DVS.unfoldrN (fromIntegral (popCount1 v `div` 8192) + 1) genS (0, 0)
+  , poppy512Index     = DVS.constructN (((DVS.length v + 8 - 1) `div` 8) + 1) gen512Index
+  , poppy512Samples   = DVS.unfoldrN (fromIntegral (popCount1 v `div` 8192) + 1) genS (0, 0)
   }
-  where gen512Index u = let indexN = DVS.length u - 1 in
+  where gen512Index !u = let !indexN = DVS.length u - 1 in
           if indexN == -1
             then 0
-            else popCount1Range (indexN * 8) 8 v + DVS.last u
+            else let !result = popCount1Range (indexN * 8) 8 v + DVS.last u in result
         genS :: (Count, Position) -> Maybe (Word64, (Count, Position))
-        genS (pca, n) = if n < end v
-          then  let w = v !!! n in
-                let pcz = pca + popCount1 w in
+        genS (!pca, !n) = if n < end v
+          then  let !w = v !!! n in
+                let !pcz = pca + popCount1 w in
                 if (8192 - 1 + pca) `div` 8192 /= (8192 - 1 + pcz) `div` 8192
-                  then Just (fromIntegral n * 64 + fromIntegral (select1 w (fromIntegral (8192 - (pca `mod` 8192)))), (pcz, n + 1))
-                  else genS (pcz, n + 1)
+                  then  let !newWord = fromIntegral n * 64 + fromIntegral (select1 w (fromIntegral (8192 - (pca `mod` 8192))))
+                            !newCount = pcz
+                            !newPosition = n + 1
+                            !newState = (newCount, newPosition)
+                            !newResult = (newWord, newState) in
+                        Just newResult
+                  else  let !newCount = n + 1
+                            !newState = (pcz, newCount) in
+                        genS newState
           else Nothing
 
 instance BitLength Poppy512S where
