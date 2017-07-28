@@ -8,6 +8,7 @@ module HaskellWorks.Data.RankSelect.CsPoppy
 import qualified Data.Vector.Storable                                       as DVS
 import           Data.Word
 import           HaskellWorks.Data.AtIndex
+import           HaskellWorks.Data.Bits.BitLength
 import           HaskellWorks.Data.Bits.BitRead
 import           HaskellWorks.Data.Bits.BitWise
 import           HaskellWorks.Data.Bits.PopCount.PopCount1
@@ -28,6 +29,10 @@ data CsPoppy = CsPoppy
 instance AsVector64 CsPoppy where
   asVector64 = asVector64 . csPoppyBits
   {-# INLINE asVector64 #-}
+
+instance BitLength CsPoppy where
+  bitLength = bitLength . csPoppyBits
+  {-# INLINE bitLength #-}
 
 popCount1Range :: (DVS.Storable a, PopCount1 a) => Int -> Int -> DVS.Vector a -> Count
 popCount1Range start len = popCount1 . DVS.take len . DVS.drop start
