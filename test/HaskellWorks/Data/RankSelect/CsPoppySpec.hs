@@ -4,6 +4,9 @@
 
 module HaskellWorks.Data.RankSelect.CsPoppySpec (spec) where
 
+import Control.Monad
+import Control.Monad.IO.Class
+import Data.List                                 (isSuffixOf)
 import Data.Maybe
 import Data.Word
 import GHC.Exts
@@ -11,6 +14,7 @@ import HaskellWorks.Data.AtIndex
 import HaskellWorks.Data.Bits.BitRead
 import HaskellWorks.Data.Bits.BitShow
 import HaskellWorks.Data.Bits.PopCount.PopCount1
+import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.RankSelect.Base.Rank1
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.BasicGen
@@ -18,8 +22,10 @@ import HaskellWorks.Data.RankSelect.CsPoppy
 import HaskellWorks.Hspec.Hedgehog
 import Hedgehog
 import Prelude                                   hiding (length)
+import System.Directory
+import System.IO.MMap
+import System.IO.Unsafe
 import Test.Hspec
--- import Test.QuickCheck
 
 import qualified Data.Vector.Storable      as DVS
 import qualified HaskellWorks.Hedgehog.Gen as G
@@ -30,6 +36,16 @@ import qualified Hedgehog.Range            as R
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
 
 newtype ShowVector a = ShowVector a deriving (Eq, BitShow)
+
+corpusFiles :: [FilePath]
+corpusFiles = unsafePerformIO $ do
+  entries <- listDirectory "data"
+  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
+  return files
+{-# NOINLINE corpusFiles #-}
+
+loadVector64 :: FilePath -> IO (DVS.Vector Word64)
+loadVector64 filename = fromForeignRegion <$> mmapFileForeignPtr filename ReadOnly Nothing
 
 instance BitShow a => Show (ShowVector a) where
   show = bitShow
@@ -99,3 +115,22 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppy.Rank1Spec" $ do
       let cs = fromJust (bitRead (take 4096 (cycle "10"))) :: DVS.Vector Word64
       let ps = makeCsPoppy cs
       (select1 ps `map` [1 .. 2048]) `shouldBe` [1, 3 .. 4096]
+  describe "Corpus" $ do
+    describe "Rank" $ do
+      forM_ corpusFiles $ \corpusFile -> do
+        xit corpusFile $ do
+          v       <- liftIO $ loadVector64 corpusFile
+          let csPoppy = makeCsPoppy v
+          let maxPos = fromIntegral $ DVS.length (csPoppyBits csPoppy)
+          require $ property $ do
+            r <- forAll $ G.word64 (R.linear 1 maxPos)
+            rank1 csPoppy r === rank1 v r
+    describe "Select" $ do
+      forM_ corpusFiles $ \corpusFile -> do
+        it corpusFile $ do
+          v       <- liftIO $ loadVector64 corpusFile
+          let csPoppy = makeCsPoppy v
+          let pc = popCount1 (csPoppyBits csPoppy)
+          require $ property $ do
+            s <- forAll $ G.word64 (R.linear 1 pc)
+            select1 v s === select1 v s
