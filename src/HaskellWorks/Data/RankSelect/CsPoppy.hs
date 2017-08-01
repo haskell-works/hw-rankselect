@@ -1,3 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric  #-}
+
 module HaskellWorks.Data.RankSelect.CsPoppy
     ( CsPoppy(..)
     , Rank1(..)
@@ -5,26 +8,29 @@ module HaskellWorks.Data.RankSelect.CsPoppy
     , sampleRange
     ) where
 
-import qualified Data.Vector.Storable                                       as DVS
-import           Data.Word
-import           HaskellWorks.Data.AtIndex
-import           HaskellWorks.Data.Bits.BitLength
-import           HaskellWorks.Data.Bits.BitRead
-import           HaskellWorks.Data.Bits.BitWise
-import           HaskellWorks.Data.Bits.PopCount.PopCount1
-import           HaskellWorks.Data.Positioning
-import           HaskellWorks.Data.RankSelect.Base.Rank1
-import           HaskellWorks.Data.RankSelect.Base.Select1
-import           HaskellWorks.Data.Search
-import           HaskellWorks.Data.Vector.AsVector64
+import GHC.Generics
+import Control.DeepSeq
+import Data.Word
+import HaskellWorks.Data.AtIndex
+import HaskellWorks.Data.Bits.BitLength
+import HaskellWorks.Data.Bits.BitRead
+import HaskellWorks.Data.Bits.BitWise
+import HaskellWorks.Data.Bits.PopCount.PopCount1
+import HaskellWorks.Data.Positioning
+import HaskellWorks.Data.RankSelect.Base.Rank1
+import HaskellWorks.Data.RankSelect.Base.Select1
+import HaskellWorks.Data.Search
+import HaskellWorks.Data.Vector.AsVector64
+
+import qualified Data.Vector.Storable as DVS
 
 data CsPoppy = CsPoppy
-  { csPoppyBits     :: DVS.Vector Word64
-  , csPoppy512Index :: DVS.Vector Word64
-  , csPoppyLayer0   :: DVS.Vector Word64
-  , csPoppyLayer1   :: DVS.Vector Word64
-  , csPoppyLayerS   :: DVS.Vector Word64 -- Sampling position of each 8192 1-bit
-  } deriving (Eq, Show)
+  { csPoppyBits     :: !(DVS.Vector Word64)
+  , csPoppy512Index :: !(DVS.Vector Word64)
+  , csPoppyLayer0   :: !(DVS.Vector Word64)
+  , csPoppyLayer1   :: !(DVS.Vector Word64)
+  , csPoppyLayerS   :: !(DVS.Vector Word64) -- Sampling position of each 8192 1-bit
+  } deriving (Eq, Show, NFData, Generic)
 
 instance AsVector64 CsPoppy where
   asVector64 = asVector64 . csPoppyBits
