@@ -42,8 +42,11 @@ test-suite hw-rankselect-test
                       , HaskellWorks.Data.RankSelect.InternalSpec
                       , HaskellWorks.Data.RankSelect.SimpleSpec
   build-depends:        base                          >= 4          && < 5
+                      , hedgehog
                       , hspec
                       , hw-bits                       >= 0.3.0.0
+                      , hw-hedgehog                   >= 0.1.0.1
+                      , hw-hspec-hedgehog
                       , hw-prim                       >= 0.4.0.0
                       , hw-rankselect
                       , hw-rankselect-base            >= 0.2.0.0
