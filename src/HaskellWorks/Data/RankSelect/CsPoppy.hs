@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC-funbox-strict-fields #-}
+
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric  #-}
 
@@ -39,6 +41,10 @@ instance AsVector64 CsPoppy where
 instance BitLength CsPoppy where
   bitLength = bitLength . csPoppyBits
   {-# INLINE bitLength #-}
+
+instance PopCount1 CsPoppy where
+  popCount1 = popCount1 . csPoppyBits
+  {-# INLINE popCount1 #-}
 
 popCount1Range :: (DVS.Storable a, PopCount1 a) => Int -> Int -> DVS.Vector a -> Count
 popCount1Range start len = popCount1 . DVS.take len . DVS.drop start
