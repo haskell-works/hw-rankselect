@@ -36,6 +36,7 @@ test-suite hw-rankselect-test
   hs-source-dirs:       test
   main-is:              Spec.hs
   other-modules:        HaskellWorks.Data.RankSelect.BasicGen
+                      , HaskellWorks.Data.RankSelect.CsInterleavedSpec
                       , HaskellWorks.Data.RankSelect.CsPoppySpec
                       , HaskellWorks.Data.RankSelect.CsPoppy2Spec
                       , HaskellWorks.Data.RankSelect.Poppy512Spec
