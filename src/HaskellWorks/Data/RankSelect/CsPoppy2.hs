@@ -1,3 +1,8 @@
+{-# OPTIONS_GHC-funbox-strict-fields #-}
+
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric  #-}
+
 module HaskellWorks.Data.RankSelect.CsPoppy2
     ( CsPoppy2(..)
     , Rank1(..)
@@ -5,26 +10,29 @@ module HaskellWorks.Data.RankSelect.CsPoppy2
     , sampleRange
     ) where
 
-import qualified Data.Vector.Storable                                       as DVS
-import           Data.Word
-import           HaskellWorks.Data.AtIndex
-import           HaskellWorks.Data.Bits.BitLength
-import           HaskellWorks.Data.Bits.BitRead
-import           HaskellWorks.Data.Bits.BitWise
-import           HaskellWorks.Data.Bits.PopCount.PopCount1
-import           HaskellWorks.Data.Positioning
-import           HaskellWorks.Data.RankSelect.Base.Rank1
-import           HaskellWorks.Data.RankSelect.Base.Select1
-import           HaskellWorks.Data.Search
-import           HaskellWorks.Data.Vector.AsVector64
+import GHC.Generics
+import Control.DeepSeq
+import Data.Word
+import HaskellWorks.Data.AtIndex
+import HaskellWorks.Data.Bits.BitLength
+import HaskellWorks.Data.Bits.BitRead
+import HaskellWorks.Data.Bits.BitWise
+import HaskellWorks.Data.Bits.PopCount.PopCount1
+import HaskellWorks.Data.Positioning
+import HaskellWorks.Data.RankSelect.Base.Rank1
+import HaskellWorks.Data.RankSelect.Base.Select1
+import HaskellWorks.Data.Search
+import HaskellWorks.Data.Vector.AsVector64
+
+import qualified Data.Vector.Storable as DVS
 
 data CsPoppy2 = CsPoppy2
-  { csPoppy2Bits     :: DVS.Vector Word64
-  , csPoppy2512Index :: DVS.Vector Word64
-  , csPoppy2Layer0   :: DVS.Vector Word64
-  , csPoppy2Layer1   :: DVS.Vector Word64
-  , csPoppy2LayerS   :: DVS.Vector Word64 -- Sampling position of each 8192 1-bit
-  } deriving (Eq, Show)
+  { csPoppy2Bits     :: !(DVS.Vector Word64)
+  , csPoppy2512Index :: !(DVS.Vector Word64)
+  , csPoppy2Layer0   :: !(DVS.Vector Word64)
+  , csPoppy2Layer1   :: !(DVS.Vector Word64)
+  , csPoppy2LayerS   :: !(DVS.Vector Word64) -- Sampling position of each 8192 1-bit
+  } deriving (Eq, Show, NFData, Generic)
 
 instance AsVector64 CsPoppy2 where
   asVector64 = asVector64 . csPoppy2Bits
@@ -33,6 +41,10 @@ instance AsVector64 CsPoppy2 where
 instance BitLength CsPoppy2 where
   bitLength = bitLength . csPoppy2Bits
   {-# INLINE bitLength #-}
+
+instance PopCount1 CsPoppy2 where
+  popCount1 = popCount1 . csPoppy2Bits
+  {-# INLINE popCount1 #-}
 
 popCount1Range :: (DVS.Storable a, PopCount1 a) => Int -> Int -> DVS.Vector a -> Count
 popCount1Range start len = popCount1 . DVS.take len . DVS.drop start
