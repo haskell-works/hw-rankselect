@@ -15,7 +15,8 @@ cabal-version:          >= 1.22
 
 library
   hs-source-dirs:       src
-  exposed-modules:      HaskellWorks.Data.RankSelect.CsPoppy
+  exposed-modules:      HaskellWorks.Data.RankSelect.CsInterleaved
+                      , HaskellWorks.Data.RankSelect.CsPoppy
                       , HaskellWorks.Data.RankSelect.CsPoppy2
                       , HaskellWorks.Data.RankSelect.Poppy512
                       , HaskellWorks.Data.RankSelect.Poppy512S
