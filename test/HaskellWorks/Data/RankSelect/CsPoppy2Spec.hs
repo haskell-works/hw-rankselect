@@ -55,60 +55,65 @@ spec :: Spec
 spec = describe "HaskellWorks.Data.RankSelect.CsPoppy2.Rank1Spec" $ do
   genRank1Select1Spec (undefined :: CsPoppy2)
   describe "rank1 for Vector Word64 is equivalent to rank1 for CsPoppy2" $ do
+    it "on one basic block" $ require $ property $ do
+      v <- forAll $ G.storableVector (R.linear 0 8192) (G.word64 R.constantBounded)
+      let w = makeCsPoppy2 v
+      popCount1 w === popCount1 v
+  describe "rank1 for Vector Word64 is equivalent to rank1 for CsPoppy2" $ do
     it "on empty bitvector" $ require $ withTests 1 $ property $ do
       let v = DVS.empty
       let w = makeCsPoppy2 v
       let i = 0
-      rank1 v i === rank1 w i
+      rank1 w i === rank1 v i
     it "on one basic block" $ require $ property $ do
       v <- forAll $ G.storableVector (R.linear 1 8) (G.word64 R.constantBounded)
       i <- forAll $ G.word64 (R.linear 0 (length v * 8))
       let w = makeCsPoppy2 v
-      rank1 v i === rank1 w i
+      rank1 w i === rank1 v i
     it "on two basic blocks" $ require $ property $ do
       v <- forAll $ G.storableVector (R.linear 9 16) (G.word64 R.constantBounded)
       i <- forAll $ G.word64 (R.linear 0 (length v * 8))
       let w = makeCsPoppy2 v
-      rank1 v i === rank1 w i
+      rank1 w i === rank1 v i
     it "on three basic blocks" $ require $ property $ do
       v <- forAll $ G.storableVector (R.linear 17 24) (G.word64 R.constantBounded)
       i <- forAll $ G.word64 (R.linear 0 (length v * 8))
       let w = makeCsPoppy2 v
-      rank1 v i === rank1 w i
+      rank1 w i === rank1 v i
   describe "select1 for Vector Word64 is equivalent to select1 for CsPoppy2" $ do
     it "on empty bitvector" $ require $ withTests 1 $ property $ do
       let v = DVS.empty
       let w = makeCsPoppy2 v
       let i = 0
-      select1 v i === select1 w i
+      select1 w i === select1 v i
     it "on one full zero basic block" $ require $ withTests 1 $ property $ do
       let v = fromList [0, 0, 0, 0, 0, 0, 0, 0] :: DVS.Vector Word64
       let w = makeCsPoppy2 v
-      select1 v 0 === select1 w 0
+      select1 w 0 === select1 v 0
     it "on one basic block" $ require $ property $ do
       v <- forAll $ G.storableVector (R.linear 1 8) (G.word64 R.constantBounded)
       i <- forAll $ G.word64 (R.linear 0 (popCount1 v))
       let w = makeCsPoppy2 v
-      select1 v i === select1 w i
+      select1 w i === select1 v i
     it "on two basic blocks" $ require $ property $ do
       v <- forAll $ G.storableVector (R.linear 9 16) (G.word64 R.constantBounded)
       i <- forAll $ G.word64 (R.linear 0 (popCount1 v))
       let w = makeCsPoppy2 v
-      select1 v i === select1 w i
+      select1 w i === select1 v i
     it "on three basic blocks" $ require $ property $ do
       v <- forAll $ G.storableVector (R.linear 17 24) (G.word64 R.constantBounded)
       i <- forAll $ G.word64 (R.linear 0 (popCount1 v))
       let w = makeCsPoppy2 v
-      select1 v i === select1 w i
+      select1 w i === select1 v i
   describe "Rank select over large buffer" $ do
     it "Rank works" $ require $ property $ do
       let cs = fromJust (bitRead (take 4096 (cycle "10"))) :: DVS.Vector Word64
       let ps = makeCsPoppy2 cs
       (rank1 ps `map` [1 .. 4096]) === [(x - 1) `div` 2 + 1 | x <- [1 .. 4096]]
     xit "Rank is consistent with pop count" $ require $ property $ do
-      v     <- forAll $ G.storableVector (R.linear 0 1024) (G.word64 R.constantBounded)
-      rsbs  <- forAll $ pure $ makeCsPoppy2 v
-      rank1 rsbs (bitLength rsbs) === popCount1 rsbs
+      v <- forAll $ G.storableVector (R.linear 0 1024) (G.word64 R.constantBounded)
+      w <- forAll $ pure $ makeCsPoppy2 v
+      rank1 w (bitLength w) === popCount1 w
     it "Select works" $ require $ property $ do
       let cs = fromJust (bitRead (take 4096 (cycle "10"))) :: DVS.Vector Word64
       let ps = makeCsPoppy2 cs
@@ -118,17 +123,17 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppy2.Rank1Spec" $ do
       forM_ corpusFiles $ \corpusFile -> do
         xit corpusFile $ do
           v       <- liftIO $ loadVector64 corpusFile
-          let csPoppy = makeCsPoppy2 v
-          let maxPos = fromIntegral $ DVS.length (csPoppy2Bits csPoppy)
+          let rsbs = makeCsPoppy2 v
+          let maxPos = fromIntegral $ DVS.length (csPoppy2Bits rsbs)
           require $ property $ do
             r <- forAll $ G.word64 (R.linear 1 maxPos)
-            rank1 csPoppy r === rank1 v r
+            rank1 rsbs r === rank1 v r
     describe "Select" $ do
       forM_ corpusFiles $ \corpusFile -> do
         it corpusFile $ do
           v       <- liftIO $ loadVector64 corpusFile
-          let csPoppy = makeCsPoppy2 v
-          let pc = popCount1 (csPoppy2Bits csPoppy)
+          let rsbs = makeCsPoppy2 v
+          let pc = popCount1 (csPoppy2Bits rsbs)
           require $ property $ do
             s <- forAll $ G.word64 (R.linear 1 pc)
             select1 v s === select1 v s

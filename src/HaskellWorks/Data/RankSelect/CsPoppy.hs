@@ -1,38 +1,63 @@
 {-# OPTIONS_GHC-funbox-strict-fields #-}
 
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DeriveGeneric  #-}
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module HaskellWorks.Data.RankSelect.CsPoppy
     ( CsPoppy(..)
+    , Nice(..)
     , Rank1(..)
     , makeCsPoppy
-    , sampleRange
     ) where
 
-import GHC.Generics
 import Control.DeepSeq
+import Data.Monoid                                     ((<>))
 import Data.Word
+import GHC.Generics
 import HaskellWorks.Data.AtIndex
+import HaskellWorks.Data.BalancedParens.BalancedParens
+import HaskellWorks.Data.BalancedParens.CloseAt
+import HaskellWorks.Data.BalancedParens.Enclose
+import HaskellWorks.Data.BalancedParens.FindClose
+import HaskellWorks.Data.BalancedParens.FindCloseN
+import HaskellWorks.Data.BalancedParens.FindOpen
+import HaskellWorks.Data.BalancedParens.FindOpenN
+import HaskellWorks.Data.BalancedParens.NewCloseAt
+import HaskellWorks.Data.BalancedParens.OpenAt
 import HaskellWorks.Data.Bits.BitLength
 import HaskellWorks.Data.Bits.BitRead
+import HaskellWorks.Data.Bits.BitShow
 import HaskellWorks.Data.Bits.BitWise
 import HaskellWorks.Data.Bits.PopCount.PopCount1
+import HaskellWorks.Data.Drop
 import HaskellWorks.Data.Positioning
+import HaskellWorks.Data.RankSelect.Base.Rank0
 import HaskellWorks.Data.RankSelect.Base.Rank1
 import HaskellWorks.Data.RankSelect.Base.Select1
+import HaskellWorks.Data.RankSelect.CsInterleaved
 import HaskellWorks.Data.Search
+import HaskellWorks.Data.Take
 import HaskellWorks.Data.Vector.AsVector64
+import Prelude                                         hiding (drop, length, pi, take)
 
 import qualified Data.Vector.Storable as DVS
 
+newtype Nice a = Nice a deriving Eq
+
 data CsPoppy = CsPoppy
-  { csPoppyBits     :: !(DVS.Vector Word64)
-  , csPoppy512Index :: !(DVS.Vector Word64)
-  , csPoppyLayer0   :: !(DVS.Vector Word64)
-  , csPoppyLayer1   :: !(DVS.Vector Word64)
-  , csPoppyLayerS   :: !(DVS.Vector Word64) -- Sampling position of each 8192 1-bit
+  { csPoppyBits   :: !(DVS.Vector Word64)
+  , csPoppyLayer1 :: !(DVS.Vector Word64)
+  , csPoppyLayerS :: !(DVS.Vector Word32) -- Sampling lookup of each 8192 1-bit
   } deriving (Eq, Show, NFData, Generic)
+
+instance Show (Nice CsPoppy) where
+  showsPrec _ (Nice rsbs) = showString "CsPoppy "
+    <> showString "{ csPoppyBits = "   <> shows (bitShow <$> DVS.toList (csPoppyBits     rsbs))
+    <> showString ", csPoppyLayer0 = " <> shows (CsInterleaved <$> DVS.toList (csPoppyLayer1 rsbs))
+    <> showString ", csPoppyLayerS = " <> shows (csPoppyLayerS rsbs)
+    <> showString " }"
 
 instance AsVector64 CsPoppy where
   asVector64 = asVector64 . csPoppyBits
@@ -43,52 +68,54 @@ instance BitLength CsPoppy where
   {-# INLINE bitLength #-}
 
 instance PopCount1 CsPoppy where
-  popCount1 = popCount1 . csPoppyBits
+  popCount1 v = getCsiTotal (CsInterleaved (lastOrZero (csPoppyLayer1 v)))
   {-# INLINE popCount1 #-}
 
-popCount1Range :: (DVS.Storable a, PopCount1 a) => Int -> Int -> DVS.Vector a -> Count
-popCount1Range start len = popCount1 . DVS.take len . DVS.drop start
+indexOrZero :: DVS.Vector Word64 -> Position -> Word64
+indexOrZero _ i | i < 0     = 0
+indexOrZero v i | i < end v = v !!! i
+indexOrZero _ _ = 0
+{-# INLINE indexOrZero #-}
+
+lastOrZero :: DVS.Vector Word64 -> Word64
+lastOrZero v | 0 < end v  = DVS.last v
+lastOrZero _ = 0
+{-# INLINE lastOrZero #-}
 
 makeCsPoppy :: DVS.Vector Word64 -> CsPoppy
 makeCsPoppy v = CsPoppy
-  { csPoppyBits     = v
-  , csPoppy512Index = DVS.constructN (((DVS.length v +           8 - 1) `div`           8) + 1) gen512Index
-  , csPoppyLayer0   = DVS.constructN (((DVS.length v + 0x100000000 - 1) `div` 0x100000000) + 1) genLayer0
-  , csPoppyLayer1   = DVS.constructN (((DVS.length v +          32 - 1) `div`          32) + 1) genLayer1
-  , csPoppyLayerS   = DVS.unfoldrN (fromIntegral (popCount1 v `div` 8192) + 1) genS (0, 0)
+  { csPoppyBits   = v
+  , csPoppyLayer1 = layer1
+  , csPoppyLayerS = layerS
   }
-  where csPoppyCum2048  = DVS.constructN (((DVS.length v +          32 - 1) `div`          32) + 1) genCum2048
-        gen512Index u = let indexN = DVS.length u - 1 in
-          if indexN == -1
-            then 0
-            else popCount1Range (indexN *           8)           8 v + DVS.last u
-        genCum2048 u = let indexN = DVS.length u in
-          if indexN .&. 0xffffffff == 0
-            then 0
-            else popCount1Range ((indexN - 1) *    32)          32 v + DVS.last u
-        genLayer0 u = let indexN = DVS.length u in
-          if indexN == 0
-            then 0
-            else popCount1Range (indexN * 0x100000000) 0x100000000 v + DVS.last u
-        genLayer1 u = let indexN = DVS.length u in
-          let cum = if indexN == 0 -- TODO Check boundary at 4G???
-              then  0
-              else  csPoppyCum2048 !!! fromIntegral indexN in
-          let a = popCount1Range (indexN * 32 +  0) 8 v in
-          let b = popCount1Range (indexN * 32 +  8) 8 v in
-          let c = popCount1Range (indexN * 32 + 16) 8 v in
-          (   ( cum       .&. 0x00000000ffffffff)
-          .|. ((a .<. 32) .&. 0x000003ff00000000)
-          .|. ((b .<. 42) .&. 0x000ffc0000000000)
-          .|. ((c .<. 52) .&. 0x3ff0000000000000)) -- zhou-sea2013 fig 5 (c)
-        genS :: (Count, Position) -> Maybe (Word64, (Count, Position))
-        genS (pca, n) = if n < end v
-          then  let w = v !!! n in
-                let pcz = pca + popCount1 w in
-                if (8192 - 1 + pca) `div` 8192 /= (8192 - 1 + pcz) `div` 8192
-                  then Just (fromIntegral n * 64 + fromIntegral (select1 w (fromIntegral (8192 - (pca `mod` 8192)))), (pcz, n + 1))
-                  else genS (pcz, n + 1)
-          else Nothing
+  where blocks  = DVS.constructN (((DVS.length v      + 8 - 1) `div` 8) + 1) genBlocks
+        layer1  = DVS.constructN (((DVS.length blocks + 4 - 1) `div` 4) + 1) genLayer1
+        layer1PopCount = getCsiTotal (CsInterleaved (lastOrZero layer1))
+        layerS = DVS.unfoldrN (fromIntegral layer1PopCount) genSample (0, 1)
+        genBlocks u = let i = length u in popCount1 (take 8 (drop (i * 8) v))
+        genLayer1 :: DVS.Vector Word64 -> Word64
+        genLayer1 u =
+          let i  = end u                          in
+          let lx = lastOrZero u                   in
+          let la = indexOrZero blocks (i * 4 - 4) in
+          let lb = indexOrZero blocks (i * 4 - 3) in
+          let lc = indexOrZero blocks (i * 4 - 2) in
+          let ld = indexOrZero blocks (i * 4 - 1) in
+          let nx = lx + (la + lb + lc + ld)       in
+          let na = indexOrZero blocks (i * 4 + 0) in
+          let nb = indexOrZero blocks (i * 4 + 1) in
+          let nc = indexOrZero blocks (i * 4 + 2) in
+          (   ( nx         .&. 0x00000000ffffffff)
+          .|. ((na .<. 32) .&. 0x000003ff00000000)
+          .|. ((nb .<. 42) .&. 0x000ffc0000000000)
+          .|. ((nc .<. 52) .&. 0x3ff0000000000000))
+        mLookup :: Position -> Word64
+        mLookup i = getCsiX (CsInterleaved (layer1 !!! i))
+        genSample :: (Position, Position) -> Maybe (Word32, (Position, Position))
+        genSample (mi, _) | mi == maxBound                                            = Nothing
+        genSample (mi, _) | mi >= end layer1                                          = Just (fromIntegral (DVS.length layer1 - 1), (maxBound, maxBound))
+        genSample (mi, s) | s < toPosition (getCsiTotal (CsInterleaved (mLookup mi))) = Just (fromIntegral mi - 1, (mi, s + 8192))
+        genSample (mi, s) = genSample (fromIntegral mi + 1, s)
 
 instance TestBit CsPoppy where
   (.?.) = (.?.) . csPoppyBits
@@ -98,40 +125,90 @@ instance BitRead CsPoppy where
   bitRead = fmap makeCsPoppy . bitRead
 
 instance Rank1 CsPoppy where
-  rank1 (CsPoppy v _ layer0 layer1 _) p = rankPrior + rankInBasicBlock
-    where rankLayer0              = layer0  !!! toPosition (p `div` 0x100000000)
-          rankLayer1Word          = layer1  !!! toPosition (p `div` 2048)
-          rankLayer1A             =  rankLayer1Word .&. 0x00000000ffffffff
-          rankLayer1B             = (rankLayer1Word .&. 0x000003ff00000000) .>. 32
-          rankLayer1C             = (rankLayer1Word .&. 0x000ffc0000000000) .>. 42
-          rankLayer1D             = (rankLayer1Word .&. 0x3ff0000000000000) .>. 52
+  rank1 (CsPoppy v layer1 _) p = rankPrior + rankInBasicBlock
+    where rankLayer1Word          = layer1 !!! toPosition (p `div` 2048)
+          rankLayer1X             =  rankLayer1Word .&. 0x00000000ffffffff
+          rankLayer1A             = (rankLayer1Word .&. 0x000003ff00000000) .>. 32
+          rankLayer1B             = (rankLayer1Word .&. 0x000ffc0000000000) .>. 42
+          rankLayer1C             = (rankLayer1Word .&. 0x3ff0000000000000) .>. 52
           q                       = (p `div` 512) `mod` 4 -- quarter
-          rankLayer1  | q == 0    = rankLayer1A
-                      | q == 1    = rankLayer1A + rankLayer1B
-                      | q == 2    = rankLayer1A + rankLayer1B + rankLayer1C
-                      | q == 3    = rankLayer1A + rankLayer1B + rankLayer1C + rankLayer1D
-                      | otherwise = undefined
-          rankPrior               = (rankLayer0 + rankLayer1) :: Count
-          rankInBasicBlock        = rank1 (DVS.drop (fromIntegral p `div` 512) v) (p `mod` 512)
+          rankLayer1  | q == 0    = rankLayer1X
+                      | q == 1    = rankLayer1X + rankLayer1A
+                      | q == 2    = rankLayer1X + rankLayer1A + rankLayer1B
+                      | q == 3    = rankLayer1X + rankLayer1A + rankLayer1B + rankLayer1C
+                      | otherwise = error "Invalid interleaved entry index"
+          rankPrior               = rankLayer1 :: Count
+          rankInBasicBlock        = rank1 (DVS.drop (fromIntegral (p `div` 512) * 8) v) (p `mod` 512)
+  {-# INLINE rank1 #-}
 
 instance Select1 CsPoppy where
-  select1 iv@(CsPoppy v i _ _ _) p = if DVS.length v /= 0
-      then toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)
-      else 0
-    where q = binarySearch (fromIntegral p) wordAt iMin iMax
-          s = (i !!! q) :: Count
-          wordAt = (i !!!)
-          (sampleMin, sampleMax) = sampleRange iv p
-          iMin = fromIntegral $  (sampleMin - 1) `div` 512      :: Position
-          iMax = fromIntegral $ ((sampleMax - 1) `div` 512) + 1 :: Position
+  select1 _                         p | p == 0  = 0
+  select1 (CsPoppy v layer1 layerS) p           =
+    let pi                  = toPosition $ (p - 1) `div` 8192                 in
+    let pj                  = (pi + 1) `min` (end layerS - 1)                 in
+    let si                  = fromIntegral   (layerS !!! pi)                  in
+    let sj                  = fromIntegral $ (layerS !!! pj) + 1              in
+    let mLookup i           = getCsiX (CsInterleaved (layer1 !!! i))          in
+    let mIndex              = binarySearch (fromIntegral p) mLookup si sj     in
+    let me                  = CsInterleaved (layer1 !!! fromIntegral mIndex)  in
+    let mx                  = getCsiX me                                      in
+    let ma                  = getCsiA me + mx                                 in
+    let mb                  = getCsiB me + ma                                 in
+    let mc                  = getCsiC me + mb                                 in
+    let bo  | p <= ma       = 0
+            | p <= mb       = 1
+            | p <= mc       = 2
+            | otherwise     = 3                                               in
+    let bp  | p <= ma       = mx
+            | p <= mb       = ma
+            | p <= mc       = mb
+            | otherwise     = mc                                              in
+    let blockStart          = toCount (mIndex * 4 + bo) * 8                   in
+    let block               = DVS.take 8 (drop blockStart v)                  in
+    let q                   = p - bp                                          in
+    select1 block q + blockStart * 64
+  {-# INLINE select1 #-}
 
-sampleRange :: CsPoppy -> Count -> (Word64, Word64)
-sampleRange (CsPoppy _ index _ _ samples) p =
-  let j = (fromIntegral p - 1) `div` 8192 in
-  if 0 <= j && j < DVS.length samples
-    then  let pa = samples DVS.! j                in
-          if j + 1 < DVS.length samples
-            then  let pz = samples DVS.! (j + 1)          in
-                  (pa, pz)
-            else (pa, fromIntegral (DVS.length index - 1))
-    else (1, fromIntegral (DVS.length index - 1))
+instance OpenAt CsPoppy where
+  openAt = openAt . csPoppyBits
+  {-# INLINE openAt #-}
+
+instance CloseAt CsPoppy where
+  closeAt = closeAt . csPoppyBits
+  {-# INLINE closeAt #-}
+
+instance NewCloseAt CsPoppy where
+  newCloseAt = newCloseAt . csPoppyBits
+  {-# INLINE newCloseAt #-}
+
+instance FindOpenN CsPoppy where
+  findOpenN = findOpenN . csPoppyBits
+  {-# INLINE findOpenN #-}
+
+instance FindOpen CsPoppy where
+  findOpen = findOpen . csPoppyBits
+  {-# INLINE findOpen #-}
+
+instance FindClose CsPoppy where
+  findClose = findClose . csPoppyBits
+  {-# INLINE findClose #-}
+
+instance FindCloseN CsPoppy where
+  findCloseN = findCloseN . csPoppyBits
+  {-# INLINE findCloseN #-}
+
+instance Enclose CsPoppy where
+  enclose = enclose . csPoppyBits
+  {-# INLINE enclose #-}
+
+instance Rank0 CsPoppy where
+  rank0 rsbs p = p - rank0 rsbs p
+  {-# INLINE rank0 #-}
+
+instance BalancedParens CsPoppy where
+  firstChild  = firstChild  . csPoppyBits
+  nextSibling = nextSibling . csPoppyBits
+  parent      = parent      . csPoppyBits
+  {-# INLINE firstChild  #-}
+  {-# INLINE nextSibling #-}
+  {-# INLINE parent      #-}
