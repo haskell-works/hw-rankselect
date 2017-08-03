@@ -11,6 +11,7 @@ import Data.Maybe
 import Data.Word
 import GHC.Exts
 import HaskellWorks.Data.AtIndex
+import HaskellWorks.Data.Bits.BitLength
 import HaskellWorks.Data.Bits.BitRead
 import HaskellWorks.Data.Bits.BitShow
 import HaskellWorks.Data.Bits.PopCount.PopCount1
@@ -49,13 +50,6 @@ loadVector64 filename = fromForeignRegion <$> mmapFileForeignPtr filename ReadOn
 
 instance BitShow a => Show (ShowVector a) where
   show = bitShow
-
--- vectorSizedBetween :: Int -> Int -> Gen (ShowVector (DVS.Vector Word64))
--- vectorSizedBetween a b = do
---   n   <- choose (a, b)
---   xs  <- sequence [ arbitrary | _ <- [1 .. n] ]
---   return $ ShowVector (fromList xs)
-
 
 spec :: Spec
 spec = describe "HaskellWorks.Data.RankSelect.CsPoppy.Rank1Spec" $ do
@@ -107,14 +101,18 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppy.Rank1Spec" $ do
       let w = makeCsPoppy v
       select1 v i === select1 w i
   describe "Rank select over large buffer" $ do
-    it "Rank works" $ do
+    it "Rank works" $ require $ property $ do
       let cs = fromJust (bitRead (take 4096 (cycle "10"))) :: DVS.Vector Word64
       let ps = makeCsPoppy cs
-      (rank1 ps `map` [1 .. 4096]) `shouldBe` [(x - 1) `div` 2 + 1 | x <- [1 .. 4096]]
-    it "Select works" $ do
+      (rank1 ps `map` [1 .. 4096]) === [(x - 1) `div` 2 + 1 | x <- [1 .. 4096]]
+    xit "Rank is consistent with pop count" $ require $ property $ do
+      v     <- forAll $ G.storableVector (R.linear 0 1024) (G.word64 R.constantBounded)
+      rsbs  <- forAll $ pure $ makeCsPoppy v
+      rank1 rsbs (bitLength rsbs) === popCount1 rsbs
+    it "Select works" $ require $ property $ do
       let cs = fromJust (bitRead (take 4096 (cycle "10"))) :: DVS.Vector Word64
       let ps = makeCsPoppy cs
-      (select1 ps `map` [1 .. 2048]) `shouldBe` [1, 3 .. 4096]
+      (select1 ps `map` [1 .. 2048]) === [1, 3 .. 4096]
   describe "Corpus" $ do
     describe "Rank" $ do
       forM_ corpusFiles $ \corpusFile -> do
