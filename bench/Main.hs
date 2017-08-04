@@ -161,13 +161,13 @@ benchPoppy512SSelect1 = do
 
 main :: IO ()
 main = (defaultMain =<<) . (concat <$>) $ sequence
-  -- [ benchCsPoppyBuild
-  -- , benchCsPoppyRank1
-  -- , benchCsPoppySelect1
+  [ benchCsPoppyBuild
+  , benchCsPoppyRank1
+  , benchCsPoppySelect1
   -- , benchCs2PoppyBuild
   -- , benchCs2PoppyRank1
   -- , benchCs2PoppySelect1
-  [ benchPoppy512Build
+  , benchPoppy512Build
   , benchPoppy512Rank1
   , benchPoppy512Select1
   , benchPoppy512SBuild

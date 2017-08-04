@@ -129,7 +129,7 @@ makeCsPoppy v = CsPoppy
           .|. ((nc .<. 52) .&. 0x3ff0000000000000))
 
 selectBlockSize :: Count
-selectBlockSize = 32
+selectBlockSize = 8192
 
 track :: Show a => String -> a -> a
 track name a = trace (name <> ": " <> show a) a
