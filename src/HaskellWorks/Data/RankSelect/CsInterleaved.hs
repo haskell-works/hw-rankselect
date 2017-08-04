@@ -30,28 +30,28 @@ instance Storable CsInterleaved where
   {-# INLINE pokeElemOff #-}
 
 get1a :: CsInterleaved -> Word64
-get1a (CsInterleaved i) = (i .>. 32) .&. 0xffffffff
+get1a (CsInterleaved i) = i .&. 0xffffffff
 
 get2a :: CsInterleaved -> Word64
-get2a (CsInterleaved i) = (i .>. 22) .&. 0x3ff
+get2a (CsInterleaved i) = (i .>. 32) .&. 0x3ff
 
 get2b :: CsInterleaved -> Word64
-get2b (CsInterleaved i) = (i .>. 12) .&. 0x3ff
+get2b (CsInterleaved i) = (i .>. 42) .&. 0x3ff
 
 get2c :: CsInterleaved -> Word64
-get2c (CsInterleaved i) = (i .>.  2) .&. 0x3ff
+get2c (CsInterleaved i) = (i .>. 52) .&. 0x3ff
 
 put1a :: Word64 -> CsInterleaved -> CsInterleaved
-put1a v (CsInterleaved i) = CsInterleaved ((v .<. 32) .|. (i .&. 0xffffffff))
+put1a v (CsInterleaved i) = CsInterleaved (((v .&. 0xffffffff) .<.  0) .|. (i .&. 0xffffffff00000000))
 
 put2a :: Word64 -> CsInterleaved -> CsInterleaved
-put2a v (CsInterleaved i) = CsInterleaved (((v .&. 0x3ff) .<. 22) .|. (i .&. 0xffffffff003fffff))
+put2a v (CsInterleaved i) = CsInterleaved (((v .&.      0x3ff) .<. 32) .|. (i .&. 0xfffffc00ffffffff))
 
 put2b :: Word64 -> CsInterleaved -> CsInterleaved
-put2b v (CsInterleaved i) = CsInterleaved (((v .&. 0x3ff) .<. 12) .|. (i .&. 0xffffffffffc00fff))
+put2b v (CsInterleaved i) = CsInterleaved (((v .&.      0x3ff) .<. 42) .|. (i .&. 0xfff003ffffffffff))
 
 put2c :: Word64 -> CsInterleaved -> CsInterleaved
-put2c v (CsInterleaved i) = CsInterleaved (((v .&. 0x3ff) .<.  2) .|. (i .&. 0xfffffffffffff003))
+put2c v (CsInterleaved i) = CsInterleaved (((v .&.      0x3ff) .<. 52) .|. (i .&. 0xc00fffffffffffff))
 
 instance Show CsInterleaved where
   showsPrec _ i = shows (get1a i, get2a i, get2b i, get2c i)
