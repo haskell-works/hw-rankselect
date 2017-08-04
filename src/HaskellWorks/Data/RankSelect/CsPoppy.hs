@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC-funbox-strict-fields #-}
 
-{-# LANGUAGE BangPatterns       #-}
+-- {-# LANGUAGE BangPatterns       #-}
 {-# LANGUAGE DeriveAnyClass     #-}
 {-# LANGUAGE DeriveGeneric      #-}
 {-# LANGUAGE FlexibleInstances  #-}
@@ -12,6 +12,8 @@ module HaskellWorks.Data.RankSelect.CsPoppy
     , makeCsPoppy
     -- , sampleRange
     , genSample
+    , chunkBy
+    , track
     ) where
 
 import GHC.Generics
@@ -22,14 +24,12 @@ import HaskellWorks.Data.AtIndex
 import HaskellWorks.Data.Bits.BitLength
 import HaskellWorks.Data.Bits.BitRead
 import HaskellWorks.Data.Bits.BitShow
-import HaskellWorks.Data.Bits.BitShown
 import HaskellWorks.Data.Bits.BitWise
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.Positioning
 import HaskellWorks.Data.RankSelect.Base.Rank1
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.CsInterleaved
-import HaskellWorks.Data.Length
 import HaskellWorks.Data.Take
 import HaskellWorks.Data.Drop
 import HaskellWorks.Data.Search
@@ -78,16 +78,16 @@ instance BitLength CsPoppy where
 instance PopCount1 CsPoppy where
   popCount1 = popCount1 . csPoppyBits
   {-# INLINE popCount1 #-}
-
-popCount1Range :: (DVS.Storable a, PopCount1 a) => Int -> Int -> DVS.Vector a -> Count
-popCount1Range start len = popCount1 . DVS.take len . DVS.drop start
-
-indexAsPos :: DVS.Vector Word64 -> Position -> Word64
-indexAsPos _ i | i < 0     = 0
-indexAsPos v i | i < end v = v !!! i
-indexAsPos v _ | 0 < end v = DVS.last v
-indexAsPos v _             = DVS.last v
-{-# INLINE indexAsPos #-}
+--
+-- popCount1Range :: (DVS.Storable a, PopCount1 a) => Int -> Int -> DVS.Vector a -> Count
+-- popCount1Range start len = popCount1 . DVS.take len . DVS.drop start
+--
+-- indexAsPos :: DVS.Vector Word64 -> Position -> Word64
+-- indexAsPos _ i | i < 0     = 0
+-- indexAsPos v i | i < end v = v !!! i
+-- indexAsPos v _ | 0 < end v = DVS.last v
+-- indexAsPos v _             = DVS.last v
+-- {-# INLINE indexAsPos #-}
 
 indexOrZero :: DVS.Vector Word64 -> Position -> Word64
 indexOrZero _ i | i < 0     = 0
@@ -128,6 +128,7 @@ makeCsPoppy v = CsPoppy
           .|. ((nb .<. 42) .&. 0x000ffc0000000000)
           .|. ((nc .<. 52) .&. 0x3ff0000000000000))
 
+selectBlockSize :: Count
 selectBlockSize = 32
 
 track :: Show a => String -> a -> a
@@ -135,9 +136,9 @@ track name a = trace (name <> ": " <> show a) a
 
 -- mpc = max pop count
 genSample :: DVS.Vector Word64 -> Count -> Count -> Maybe (Word64, Count)
-genSample v mpc r = if r <= mpc
-  then Just (fromIntegral (select1 v r), r + selectBlockSize)
-  else Nothing
+genSample v mpc r | r <= mpc      = Just (fromIntegral (select1 v r), r + selectBlockSize)
+genSample v _   r | r < maxBound  = Just (fromIntegral (DVS.length v * 64), maxBound)
+genSample _ _   _                 = Nothing
 
 instance TestBit CsPoppy where
   (.?.) = (.?.) . csPoppyBits
@@ -160,30 +161,71 @@ instance Rank1 CsPoppy where
                       | q == 2    = rankLayer1X + rankLayer1A + rankLayer1B
                       | q == 3    = rankLayer1X + rankLayer1A + rankLayer1B + rankLayer1C
                       | otherwise = undefined
-          rankPrior               = ({-rankLayer0 +-} rankLayer1) :: Count
+          rankPrior               = {-rankLayer0 +-} rankLayer1 :: Count
           rankInBasicBlock        = rank1 (DVS.drop (fromIntegral (p `div` 512) * 8) v) (p `mod` 512)
 
 instance Select1 CsPoppy where
-  select1 iv@(CsPoppy v i _ layerS) p = if False
-      then error "moo"
-      else if DVS.length v /= 0
-        then toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)
-        else 0
-    where q = binarySearch (fromIntegral p) wordAt iMin iMax
-          s = (i !!! q) :: Count
-          wordAt = (i !!!)
-          sampleMin = 0
-          sampleMax = 0
-          iMin = fromIntegral $  (sampleMin - 1) `div` 512      :: Position
-          iMax = fromIntegral $ ((sampleMax - 1) `div` 512) + 1 :: Position
+  select1 (CsPoppy v _ layer1 _) p =
+    -- let !_ = track "selecting" p in
+    -- Function that looks up a Layer 1X index by index
+    let layer1Lookup i = get1a (CsInterleaved (layer1 !!! i)) in
+    -- Index chosen by binary search
+    let layer1Index = binarySearch (fromIntegral p) layer1Lookup 0 (fromIntegral $ DVS.length layer1 - 1) in
+    -- let !_ = track "cspoppy" rsbs                  in
+    -- let !_ = track "layer1Index" layer1Index                  in
+    let layer1Entry = CsInterleaved (layer1 !!! layer1Index)  in
+    -- let !_ = track "layer1Entry" layer1Entry                  in
+    let entryX = get1a layer1Entry                            in
+    let entryA = get2a layer1Entry + entryX                   in
+    let entryB = get2b layer1Entry + entryA                   in
+    let entryC = get2c layer1Entry + entryB                   in
+    -- let !_ = track "entryX" entryX                            in
+    -- let !_ = track "entryA" entryA                            in
+    -- let !_ = track "entryB" entryB                            in
+    -- let !_ = track "entryC" entryC                            in
+    let blockOffset | p <= entryA = 0
+                    | p <= entryB = 1
+                    | p <= entryC = 2
+                    | otherwise  = 3                          in
+    -- let !_ = track "blockOffset" blockOffset                  in
+    let blockPrepop | p <= entryA = entryX
+                    | p <= entryB = entryA
+                    | p <= entryC = entryB
+                    | otherwise  = entryC                         in
+    let blockStart = toCount (layer1Index * 4 + blockOffset) * 8  in
+    -- let !_ = track "blockStart" blockStart                        in
+    let block = DVS.take 8 (drop blockStart v)                    in
+    -- let !_ = track "blockSize" (length block)                     in
+    -- let !_ = track "block" block                                  in
+    -- let !_ = track "blockPrepop" blockPrepop                      in
+    let q = p - blockPrepop                                       in
+    -- let !_ = track "q" q                                          in
+    select1 block q + blockStart * 64
 
-sampleRange :: CsPoppy -> Count -> (Word64, Word64)
-sampleRange (CsPoppy _ index _ samples) p =
-  let j = (fromIntegral p - 1) `div` 8192 in
-  if 0 <= j && j < DVS.length samples
-    then  let pa = samples DVS.! j                in
-          if j + 1 < DVS.length samples
-            then  let pz = samples DVS.! (j + 1)          in
-                  (pa, pz)
-            else (pa, fromIntegral (DVS.length index - 1))
-    else (1, fromIntegral (DVS.length index - 1))
+  -- select1 block (p - )
+  --   let _ = p `div` selectBlockSize in
+  --   let !_ = track "sampleIndex" sampleIndex in
+  --   let !_ = track "selectMin" selectMin in
+  --   let !_ = track "selectMax" selectMax in
+  --   if DVS.length v /= 0
+  --       then toCount q * 512 + select1 (DVS.drop (fromIntegral q * 8) v) (p - s)
+  --       else 0
+  --   where sampleIndex = binarySearch (fromIntegral p) (layerS !!!) 0 (end layerS - 1)
+  --         selectMin = layerS !!! sampleIndex
+  --         selectMax = layerS !!! (sampleIndex + 1)
+  --         q = binarySearch (fromIntegral p) wordAt (iMin) iMax
+  --         s = (i !!! q) :: Count
+  --         wordAt = (i !!!)
+  --         iMin = fromIntegral $  (sampleMin - 1) `div` 512      :: Position
+  --         iMax = fromIntegral $ ((sampleMax - 1) `div` 512) + 1 :: Position
+
+-- sampleRange :: CsPoppy -> Count -> (Word64, Word64)
+-- sampleRange (CsPoppy _ index _ samples) p =
+--   let j = (fromIntegral p - 1) `div` 8192         in
+--   if 0 <= j && j < DVS.length samples
+--     then  let pa = samples DVS.! j                in
+--           if j + 1 < DVS.length samples
+--             then  let pz = samples DVS.! (j + 1)  in
+--                   (pa, pz)
+--             else (pa, fromIntegral (DVS.length index - 1))
+--     else (1, fromIntegral (DVS.length index - 1))
