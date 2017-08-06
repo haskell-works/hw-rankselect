@@ -1,7 +1,9 @@
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE BangPatterns         #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
 
 module Main where
 
+import Control.Monad
 import Criterion.Main
 import Data.List
 import Foreign
@@ -10,6 +12,7 @@ import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.Positioning
 import HaskellWorks.Data.RankSelect.Base.Select1
 import System.Directory
+import System.Environment
 import System.IO.MMap
 
 import qualified Data.Vector.Storable                   as DVS
@@ -159,18 +162,36 @@ benchPoppy512SSelect1 = do
         go _    _ _ _    acc           = acc
         {-# INLINE go #-}
 
-main :: IO ()
-main = (defaultMain =<<) . (concat <$>) $ sequence
-  -- [ benchCsPoppyBuild
-  -- , benchCsPoppyRank1
-  -- , benchCsPoppySelect1
+runCsPoppyBuild :: IO ()
+runCsPoppyBuild = do
+  entries <- listDirectory "data"
+  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
+  forM_ files $ \file -> do
+    msbs <- loadPoppy512S file
+    let !_ = select1 msbs 1
+    return ()
+
+runBenchmarks :: IO ()
+runBenchmarks = (defaultMain =<<) . (concat <$>) $ sequence
+  [ benchCsPoppyBuild
+  , benchCsPoppyRank1
+  , benchCsPoppySelect1
   -- , benchCs2PoppyBuild
   -- , benchCs2PoppyRank1
   -- , benchCs2PoppySelect1
-  [ benchPoppy512Build
+  , benchPoppy512Build
   , benchPoppy512Rank1
   , benchPoppy512Select1
   , benchPoppy512SBuild
   , benchPoppy512SRank1
   , benchPoppy512SSelect1
   ]
+
+
+main :: IO ()
+main = do
+  args <- getArgs
+  case args of
+    []                -> runBenchmarks
+    ["load-cspoppy"]  -> runCsPoppyBuild
+    _                 -> putStrLn "Invalid arguments"
