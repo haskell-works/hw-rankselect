@@ -16,7 +16,6 @@ import System.IO.MMap
 
 import qualified Data.Vector.Storable                   as DVS
 import qualified HaskellWorks.Data.RankSelect.CsPoppy   as CS
-import qualified HaskellWorks.Data.RankSelect.CsPoppy2  as CS2
 import qualified HaskellWorks.Data.RankSelect.Poppy512  as P512
 import qualified HaskellWorks.Data.RankSelect.Poppy512S as P512S
 
@@ -28,9 +27,6 @@ loadVector64 filename = fromForeignRegion <$> mmapFileForeignPtr filename ReadOn
 
 loadCsPoppy :: FilePath -> IO CS.CsPoppy
 loadCsPoppy filename = CS.makeCsPoppy <$> loadVector64 filename
-
-loadCsPoppy2 :: FilePath -> IO CS2.CsPoppy2
-loadCsPoppy2 filename = CS2.makeCsPoppy2 <$> loadVector64 filename
 
 loadPoppy512 :: FilePath -> IO P512.Poppy512
 loadPoppy512 filename = P512.makePoppy512 <$> loadVector64 filename

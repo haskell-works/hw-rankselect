@@ -17,7 +17,6 @@ library
   hs-source-dirs:       src
   exposed-modules:      HaskellWorks.Data.RankSelect.CsInterleaved
                       , HaskellWorks.Data.RankSelect.CsPoppy
-                      , HaskellWorks.Data.RankSelect.CsPoppy2
                       , HaskellWorks.Data.RankSelect.Poppy512
                       , HaskellWorks.Data.RankSelect.Poppy512S
   build-depends:        base                          >= 4          && < 5
@@ -58,7 +57,6 @@ test-suite hw-rankselect-test
   other-modules:        HaskellWorks.Data.RankSelect.BasicGen
                       , HaskellWorks.Data.RankSelect.CsInterleavedSpec
                       , HaskellWorks.Data.RankSelect.CsPoppySpec
-                      , HaskellWorks.Data.RankSelect.CsPoppy2Spec
                       , HaskellWorks.Data.RankSelect.Poppy512Spec
                       , HaskellWorks.Data.RankSelect.Poppy512SSpec
                       , HaskellWorks.Data.RankSelect.InternalSpec
