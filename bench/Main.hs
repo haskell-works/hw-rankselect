@@ -17,7 +17,6 @@ import System.IO.MMap
 
 import qualified Data.Vector.Storable                   as DVS
 import qualified HaskellWorks.Data.RankSelect.CsPoppy   as CS
-import qualified HaskellWorks.Data.RankSelect.CsPoppy2  as CS2
 import qualified HaskellWorks.Data.RankSelect.Poppy512  as P512
 import qualified HaskellWorks.Data.RankSelect.Poppy512S as P512S
 
@@ -32,9 +31,6 @@ loadVector64 filename = fromForeignRegion <$> mmapFileForeignPtr filename ReadOn
 
 loadCsPoppy :: FilePath -> IO CS.CsPoppy
 loadCsPoppy filename = CS.makeCsPoppy <$> loadVector64 filename
-
-loadCsPoppy2 :: FilePath -> IO CS2.CsPoppy2
-loadCsPoppy2 filename = CS2.makeCsPoppy2 <$> loadVector64 filename
 
 loadPoppy512 :: FilePath -> IO P512.Poppy512
 loadPoppy512 filename = P512.makePoppy512 <$> loadVector64 filename
@@ -67,36 +63,6 @@ benchCsPoppySelect1 = do
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (loadCsPoppy filename) $ \rsbs -> bgroup filename
           [ bench "CsPoppy Select1"  (whnf (go rsbs 1 (popCount1 rsbs) ((popCount1 rsbs `div` 100) + 1)) 0)
-          ]
-        go rsbs a z step acc | a <= z  = go rsbs (a + step) z step (select1 rsbs a + acc)
-        go _    _ _ _    acc           = acc
-        {-# INLINE go #-}
-
-benchCsPoppy2Build :: IO [Benchmark]
-benchCsPoppy2Build = do
-  entries <- listDirectory "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
-  return (mkBenchmark <$> files)
-  where mkBenchmark filename = env (loadVector64 filename) $ \bitString -> bgroup filename
-          [ bench "CsPoppy2 Build"  (whnf CS2.makeCsPoppy2 bitString)
-          ]
-
-benchCsPoppy2Rank1 :: IO [Benchmark]
-benchCsPoppy2Rank1 = do
-  entries <- listDirectory "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
-  return (mkBenchmark <$> files)
-  where mkBenchmark filename = env (loadCsPoppy2 filename) $ \csPoppy -> bgroup filename
-          [ bench "CsPoppy2 Rank1"  (whnf (CS.rank1 csPoppy) 100)
-          ]
-
-benchCsPoppy2Select1 :: IO [Benchmark]
-benchCsPoppy2Select1 = do
-  entries <- listDirectory "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
-  return (mkBenchmark <$> files)
-  where mkBenchmark filename = env (loadCsPoppy2 filename) $ \rsbs -> bgroup filename
-          [ bench "CsPoppy2 Select1"  (whnf (go rsbs 1 (popCount1 rsbs) ((popCount1 rsbs `div` 100) + 1)) 0)
           ]
         go rsbs a z step acc | a <= z  = go rsbs (a + step) z step (select1 rsbs a + acc)
         go _    _ _ _    acc           = acc
@@ -176,9 +142,6 @@ runBenchmarks = (defaultMain =<<) . (concat <$>) $ sequence
   [ benchCsPoppyBuild
   , benchCsPoppyRank1
   , benchCsPoppySelect1
-  -- , benchCs2PoppyBuild
-  -- , benchCs2PoppyRank1
-  -- , benchCs2PoppySelect1
   , benchPoppy512Build
   , benchPoppy512Rank1
   , benchPoppy512Select1
