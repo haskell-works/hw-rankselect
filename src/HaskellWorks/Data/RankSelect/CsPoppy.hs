@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC-funbox-strict-fields #-}
 
+{-# LANGUAGE BangPatterns      #-}
 {-# LANGUAGE DeriveAnyClass    #-}
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE FlexibleContexts  #-}
@@ -37,7 +38,6 @@ import HaskellWorks.Data.RankSelect.Base.Rank0
 import HaskellWorks.Data.RankSelect.Base.Rank1
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.CsInterleaved
-import HaskellWorks.Data.Search
 import HaskellWorks.Data.Take
 import HaskellWorks.Data.Vector.AsVector64
 import Prelude                                         hiding (drop, length, pi, take)
@@ -48,14 +48,14 @@ newtype Nice a = Nice a deriving Eq
 
 data CsPoppy = CsPoppy
   { csPoppyBits   :: !(DVS.Vector Word64)
-  , csPoppyLayer1 :: !(DVS.Vector Word64)
+  , csPoppyLayerM :: !(DVS.Vector Word64)
   , csPoppyLayerS :: !(DVS.Vector Word32) -- Sampling lookup of each 8192 1-bit
   } deriving (Eq, Show, NFData, Generic)
 
 instance Show (Nice CsPoppy) where
   showsPrec _ (Nice rsbs) = showString "CsPoppy "
     <> showString "{ csPoppyBits = "   <> shows (bitShow <$> DVS.toList (csPoppyBits     rsbs))
-    <> showString ", csPoppyLayer0 = " <> shows (CsInterleaved <$> DVS.toList (csPoppyLayer1 rsbs))
+    <> showString ", csPoppyLayer0 = " <> shows (CsInterleaved <$> DVS.toList (csPoppyLayerM rsbs))
     <> showString ", csPoppyLayerS = " <> shows (csPoppyLayerS rsbs)
     <> showString " }"
 
@@ -68,7 +68,7 @@ instance BitLength CsPoppy where
   {-# INLINE bitLength #-}
 
 instance PopCount1 CsPoppy where
-  popCount1 v = getCsiTotal (CsInterleaved (lastOrZero (csPoppyLayer1 v)))
+  popCount1 v = getCsiTotal (CsInterleaved (lastOrZero (csPoppyLayerM v)))
   {-# INLINE popCount1 #-}
 
 indexOrZero :: DVS.Vector Word64 -> Position -> Word64
@@ -85,13 +85,13 @@ lastOrZero _ = 0
 makeCsPoppy :: DVS.Vector Word64 -> CsPoppy
 makeCsPoppy v = CsPoppy
   { csPoppyBits   = v
-  , csPoppyLayer1 = layer1
+  , csPoppyLayerM = layerM
   , csPoppyLayerS = layerS
   }
   where blocks  = DVS.constructN (((DVS.length v      + 8 - 1) `div` 8) + 1) genBlocks
-        layer1  = DVS.constructN (((DVS.length blocks + 4 - 1) `div` 4) + 1) genLayer1
-        layer1PopCount = getCsiTotal (CsInterleaved (lastOrZero layer1))
-        layerS = DVS.unfoldrN (fromIntegral layer1PopCount) genSample (0, 1)
+        layerM  = DVS.constructN (((DVS.length blocks + 4 - 1) `div` 4) + 1) genLayer1
+        layerMPopCount = getCsiTotal (CsInterleaved (lastOrZero layerM))
+        layerS = DVS.unfoldrN (fromIntegral layerMPopCount) genSample (0, 1)
         genBlocks u = let i = length u in popCount1 (take 8 (drop (i * 8) v))
         genLayer1 :: DVS.Vector Word64 -> Word64
         genLayer1 u =
@@ -110,10 +110,10 @@ makeCsPoppy v = CsPoppy
           .|. ((nb .<. 42) .&. 0x000ffc0000000000)
           .|. ((nc .<. 52) .&. 0x3ff0000000000000))
         mLookup :: Position -> Word64
-        mLookup i = getCsiX (CsInterleaved (layer1 !!! i))
+        mLookup i = getCsiX (CsInterleaved (layerM !!! i))
         genSample :: (Position, Position) -> Maybe (Word32, (Position, Position))
         genSample (mi, _) | mi == maxBound                                            = Nothing
-        genSample (mi, _) | mi >= end layer1                                          = Just (fromIntegral (DVS.length layer1 - 1), (maxBound, maxBound))
+        genSample (mi, _) | mi >= end layerM                                          = Just (fromIntegral (DVS.length layerM - 1), (maxBound, maxBound))
         genSample (mi, s) | s < toPosition (getCsiTotal (CsInterleaved (mLookup mi))) = Just (fromIntegral mi - 1, (mi, s + 8192))
         genSample (mi, s) = genSample (fromIntegral mi + 1, s)
 
@@ -125,8 +125,8 @@ instance BitRead CsPoppy where
   bitRead = fmap makeCsPoppy . bitRead
 
 instance Rank1 CsPoppy where
-  rank1 (CsPoppy v layer1 _) p = rankPrior + rankInBasicBlock
-    where rankLayer1Word          = layer1 !!! toPosition (p `div` 2048)
+  rank1 (CsPoppy !v !layerM !_) p = rankPrior + rankInBasicBlock
+    where rankLayer1Word          = layerM !!! toPosition (p `div` 2048)
           rankLayer1X             =  rankLayer1Word .&. 0x00000000ffffffff
           rankLayer1A             = (rankLayer1Word .&. 0x000003ff00000000) .>. 32
           rankLayer1B             = (rankLayer1Word .&. 0x000ffc0000000000) .>. 42
@@ -141,31 +141,39 @@ instance Rank1 CsPoppy where
           rankInBasicBlock        = rank1 (DVS.drop (fromIntegral (p `div` 512) * 8) v) (p `mod` 512)
   {-# INLINE rank1 #-}
 
+mBinarySearch :: Word64 -> DVS.Vector Word64 -> Position -> Position -> Position
+mBinarySearch !w !m !p !q = if p + 1 >= q
+  then p
+  else let !o = (p + q) `div` 2 in
+    if w <= getCsiX (CsInterleaved (m !!! o))
+      then mBinarySearch w m p o
+      else mBinarySearch w m o q
+{-# INLINE mBinarySearch #-}
+
 instance Select1 CsPoppy where
-  select1 _                         p | p == 0  = 0
-  select1 (CsPoppy v layer1 layerS) p           =
-    let pi                  = toPosition $ (p - 1) `div` 8192                 in
-    let pj                  = (pi + 1) `min` (end layerS - 1)                 in
-    let si                  = fromIntegral   (layerS !!! pi)                  in
-    let sj                  = fromIntegral $ (layerS !!! pj) + 1              in
-    let mLookup i           = getCsiX (CsInterleaved (layer1 !!! i))          in
-    let mIndex              = binarySearch (fromIntegral p) mLookup si sj     in
-    let me                  = CsInterleaved (layer1 !!! fromIntegral mIndex)  in
-    let mx                  = getCsiX me                                      in
-    let ma                  = getCsiA me + mx                                 in
-    let mb                  = getCsiB me + ma                                 in
-    let mc                  = getCsiC me + mb                                 in
-    let bo  | p <= ma       = 0
+  select1 _                             p | p == 0  = 0
+  select1 (CsPoppy !v !layerM !layerS)  p           =
+    let !pi                 = toPosition $ (p - 1) `div` 8192                 in
+    let !pj                 = (pi + 1) `min` (end layerS - 1)                 in
+    let !si                 = fromIntegral   (layerS !!! pi)                  in
+    let !sj                 = fromIntegral $ (layerS !!! pj) + 1              in
+    let !mIndex             = mBinarySearch (fromIntegral p) layerM si sj     in
+    let !me                 = CsInterleaved (layerM !!! fromIntegral mIndex)  in
+    let !mx                 = getCsiX me                                      in
+    let !ma                 = getCsiA me + mx                                 in
+    let !mb                 = getCsiB me + ma                                 in
+    let !mc                 = getCsiC me + mb                                 in
+    let !bo | p <= ma       = 0
             | p <= mb       = 1
             | p <= mc       = 2
             | otherwise     = 3                                               in
-    let bp  | p <= ma       = mx
+    let !bp | p <= ma       = mx
             | p <= mb       = ma
             | p <= mc       = mb
             | otherwise     = mc                                              in
-    let blockStart          = toCount (mIndex * 4 + bo) * 8                   in
-    let block               = DVS.take 8 (drop blockStart v)                  in
-    let q                   = p - bp                                          in
+    let !blockStart          = toCount (mIndex * 4 + bo) * 8                  in
+    let !block               = DVS.take 8 (drop blockStart v)                 in
+    let !q                   = p - bp                                         in
     select1 block q + blockStart * 64
   {-# INLINE select1 #-}
 
