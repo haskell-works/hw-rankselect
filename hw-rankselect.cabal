@@ -15,8 +15,8 @@ cabal-version:          >= 1.22
 
 library
   hs-source-dirs:       src
-  exposed-modules:      HaskellWorks.Data.RankSelect.CsInterleaved
-                      , HaskellWorks.Data.RankSelect.CsPoppy
+  exposed-modules:      HaskellWorks.Data.RankSelect.CsPoppy
+                      , HaskellWorks.Data.RankSelect.CsPoppy.Internal
                       , HaskellWorks.Data.RankSelect.Poppy512
                       , HaskellWorks.Data.RankSelect.Poppy512S
   build-depends:        base                          >= 4          && < 5
@@ -55,8 +55,8 @@ test-suite hw-rankselect-test
   hs-source-dirs:       test
   main-is:              Spec.hs
   other-modules:        HaskellWorks.Data.RankSelect.BasicGen
-                      , HaskellWorks.Data.RankSelect.CsInterleavedSpec
                       , HaskellWorks.Data.RankSelect.CsPoppySpec
+                      , HaskellWorks.Data.RankSelect.CsPoppy.InternalSpec
                       , HaskellWorks.Data.RankSelect.Poppy512Spec
                       , HaskellWorks.Data.RankSelect.Poppy512SSpec
                       , HaskellWorks.Data.RankSelect.InternalSpec

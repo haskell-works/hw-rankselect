@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -fno-warn-incomplete-patterns #-}
 
-module HaskellWorks.Data.RankSelect.CsInterleavedSpec (spec) where
+module HaskellWorks.Data.RankSelect.CsPoppy.InternalSpec (spec) where
 
 import HaskellWorks.Data.Bits.BitWise
-import HaskellWorks.Data.RankSelect.CsInterleaved
+import HaskellWorks.Data.RankSelect.CsPoppy.Internal
 import HaskellWorks.Hspec.Hedgehog
 import Hedgehog
 import Prelude                                        hiding (length)
