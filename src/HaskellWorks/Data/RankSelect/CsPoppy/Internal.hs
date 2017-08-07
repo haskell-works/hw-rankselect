@@ -1,12 +1,13 @@
 {-# OPTIONS_GHC-funbox-strict-fields #-}
 
-module HaskellWorks.Data.RankSelect.CsInterleaved
+module HaskellWorks.Data.RankSelect.CsPoppy.Internal
     ( CsInterleaved(..)
     , getCsiX
     , getCsiA
     , getCsiB
     , getCsiC
     , getCsiTotal
+    , mkCsi
     , putCsiX
     , putCsiA
     , putCsiB
@@ -29,6 +30,13 @@ instance Storable CsInterleaved where
   {-# INLINE peekElemOff #-}
   pokeElemOff ptr i = pokeElemOff (castPtr ptr) i . unCsInterleaved
   {-# INLINE pokeElemOff #-}
+
+mkCsi :: Word64 -> Word64 -> Word64 -> Word64 -> CsInterleaved
+mkCsi x a b c = CsInterleaved
+    $   ((x .&. 0xffffffff) .<.  0)
+    .|. ((a .&.      0x3ff) .<. 32)
+    .|. ((b .&.      0x3ff) .<. 42)
+    .|. ((c .&.      0x3ff) .<. 52)
 
 getCsiX :: CsInterleaved -> Word64
 getCsiX (CsInterleaved i) = i .&. 0xffffffff

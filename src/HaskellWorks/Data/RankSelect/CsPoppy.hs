@@ -37,7 +37,7 @@ import HaskellWorks.Data.Positioning
 import HaskellWorks.Data.RankSelect.Base.Rank0
 import HaskellWorks.Data.RankSelect.Base.Rank1
 import HaskellWorks.Data.RankSelect.Base.Select1
-import HaskellWorks.Data.RankSelect.CsInterleaved
+import HaskellWorks.Data.RankSelect.CsPoppy.Internal
 import HaskellWorks.Data.Take
 import HaskellWorks.Data.Vector.AsVector64
 import Prelude                                         hiding (drop, length, pi, take)
@@ -126,19 +126,19 @@ instance BitRead CsPoppy where
 
 instance Rank1 CsPoppy where
   rank1 (CsPoppy !v !layerM !_) p = rankPrior + rankInBasicBlock
-    where rankLayer1Word          = layerM !!! toPosition (p `div` 2048)
-          rankLayer1X             =  rankLayer1Word .&. 0x00000000ffffffff
-          rankLayer1A             = (rankLayer1Word .&. 0x000003ff00000000) .>. 32
-          rankLayer1B             = (rankLayer1Word .&. 0x000ffc0000000000) .>. 42
-          rankLayer1C             = (rankLayer1Word .&. 0x3ff0000000000000) .>. 52
-          q                       = (p `div` 512) `mod` 4 -- quarter
-          rankLayer1  | q == 0    = rankLayer1X
-                      | q == 1    = rankLayer1X + rankLayer1A
-                      | q == 2    = rankLayer1X + rankLayer1A + rankLayer1B
-                      | q == 3    = rankLayer1X + rankLayer1A + rankLayer1B + rankLayer1C
-                      | otherwise = error "Invalid interleaved entry index"
-          rankPrior               = rankLayer1 :: Count
-          rankInBasicBlock        = rank1 (DVS.drop (fromIntegral (p `div` 512) * 8) v) (p `mod` 512)
+    where mw  = layerM !!! toPosition (p `div` 2048)
+          mx  =  mw .&. 0x00000000ffffffff
+          ma  = (mw .&. 0x000003ff00000000) .>. 32
+          mb  = (mw .&. 0x000ffc0000000000) .>. 42
+          mc  = (mw .&. 0x3ff0000000000000) .>. 52
+          q   = (p `div` 512) `mod` 4 -- quarter
+          mi  | q == 0    = mx
+              | q == 1    = mx + ma
+              | q == 2    = mx + ma + mb
+              | q == 3    = mx + ma + mb + mc
+              | otherwise = error "Invalid interleaved entry index"
+          rankPrior         = mi :: Count
+          rankInBasicBlock  = rank1 (DVS.drop (fromIntegral (p `div` 512) * 8) v) (p `mod` 512)
   {-# INLINE rank1 #-}
 
 mBinarySearch :: Word64 -> DVS.Vector Word64 -> Position -> Position -> Position
