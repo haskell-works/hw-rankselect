@@ -22,8 +22,8 @@ library
   build-depends:        base                          >= 4          && < 5
                       , deepseq
                       , hw-balancedparens             >= 0.1.0.0
-                      , hw-bits                       >= 0.3.0.0
-                      , hw-prim                       >= 0.4.0.0
+                      , hw-bits                       >= 0.6.0.0
+                      , hw-prim                       >= 0.4.0.3
                       , hw-rankselect-base            >= 0.2.0.0
                       , vector
 
