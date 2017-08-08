@@ -52,7 +52,7 @@ instance PopCount1 Poppy512S where
   popCount1 = popCount1 . poppy512SBits
   {-# INLINE popCount1 #-}
 
-popCount1Range :: (DVS.Storable a, PopCount1 a) => Int -> Int -> DVS.Vector a -> Count
+popCount1Range :: Int -> Int -> DVS.Vector Count -> Count
 popCount1Range start len = popCount1 . DVS.take len . DVS.drop start
 
 makePoppy512S :: DVS.Vector Word64 -> Poppy512S
