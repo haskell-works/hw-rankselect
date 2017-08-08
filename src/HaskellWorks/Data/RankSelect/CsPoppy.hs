@@ -114,7 +114,7 @@ makeCsPoppy v = CsPoppy
         genSample :: (Position, Position) -> Maybe (Word32, (Position, Position))
         genSample (mi, _) | mi == maxBound                                            = Nothing
         genSample (mi, _) | mi >= end layerM                                          = Just (fromIntegral (DVS.length layerM - 1), (maxBound, maxBound))
-        genSample (mi, s) | s < toPosition (getCsiTotal (CsInterleaved (mLookup mi))) = Just (fromIntegral mi - 1, (mi, s + 8192))
+        genSample (mi, s) | s < toPosition (getCsiTotal (CsInterleaved (mLookup mi))) = Just (fromIntegral mi - 1, (mi, s + 512 {- sampling -}))
         genSample (mi, s) = genSample (fromIntegral mi + 1, s)
 
 instance TestBit CsPoppy where
@@ -153,7 +153,7 @@ mBinarySearch !w !m !p !q = if p + 1 >= q
 instance Select1 CsPoppy where
   select1 _                             p | p == 0  = 0
   select1 (CsPoppy !v !layerM !layerS)  p           =
-    let !pi                 = toPosition $ (p - 1) `div` 8192                 in
+    let !pi                 = toPosition $ (p - 1) `div` 512 {- sampling -}   in
     let !pj                 = (pi + 1) `min` (end layerS - 1)                 in
     let !si                 = fromIntegral   (layerS !!! pi)                  in
     let !sj                 = fromIntegral $ (layerS !!! pj) + 1              in
