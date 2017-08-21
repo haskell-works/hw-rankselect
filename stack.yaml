@@ -1,14 +1,10 @@
-resolver: lts-8.13
+resolver: lts-9.1
 
 packages:
 - '.'
 
 extra-deps:
   - hedgehog-0.5
-  - hw-bits-0.6.0.0
-  - hw-hedgehog-0.1.0.1
-  - hw-prim-0.4.0.3
-  - hw-hspec-hedgehog-0.1.0.0
 
 flags: {}
 
