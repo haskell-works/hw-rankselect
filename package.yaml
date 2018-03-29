@@ -1,0 +1,99 @@
+name: hw-rankselect
+version: '0.10.0.3'
+synopsis: Rank-select
+description: Please see README.md
+category: Data, Conduit
+author: John Ky
+maintainer: newhoggy@gmail.com
+copyright: 2016 John Ky
+license: BSD3
+github: haskell-works/hw-rankselect
+homepage: http://github.com/haskell-works/hw-rankselect#readme
+extra-source-files:
+- README.md
+- data/README.md
+dependencies:
+- hw-rankselect-base >=0.2.0.0
+- vector
+library:
+  source-dirs: src
+  ghc-options:
+  - -Wall
+  - -O2
+  - -msse4.2
+  exposed-modules:
+  - HaskellWorks.Data.RankSelect.CsPoppy
+  - HaskellWorks.Data.RankSelect.CsPoppy.Internal
+  - HaskellWorks.Data.RankSelect.Poppy512
+  - HaskellWorks.Data.RankSelect.Poppy512S
+  dependencies:
+  - base >=4 && <5
+  - deepseq
+  - hw-balancedparens >=0.1.0.0
+  - hw-bits >=0.6.0.0
+  - hw-prim >=0.4.0.3
+executables:
+  hw-rankselect-exe:
+    main: Main.hs
+    source-dirs: app
+    default-extensions:
+    - OverloadedStrings
+    - TupleSections
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -O2
+    - -msse4.2
+    dependencies:
+    - base >=4.7 && <5
+    - directory
+    - hw-bits >=0.4.0.0
+    - hw-prim >=0.4.0.0
+    - hw-rankselect
+    - mmap
+    when:
+    - condition: os(osx)
+      cpp-options:
+      - -D__attribute__(A)=
+      - -D_Nullable=
+      - -D_Nonnull=
+tests:
+  hw-rankselect-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Wall
+    dependencies:
+    - base >=4 && <5
+    - directory
+    - hedgehog
+    - hspec
+    - hw-bits >=0.4.0.0
+    - hw-hedgehog >=0.1.0.1
+    - hw-hspec-hedgehog
+    - hw-prim >=0.4.0.0
+    - hw-rankselect
+    - mmap
+    - QuickCheck
+benchmarks:
+  bench:
+    main: Main.hs
+    source-dirs: bench
+    ghc-options:
+    - -O2
+    - -Wall
+    - -msse4.2
+    dependencies:
+    - base >=4 && <5
+    - bytestring
+    - conduit
+    - criterion
+    - directory
+    - hw-bits >=0.4.0.0
+    - hw-prim >=0.4.0.0
+    - hw-rankselect
+    - mmap
+    - resourcet
