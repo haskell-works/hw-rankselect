@@ -1,0 +1,67 @@
+$ stack bench
+hw-rankselect-0.10.0.3: benchmarks
+Running 1 benchmarks...
+Benchmark bench: RUNNING...
+benchmarking data/arbor-stats-B1599C.68.87.85.68-22.ib/CsPoppy Build
+time                 10.51 ms   (10.31 ms .. 10.75 ms)
+                     0.995 R²   (0.989 R² .. 0.998 R²)
+mean                 10.76 ms   (10.56 ms .. 11.11 ms)
+std dev              659.6 μs   (429.8 μs .. 1.154 ms)
+variance introduced by outliers: 30% (moderately inflated)
+
+benchmarking data/arbor-stats-B1599C.68.87.85.68-22.ib/CsPoppy Rank1
+time                 49.50 ns   (49.11 ns .. 50.01 ns)
+                     0.999 R²   (0.998 R² .. 1.000 R²)
+mean                 49.60 ns   (49.13 ns .. 50.14 ns)
+std dev              1.742 ns   (1.434 ns .. 2.184 ns)
+variance introduced by outliers: 55% (severely inflated)
+
+benchmarking data/arbor-stats-B1599C.68.87.85.68-22.ib/CsPoppy Select1
+time                 3.768 μs   (3.727 μs .. 3.819 μs)
+                     0.998 R²   (0.997 R² .. 0.999 R²)
+mean                 3.831 μs   (3.788 μs .. 3.901 μs)
+std dev              179.5 ns   (132.1 ns .. 295.1 ns)
+variance introduced by outliers: 60% (severely inflated)
+
+benchmarking data/arbor-stats-B1599C.68.87.85.68-22.ib/Poppy512 Build
+time                 10.82 ms   (10.59 ms .. 11.02 ms)
+                     0.997 R²   (0.995 R² .. 0.999 R²)
+mean                 11.18 ms   (11.05 ms .. 11.33 ms)
+std dev              386.7 μs   (321.2 μs .. 484.0 μs)
+variance introduced by outliers: 13% (moderately inflated)
+
+benchmarking data/arbor-stats-B1599C.68.87.85.68-22.ib/Poppy512 Rank1
+time                 42.43 ns   (41.95 ns .. 42.93 ns)
+                     0.999 R²   (0.999 R² .. 1.000 R²)
+mean                 42.24 ns   (41.96 ns .. 42.54 ns)
+std dev              1.054 ns   (871.1 ps .. 1.279 ns)
+variance introduced by outliers: 39% (moderately inflated)
+
+benchmarking data/arbor-stats-B1599C.68.87.85.68-22.ib/Poppy512 Select1
+time                 29.70 μs   (29.36 μs .. 30.17 μs)
+                     0.998 R²   (0.996 R² .. 0.999 R²)
+mean                 29.61 μs   (29.22 μs .. 30.17 μs)
+std dev              1.446 μs   (1.121 μs .. 1.959 μs)
+variance introduced by outliers: 55% (severely inflated)
+
+benchmarking data/arbor-stats-B1599C.68.87.85.68-22.ib/Poppy512S Build
+time                 23.15 ms   (22.59 ms .. 23.74 ms)
+                     0.998 R²   (0.996 R² .. 0.999 R²)
+mean                 23.35 ms   (23.07 ms .. 23.72 ms)
+std dev              738.6 μs   (484.9 μs .. 1.148 ms)
+
+benchmarking data/arbor-stats-B1599C.68.87.85.68-22.ib/Poppy512S Rank1
+time                 41.92 ns   (41.57 ns .. 42.32 ns)
+                     0.999 R²   (0.998 R² .. 0.999 R²)
+mean                 41.84 ns   (41.35 ns .. 42.40 ns)
+std dev              1.647 ns   (1.371 ns .. 2.131 ns)
+variance introduced by outliers: 61% (severely inflated)
+
+benchmarking data/arbor-stats-B1599C.68.87.85.68-22.ib/Poppy512S Select1
+time                 13.51 μs   (13.27 μs .. 13.74 μs)
+                     0.998 R²   (0.997 R² .. 0.999 R²)
+mean                 13.32 μs   (13.16 μs .. 13.47 μs)
+std dev              521.2 ns   (441.2 ns .. 628.5 ns)
+variance introduced by outliers: 47% (moderately inflated)
+
+Benchmark bench: FINISH

@@ -1,10 +1,13 @@
-resolver: lts-10.1
+resolver: nightly-2018-03-30
 
 packages:
 - '.'
+- ../hw-balancedparens
 
 extra-deps:
-  - hedgehog-0.5
+  - bits-extra-0.0.0.2
+  - hedgehog-0.5.3
+  - hw-rankselect-base-0.3.0.0
 
 flags: {}
 

@@ -97,3 +97,17 @@ benchmarks:
     - hw-rankselect
     - mmap
     - resourcet
+
+when:
+- condition: (flag(bmi2)) && (impl(ghc >=8.4.1))
+  ghc-options:
+  - -mbmi2
+  - -msse4.2
+  cpp-options:
+  - -DBMI2_ENABLED
+
+flags:
+  bmi2:
+    description: Enable bmi2 instruction set
+    manual: false
+    default: false
