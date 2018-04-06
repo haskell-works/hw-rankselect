@@ -68,16 +68,18 @@ tests:
     - -Wall
     dependencies:
     - base >=4 && <5
+    - QuickCheck
     - directory
     - hedgehog
     - hspec
     - hw-bits >=0.4.0.0
+    - hw-hedgehog
     - hw-hedgehog >=0.1.0.1
+    - hw-hspec-hedgehog
     - hw-hspec-hedgehog
     - hw-prim >=0.4.0.0
     - hw-rankselect
     - mmap
-    - QuickCheck
 benchmarks:
   bench:
     main: Main.hs

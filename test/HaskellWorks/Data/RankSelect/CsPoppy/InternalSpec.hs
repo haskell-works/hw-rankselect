@@ -6,11 +6,11 @@ import HaskellWorks.Data.Bits.BitWise
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal
 import HaskellWorks.Hspec.Hedgehog
 import Hedgehog
-import Prelude                                        hiding (length)
+import Prelude                                       hiding (length)
 import Test.Hspec
 
-import qualified Hedgehog.Gen              as G
-import qualified Hedgehog.Range            as R
+import qualified Hedgehog.Gen   as G
+import qualified Hedgehog.Range as R
 
 {-# ANN module ("HLint: ignore Redundant do" :: String) #-}
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
@@ -18,7 +18,7 @@ import qualified Hedgehog.Range            as R
 spec :: Spec
 spec = describe "HaskellWorks.Data.RankSelect.CsInterleavedSpec" $ do
   describe "Interleaved Level 1 & 2" $ do
-    it "have all its fields isolated" $ require $ property $ do
+    it "have all its fields isolated" $ requireProperty $ do
       vx <- forAll $ G.word64 R.constantBounded
       va <- forAll $ G.word64 R.constantBounded
       vb <- forAll $ G.word64 R.constantBounded
@@ -31,7 +31,7 @@ spec = describe "HaskellWorks.Data.RankSelect.CsInterleavedSpec" $ do
       getCsiA (putCsiA va actual) === (va .&. 0x3ff)
       getCsiB (putCsiB vb actual) === (vb .&. 0x3ff)
       getCsiC (putCsiC vc actual) === (vc .&. 0x3ff)
-    it "have all its fields isolated" $ require $ property $ do
+    it "have all its fields isolated" $ requireProperty $ do
       vx <- forAll $ G.word64 R.constantBounded
       va <- forAll $ G.word64 R.constantBounded
       vb <- forAll $ G.word64 R.constantBounded

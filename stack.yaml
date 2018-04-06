@@ -1,12 +1,12 @@
-resolver: nightly-2018-03-30
+resolver: nightly-2018-03-20
 
 packages:
 - '.'
-- ../hw-balancedparens
 
 extra-deps:
   - bits-extra-0.0.0.2
   - hedgehog-0.5.3
+  - hw-hspec-hedgehog-0.1.0.3
   - hw-rankselect-base-0.3.0.0
 
 flags: {}
