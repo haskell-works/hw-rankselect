@@ -1,11 +1,11 @@
-{-# LANGUAGE BangPatterns         #-}
-{-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE BangPatterns        #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Main where
 
 import Control.Monad
 import Data.List
-import Data.Monoid ((<>))
+import Data.Monoid                               ((<>))
 import Foreign
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
@@ -14,10 +14,9 @@ import System.Directory
 import System.Environment
 import System.IO.MMap
 
-import qualified Data.Vector.Storable                   as DVS
-import qualified HaskellWorks.Data.RankSelect.CsPoppy   as CS
-import qualified HaskellWorks.Data.RankSelect.Poppy512  as P512
-import qualified HaskellWorks.Data.RankSelect.Poppy512S as P512S
+import qualified Data.Vector.Storable                  as DVS
+import qualified HaskellWorks.Data.RankSelect.CsPoppy  as CS
+import qualified HaskellWorks.Data.RankSelect.Poppy512 as P512
 
 {-# ANN module ("HLint: ignore Redundant do" :: String) #-}
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
@@ -30,9 +29,6 @@ loadCsPoppy filename = CS.makeCsPoppy <$> loadVector64 filename
 
 loadPoppy512 :: FilePath -> IO P512.Poppy512
 loadPoppy512 filename = P512.makePoppy512 <$> loadVector64 filename
-
-loadPoppy512S :: FilePath -> IO P512S.Poppy512S
-loadPoppy512S filename = P512S.makePoppy512S <$> loadVector64 filename
 
 runCsPoppyBuild :: IO ()
 runCsPoppyBuild = do
@@ -53,16 +49,6 @@ runPoppy512Build = do
     -- let !_ = select1 msbs 1
     return ()
 
-runPoppy512SBuild :: IO ()
-runPoppy512SBuild = do
-  entries <- listDirectory "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
-  forM_ files $ \file -> do
-    putStrLn $ "Loading cspoppy for " <> file
-    P512S.Poppy512S !_ !_ !_ <- loadPoppy512S file
-    -- let !_ = select1 msbs 1
-    return ()
-
 runPoppy512SelectAll :: IO ()
 runPoppy512SelectAll = do
   entries <- listDirectory "data"
@@ -70,18 +56,6 @@ runPoppy512SelectAll = do
   forM_ files $ \file -> do
     putStrLn $ "Loading cspoppy for " <> file
     v <- loadPoppy512 file
-    forM_ [1..popCount1 v] $ \i -> do
-      let !_ = select1 v i
-      return ()
-    return ()
-
-runPoppy512SSelectAll :: IO ()
-runPoppy512SSelectAll = do
-  entries <- listDirectory "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
-  forM_ files $ \file -> do
-    putStrLn $ "Loading cspoppy for " <> file
-    v <- loadPoppy512S file
     forM_ [1..popCount1 v] $ \i -> do
       let !_ = select1 v i
       return ()
@@ -103,10 +77,8 @@ main :: IO ()
 main = do
   args <- getArgs
   case args of
-    ["cspoppy-load"]          -> runCsPoppyBuild
-    ["cspoppy-select-all"]    -> runCsPoppySelectAll
-    ["poppy512-load"]         -> runPoppy512Build
-    ["poppy512-select-all"]   -> runPoppy512SelectAll
-    ["poppy512s-load"]        -> runPoppy512SBuild
-    ["poppy512s-select-all"]  -> runPoppy512SSelectAll
-    _                         -> putStrLn "Invalid arguments"
+    ["cspoppy-load"]        -> runCsPoppyBuild
+    ["cspoppy-select-all"]  -> runCsPoppySelectAll
+    ["poppy512-load"]       -> runPoppy512Build
+    ["poppy512-select-all"] -> runPoppy512SelectAll
+    _                       -> putStrLn "Invalid arguments"

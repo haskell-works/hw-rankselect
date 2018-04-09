@@ -1,5 +1,5 @@
-{-# LANGUAGE BangPatterns         #-}
-{-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE BangPatterns        #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Main where
 
@@ -15,10 +15,9 @@ import System.Directory
 import System.Environment
 import System.IO.MMap
 
-import qualified Data.Vector.Storable                   as DVS
-import qualified HaskellWorks.Data.RankSelect.CsPoppy   as CS
-import qualified HaskellWorks.Data.RankSelect.Poppy512  as P512
-import qualified HaskellWorks.Data.RankSelect.Poppy512S as P512S
+import qualified Data.Vector.Storable                  as DVS
+import qualified HaskellWorks.Data.RankSelect.CsPoppy  as CS
+import qualified HaskellWorks.Data.RankSelect.Poppy512 as P512
 
 {-# ANN module ("HLint: ignore Redundant do" :: String) #-}
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
@@ -34,9 +33,6 @@ loadCsPoppy filename = CS.makeCsPoppy <$> loadVector64 filename
 
 loadPoppy512 :: FilePath -> IO P512.Poppy512
 loadPoppy512 filename = P512.makePoppy512 <$> loadVector64 filename
-
-loadPoppy512S :: FilePath -> IO P512S.Poppy512S
-loadPoppy512S filename = P512S.makePoppy512S <$> loadVector64 filename
 
 benchCsPoppyBuild :: IO [Benchmark]
 benchCsPoppyBuild = do
@@ -65,7 +61,7 @@ benchCsPoppySelect1 = do
           [ bench "CsPoppy Select1"  (whnf (go rsbs 1 (popCount1 rsbs) ((popCount1 rsbs `div` 100) + 1)) 0)
           ]
         go rsbs a z step acc | a <= z  = go rsbs (a + step) z step (select1 rsbs a + acc)
-        go _    _ _ _    acc           = acc
+        go _    _ _ _    acc = acc
         {-# INLINE go #-}
 
 benchPoppy512Build :: IO [Benchmark]
@@ -95,37 +91,7 @@ benchPoppy512Select1 = do
           [ bench "Poppy512 Select1"  (whnf (go rsbs 1 (popCount1 rsbs) ((popCount1 rsbs `div` 100) + 1)) 0)
           ]
         go rsbs a z step acc | a <= z  = go rsbs (a + step) z step (select1 rsbs a + acc)
-        go _    _ _ _    acc           = acc
-        {-# INLINE go #-}
-
-benchPoppy512SBuild :: IO [Benchmark]
-benchPoppy512SBuild = do
-  entries <- listDirectory "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
-  return (mkBenchmark <$> files)
-  where mkBenchmark filename = env (loadVector64 filename) $ \bitString -> bgroup filename
-          [ bench "Poppy512S Build"  (whnf P512S.makePoppy512S bitString)
-          ]
-
-benchPoppy512SRank1 :: IO [Benchmark]
-benchPoppy512SRank1 = do
-  entries <- listDirectory "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
-  return (mkBenchmark <$> files)
-  where mkBenchmark filename = env (loadPoppy512S filename) $ \csPoppy -> bgroup filename
-          [ bench "Poppy512S Rank1"  (whnf (CS.rank1 csPoppy) 100)
-          ]
-
-benchPoppy512SSelect1 :: IO [Benchmark]
-benchPoppy512SSelect1 = do
-  entries <- listDirectory "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
-  return (mkBenchmark <$> files)
-  where mkBenchmark filename = env (loadPoppy512S filename) $ \rsbs -> bgroup filename
-          [ bench "Poppy512S Select1"  (whnf (go rsbs 1 (popCount1 rsbs) ((popCount1 rsbs `div` 100) + 1)) 0)
-          ]
-        go rsbs a z step acc | a <= z  = go rsbs (a + step) z step (select1 rsbs a + acc)
-        go _    _ _ _    acc           = acc
+        go _    _ _ _    acc = acc
         {-# INLINE go #-}
 
 runCsPoppyBuild :: IO ()
@@ -133,7 +99,7 @@ runCsPoppyBuild = do
   entries <- listDirectory "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   forM_ files $ \file -> do
-    msbs <- loadPoppy512S file
+    msbs <- loadCsPoppy file
     let !_ = select1 msbs 1
     return ()
 
@@ -145,9 +111,6 @@ runBenchmarks = (defaultMain =<<) . (concat <$>) $ sequence
   , benchPoppy512Build
   , benchPoppy512Rank1
   , benchPoppy512Select1
-  , benchPoppy512SBuild
-  , benchPoppy512SRank1
-  , benchPoppy512SSelect1
   ]
 
 
@@ -155,6 +118,6 @@ main :: IO ()
 main = do
   args <- getArgs
   case args of
-    []                -> runBenchmarks
-    ["load-cspoppy"]  -> runCsPoppyBuild
-    _                 -> putStrLn "Invalid arguments"
+    []               -> runBenchmarks
+    ["load-cspoppy"] -> runCsPoppyBuild
+    _                -> putStrLn "Invalid arguments"
