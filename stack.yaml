@@ -1,5 +1,4 @@
 resolver: nightly-2018-03-20
-# resolver: lts-10.10
 
 packages:
 - '.'
