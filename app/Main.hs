@@ -3,6 +3,7 @@
 
 module Main where
 
+import App.Commands
 import Control.Monad
 import Data.List
 import Data.Monoid                               ((<>))
@@ -10,8 +11,8 @@ import Foreign
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.RankSelect.Base.Select1
+import Options.Applicative
 import System.Directory
-import System.Environment
 import System.IO.MMap
 
 import qualified Data.Vector.Storable                  as DVS
@@ -29,25 +30,6 @@ loadCsPoppy filename = CS.makeCsPoppy <$> loadVector64 filename
 
 loadPoppy512 :: FilePath -> IO P512.Poppy512
 loadPoppy512 filename = P512.makePoppy512 <$> loadVector64 filename
-
-runCsPoppyBuild :: IO ()
-runCsPoppyBuild = do
-  entries <- listDirectory "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
-  forM_ files $ \file -> do
-    putStrLn $ "Loading cspoppy for " <> file
-    CS.CsPoppy !_ !_ !_ <- loadCsPoppy file
-    return ()
-
-runPoppy512Build :: IO ()
-runPoppy512Build = do
-  entries <- listDirectory "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
-  forM_ files $ \file -> do
-    putStrLn $ "Loading cspoppy for " <> file
-    P512.Poppy512 !_ !_ <- loadPoppy512 file
-    -- let !_ = select1 msbs 1
-    return ()
 
 runPoppy512SelectAll :: IO ()
 runPoppy512SelectAll = do
@@ -74,11 +56,14 @@ runCsPoppySelectAll = do
     return ()
 
 main :: IO ()
-main = do
-  args <- getArgs
-  case args of
-    ["cspoppy-load"]        -> runCsPoppyBuild
-    ["cspoppy-select-all"]  -> runCsPoppySelectAll
-    ["poppy512-load"]       -> runPoppy512Build
-    ["poppy512-select-all"] -> runPoppy512SelectAll
-    _                       -> putStrLn "Invalid arguments"
+main = join $ execParser (info cmdOpts idm)
+
+-- main :: IO ()
+-- main = do
+--   args <- getArgs
+--   case args of
+--     ["cspoppy-load"]        -> runCsPoppyBuild
+--     ["cspoppy-select-all"]  -> runCsPoppySelectAll
+--     ["poppy512-load"]       -> runPoppy512Build
+--     ["poppy512-select-all"] -> runPoppy512SelectAll
+--     _                       -> putStrLn "Invalid arguments"
