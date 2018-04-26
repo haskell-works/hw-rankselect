@@ -38,7 +38,7 @@ library:
   - hw-prim >=0.4.0.3
 
 executables:
-  hw-rankselect-exe:
+  hw-rankselect:
     main: Main.hs
     source-dirs: app
     default-extensions:
@@ -62,6 +62,7 @@ executables:
     - hw-rankselect
     - lens
     - mmap
+    - mtl
     - optparse-applicative
     when:
     - condition: os(osx)
