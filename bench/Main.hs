@@ -25,21 +25,18 @@ import qualified HaskellWorks.Data.RankSelect.Poppy512 as P512
 selectStep :: Count
 selectStep = 1000
 
-loadVector64 :: FilePath -> IO (DVS.Vector Word64)
-loadVector64 filename = fromForeignRegion <$> mmapFileForeignPtr filename ReadOnly Nothing
-
 loadCsPoppy :: FilePath -> IO CS.CsPoppy
-loadCsPoppy filename = CS.makeCsPoppy <$> loadVector64 filename
+loadCsPoppy filename = CS.makeCsPoppy <$> mmapFromForeignRegion filename
 
 loadPoppy512 :: FilePath -> IO P512.Poppy512
-loadPoppy512 filename = P512.makePoppy512 <$> loadVector64 filename
+loadPoppy512 filename = P512.makePoppy512 <$> mmapFromForeignRegion filename
 
 benchCsPoppyBuild :: IO [Benchmark]
 benchCsPoppyBuild = do
   entries <- listDirectory "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
-  where mkBenchmark filename = env (loadVector64 filename) $ \bitString -> bgroup filename
+  where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \bitString -> bgroup filename
           [ bench "CsPoppy Build"  (whnf CS.makeCsPoppy bitString)
           ]
 
@@ -69,7 +66,7 @@ benchPoppy512Build = do
   entries <- listDirectory "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
-  where mkBenchmark filename = env (loadVector64 filename) $ \bitString -> bgroup filename
+  where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \bitString -> bgroup filename
           [ bench "Poppy512 Build"  (whnf P512.makePoppy512 bitString)
           ]
 

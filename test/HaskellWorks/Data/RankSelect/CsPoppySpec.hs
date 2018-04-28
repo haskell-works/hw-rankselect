@@ -23,7 +23,6 @@ import HaskellWorks.Data.Take
 import HaskellWorks.Hspec.Hedgehog
 import Hedgehog
 import Prelude                                   hiding (length, take)
-import System.IO.MMap
 import Test.Common
 import Test.Hspec
 
@@ -36,9 +35,6 @@ import qualified Hedgehog.Range            as R
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
 
 newtype ShowVector a = ShowVector a deriving (Eq, BitShow)
-
-loadVector64 :: FilePath -> IO (DVS.Vector Word64)
-loadVector64 filename = fromForeignRegion <$> mmapFileForeignPtr filename ReadOnly Nothing
 
 instance BitShow a => Show (ShowVector a) where
   show = bitShow
@@ -112,7 +108,7 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
     describe "Shrunk Rank" $ do
       forM_ corpusFiles $ \corpusFile -> do
         xit corpusFile $ do
-          fileV <- liftIO $ loadVector64 corpusFile
+          fileV <- liftIO $ mmapFromForeignRegion corpusFile
           requireProperty $ do
             let v = DVS.take 768 fileV
             Nice csPoppy  <- forAll $ pure $ Nice $ makeCsPoppy v
@@ -122,7 +118,7 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
     describe "Rank" $ do
       forM_ corpusFiles $ \corpusFile -> do
         it corpusFile $ do
-          v <- liftIO $ loadVector64 corpusFile
+          v <- liftIO $ mmapFromForeignRegion corpusFile
           let csPoppy = makeCsPoppy v
           let maxPos = fromIntegral $ DVS.length (csPoppyBits csPoppy)
           requireProperty $ do
@@ -131,7 +127,7 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
     describe "Select" $ do
       forM_ corpusFiles $ \corpusFile -> do
         it corpusFile $ do
-          fileV <- liftIO $ loadVector64 corpusFile
+          fileV <- liftIO $ mmapFromForeignRegion corpusFile
           let csPoppy = makeCsPoppy fileV
           let pc = popCount1 (csPoppyBits csPoppy)
           requireProperty $ do
@@ -141,7 +137,7 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
     describe "Select straw man" $ do
       forM_ corpusFiles $ \corpusFile -> do
         it corpusFile $ do
-          fileV <- liftIO $ loadVector64 corpusFile
+          fileV <- liftIO $ mmapFromForeignRegion corpusFile
           let csPoppy = makeCsPoppy fileV
           let pc = popCount1 (csPoppyBits csPoppy)
           requireProperty $ do
