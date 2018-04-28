@@ -11,5 +11,6 @@ import Control.Lens
 
 makeFields ''BuildOptions
 makeFields ''SelectAllOptions
+makeFields ''UnitTestOptions
 makeFields ''ValidateOptions
 makeFields ''ValidateState

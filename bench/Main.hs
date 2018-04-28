@@ -47,7 +47,7 @@ benchCsPoppySelect1 = do
   entries <- listDirectory "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
-  where mkBenchmark filename = env (loadCsPoppy filename) $ \rsbs -> bgroup filename
+  where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(rsbs :: CsPoppy) -> bgroup filename
           [ bench "CsPoppy Select1"  (whnf (go rsbs 1 (popCount1 rsbs) ((popCount1 rsbs `div` 100) + 1)) 0)
           ]
         go rsbs a z step acc | a <= z  = go rsbs (a + step) z step (select1 rsbs a + acc)
@@ -68,8 +68,8 @@ benchPoppy512Rank1 = do
   entries <- listDirectory "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
-  where mkBenchmark filename = env (loadPoppy512 filename) $ \csPoppy -> bgroup filename
-          [ bench "Poppy512 Rank1"  (whnf (CS.rank1 csPoppy) 100)
+  where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(rsbs :: Poppy512) -> bgroup filename
+          [ bench "Poppy512 Rank1"  (whnf (CS.rank1 rsbs) 100)
           ]
 
 benchPoppy512Select1 :: IO [Benchmark]
@@ -77,7 +77,7 @@ benchPoppy512Select1 = do
   entries <- listDirectory "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
-  where mkBenchmark filename = env (loadPoppy512 filename) $ \rsbs -> bgroup filename
+  where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(rsbs :: Poppy512) -> bgroup filename
           [ bench "Poppy512 Select1"  (whnf (go rsbs 1 (popCount1 rsbs) ((popCount1 rsbs `div` 100) + 1)) 0)
           ]
         go rsbs a z step acc | a <= z  = go rsbs (a + step) z step (select1 rsbs a + acc)
@@ -89,19 +89,22 @@ runCsPoppyBuild = do
   entries <- listDirectory "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   forM_ files $ \file -> do
-    msbs <- loadCsPoppy file
+    msbs :: CsPoppy <- mmapFromForeignRegion file
     let !_ = select1 msbs 1
     return ()
 
 runBenchmarks :: IO ()
-runBenchmarks = (defaultMain =<<) . (concat <$>) $ sequence
-  [ benchCsPoppyBuild
-  , benchCsPoppyRank1
-  , benchCsPoppySelect1
-  , benchPoppy512Build
-  , benchPoppy512Rank1
-  , benchPoppy512Select1
-  ]
+runBenchmarks = do
+  benchmarks <- (concat <$>) $ sequence
+    [ benchCsPoppyBuild
+    , benchCsPoppyRank1
+    , benchCsPoppySelect1
+    , benchPoppy512Build
+    , benchPoppy512Rank1
+    , benchPoppy512Select1
+    ]
+  when (null benchmarks) $ putStrLn "Warning: No benchmarks found"
+  defaultMain benchmarks
 
 main :: IO ()
 main = do

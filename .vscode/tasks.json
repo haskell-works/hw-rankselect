@@ -77,7 +77,7 @@
     },
     {
       "isTestCommand": true,
-      "taskName": "stack test",
+      "taskName": "stack test --flag bits-extra:bmi2 --flag hw-sv:bmi2 --flag hw-rankselect-base:bmi2 --flag hw-rankselect:bmi2 --flag hw-excess:bmi2",
       "args": [
         "echo START_STACK_TEST && cd ${workspaceRoot} && stack test && echo END_STACK_TEST "
       ],

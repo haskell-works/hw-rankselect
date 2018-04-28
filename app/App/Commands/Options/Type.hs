@@ -12,6 +12,10 @@ data SelectAllOptions = SelectAllOptions
   { _selectAllOptionsIndexType :: IndexType
   } deriving (Eq, Show)
 
+newtype UnitTestOptions = UnitTestOptions
+  { _unitTestOptionsName :: String
+  } deriving (Eq, Show)
+
 data ValidateOptions = ValidateOptions
   { _validateOptionsIndexType :: IndexType
   , _validateOptionsFile      :: FilePath
