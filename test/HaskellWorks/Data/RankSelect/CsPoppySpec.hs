@@ -7,7 +7,6 @@ module HaskellWorks.Data.RankSelect.CsPoppySpec (spec) where
 
 import Control.Monad
 import Control.Monad.IO.Class
-import Data.List                                 (isSuffixOf)
 import Data.Maybe
 import Data.Word
 import GHC.Exts
@@ -23,10 +22,9 @@ import HaskellWorks.Data.RankSelect.CsPoppy
 import HaskellWorks.Data.Take
 import HaskellWorks.Hspec.Hedgehog
 import Hedgehog
-import Prelude                                   hiding (drop, length, take)
-import System.Directory
+import Prelude                                   hiding (length, take)
 import System.IO.MMap
-import System.IO.Unsafe
+import Test.Common
 import Test.Hspec
 
 import qualified Data.Vector.Storable      as DVS
@@ -38,13 +36,6 @@ import qualified Hedgehog.Range            as R
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
 
 newtype ShowVector a = ShowVector a deriving (Eq, BitShow)
-
-corpusFiles :: [FilePath]
-corpusFiles = unsafePerformIO $ do
-  entries <- listDirectory "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
-  return files
-{-# NOINLINE corpusFiles #-}
 
 loadVector64 :: FilePath -> IO (DVS.Vector Word64)
 loadVector64 filename = fromForeignRegion <$> mmapFileForeignPtr filename ReadOnly Nothing
