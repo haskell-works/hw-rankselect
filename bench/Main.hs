@@ -6,16 +6,15 @@ module Main where
 import Control.Monad
 import Criterion.Main
 import Data.List
-import Foreign
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.Positioning
 import HaskellWorks.Data.RankSelect.Base.Select1
+import HaskellWorks.Data.RankSelect.CsPoppy
+import HaskellWorks.Data.RankSelect.Poppy512
 import System.Directory
 import System.Environment
-import System.IO.MMap
 
-import qualified Data.Vector.Storable                  as DVS
 import qualified HaskellWorks.Data.RankSelect.CsPoppy  as CS
 import qualified HaskellWorks.Data.RankSelect.Poppy512 as P512
 
@@ -24,12 +23,6 @@ import qualified HaskellWorks.Data.RankSelect.Poppy512 as P512
 
 selectStep :: Count
 selectStep = 1000
-
-loadCsPoppy :: FilePath -> IO CS.CsPoppy
-loadCsPoppy filename = CS.makeCsPoppy <$> mmapFromForeignRegion filename
-
-loadPoppy512 :: FilePath -> IO P512.Poppy512
-loadPoppy512 filename = P512.makePoppy512 <$> mmapFromForeignRegion filename
 
 benchCsPoppyBuild :: IO [Benchmark]
 benchCsPoppyBuild = do
@@ -45,8 +38,8 @@ benchCsPoppyRank1 = do
   entries <- listDirectory "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
-  where mkBenchmark filename = env (loadCsPoppy filename) $ \csPoppy -> bgroup filename
-          [ bench "CsPoppy Rank1"  (whnf (CS.rank1 csPoppy) 100)
+  where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(v :: CsPoppy) -> bgroup filename
+          [ bench "CsPoppy Rank1"  (whnf (CS.rank1 v) 100)
           ]
 
 benchCsPoppySelect1 :: IO [Benchmark]
@@ -109,7 +102,6 @@ runBenchmarks = (defaultMain =<<) . (concat <$>) $ sequence
   , benchPoppy512Rank1
   , benchPoppy512Select1
   ]
-
 
 main :: IO ()
 main = do

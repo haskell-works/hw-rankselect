@@ -33,6 +33,7 @@ import HaskellWorks.Data.Bits.BitShow
 import HaskellWorks.Data.Bits.BitWise
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.Drop
+import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.Positioning
 import HaskellWorks.Data.RankSelect.Base.Rank0
 import HaskellWorks.Data.RankSelect.Base.Rank1
@@ -51,6 +52,9 @@ data CsPoppy = CsPoppy
   , csPoppyLayerM :: !(DVS.Vector Word64)
   , csPoppyLayerS :: !(DVS.Vector Word32) -- Sampling lookup of each 8192 1-bit
   } deriving (Eq, Show, NFData, Generic)
+
+instance FromForeignRegion CsPoppy where
+  fromForeignRegion = makeCsPoppy . fromForeignRegion
 
 instance Show (Nice CsPoppy) where
   showsPrec _ (Nice rsbs) = showString "CsPoppy "

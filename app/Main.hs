@@ -10,20 +10,13 @@ import Data.Monoid                               ((<>))
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.RankSelect.Base.Select1
+import HaskellWorks.Data.RankSelect.CsPoppy
+import HaskellWorks.Data.RankSelect.Poppy512
 import Options.Applicative
 import System.Directory
 
-import qualified HaskellWorks.Data.RankSelect.CsPoppy  as CS
-import qualified HaskellWorks.Data.RankSelect.Poppy512 as P512
-
 {-# ANN module ("HLint: ignore Redundant do" :: String) #-}
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
-
-loadCsPoppy :: FilePath -> IO CS.CsPoppy
-loadCsPoppy filename = CS.makeCsPoppy <$> mmapFromForeignRegion filename
-
-loadPoppy512 :: FilePath -> IO P512.Poppy512
-loadPoppy512 filename = P512.makePoppy512 <$> mmapFromForeignRegion filename
 
 runPoppy512SelectAll :: IO ()
 runPoppy512SelectAll = do
@@ -31,7 +24,7 @@ runPoppy512SelectAll = do
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   forM_ files $ \file -> do
     putStrLn $ "Loading cspoppy for " <> file
-    v <- loadPoppy512 file
+    v :: Poppy512 <- mmapFromForeignRegion file
     forM_ [1..popCount1 v] $ \i -> do
       let !_ = select1 v i
       return ()
@@ -43,7 +36,7 @@ runCsPoppySelectAll = do
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   forM_ files $ \file -> do
     putStrLn $ "Loading cspoppy for " <> file
-    v <- loadCsPoppy file
+    v :: CsPoppy <- mmapFromForeignRegion file
     forM_ [1..popCount1 v] $ \i -> do
       let !_ = select1 v i
       return ()

@@ -1,47 +1,50 @@
-{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE BangPatterns        #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module App.Commands.SelectAll
   ( cmdSelectAll
   ) where
 
-import App.Commands.Options.Type
-import App.Load
 import Control.Lens
 import Control.Monad
 import Data.List
 import Data.Monoid                               ((<>))
 import HaskellWorks.Data.Bits.PopCount.PopCount1
+import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.RankSelect.Base.Select1
+import HaskellWorks.Data.RankSelect.CsPoppy
+import HaskellWorks.Data.RankSelect.Poppy512
 import Options.Applicative                       hiding (columns)
 import System.Directory
 
 import qualified App.Commands.Options.Lens as L
+import qualified App.Commands.Options.Type as O
 
-runSelectAll :: SelectAllOptions -> IO ()
+runSelectAll :: O.SelectAllOptions -> IO ()
 runSelectAll opts = case opts ^. L.indexType of
-  CsPoppy -> do
+  O.CsPoppy -> do
     entries <- listDirectory "data"
     let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
     forM_ files $ \file -> do
       putStrLn $ "Loading cspoppy for " <> file
-      v <- loadCsPoppy file
+      v :: CsPoppy <- mmapFromForeignRegion file
       forM_ [1..popCount1 v] $ \i -> do
         let !_ = select1 v i
         return ()
       return ()
-  Poppy512 -> do
+  O.Poppy512 -> do
     entries <- listDirectory "data"
     let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
     forM_ files $ \file -> do
       putStrLn $ "Loading cspoppy for " <> file
-      v <- loadPoppy512 file
+      v :: Poppy512 <- mmapFromForeignRegion file
       forM_ [1..popCount1 v] $ \i -> do
         let !_ = select1 v i
         return ()
       return ()
 
-optsSelectAll :: Parser SelectAllOptions
-optsSelectAll = SelectAllOptions
+optsSelectAll :: Parser O.SelectAllOptions
+optsSelectAll = O.SelectAllOptions
   <$> option auto
       (   long "index-type"
       <>  help "Index type"

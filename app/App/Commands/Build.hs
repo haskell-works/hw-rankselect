@@ -5,11 +5,11 @@ module App.Commands.Build
   ) where
 
 import App.Commands.Options.Type
-import App.Load
 import Control.Lens
 import Control.Monad
 import Data.List
-import Data.Monoid               ((<>))
+import Data.Monoid                         ((<>))
+import HaskellWorks.Data.FromForeignRegion
 import Options.Applicative
 import System.Directory
 
@@ -24,14 +24,14 @@ runBuild opts = case opts ^. L.indexType of
     let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
     forM_ files $ \file -> do
       putStrLn $ "Loading cspoppy for " <> file
-      CS.CsPoppy !_ !_ !_ <- loadCsPoppy file
+      CS.CsPoppy !_ !_ !_ <- mmapFromForeignRegion file
       return ()
   Poppy512 -> do
     entries <- listDirectory "data"
     let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
     forM_ files $ \file -> do
       putStrLn $ "Loading cspoppy for " <> file
-      P512.Poppy512 !_ !_ <- loadPoppy512 file
+      P512.Poppy512 !_ !_ <- mmapFromForeignRegion file
       return ()
 
 optsBuild :: Parser BuildOptions
