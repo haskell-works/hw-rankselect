@@ -27,6 +27,7 @@ import HaskellWorks.Data.Bits.BitLength
 import HaskellWorks.Data.Bits.BitRead
 import HaskellWorks.Data.Bits.BitWise
 import HaskellWorks.Data.Bits.PopCount.PopCount1
+import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.Positioning
 import HaskellWorks.Data.RankSelect.Base.Rank0
 import HaskellWorks.Data.RankSelect.Base.Rank1
@@ -42,6 +43,9 @@ data Poppy512 = Poppy512
   { poppy512Bits  :: !(DVS.Vector Word64)
   , poppy512Index :: !(DVS.Vector Word64)
   } deriving (Eq, Show, NFData, Generic)
+
+instance FromForeignRegion Poppy512 where
+  fromForeignRegion = makePoppy512 . fromForeignRegion
 
 instance PopCount1 Poppy512 where
   popCount1 = popCount1 . poppy512Bits

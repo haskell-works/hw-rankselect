@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-incomplete-patterns #-}
 
+{-# LANGUAGE BangPatterns               #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
 
@@ -7,7 +8,6 @@ module HaskellWorks.Data.RankSelect.CsPoppySpec (spec) where
 
 import Control.Monad
 import Control.Monad.IO.Class
-import Data.List                                 (isSuffixOf)
 import Data.Maybe
 import Data.Word
 import GHC.Exts
@@ -17,16 +17,16 @@ import HaskellWorks.Data.Bits.BitRead
 import HaskellWorks.Data.Bits.BitShow
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
+import HaskellWorks.Data.Product
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.BasicGen
 import HaskellWorks.Data.RankSelect.CsPoppy
+import HaskellWorks.Data.RankSelect.Poppy512
 import HaskellWorks.Data.Take
 import HaskellWorks.Hspec.Hedgehog
 import Hedgehog
-import Prelude                                   hiding (drop, length, take)
-import System.Directory
-import System.IO.MMap
-import System.IO.Unsafe
+import Prelude                                   hiding (length, take)
+import Test.Common
 import Test.Hspec
 
 import qualified Data.Vector.Storable      as DVS
@@ -38,16 +38,6 @@ import qualified Hedgehog.Range            as R
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
 
 newtype ShowVector a = ShowVector a deriving (Eq, BitShow)
-
-corpusFiles :: [FilePath]
-corpusFiles = unsafePerformIO $ do
-  entries <- listDirectory "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
-  return files
-{-# NOINLINE corpusFiles #-}
-
-loadVector64 :: FilePath -> IO (DVS.Vector Word64)
-loadVector64 filename = fromForeignRegion <$> mmapFileForeignPtr filename ReadOnly Nothing
 
 instance BitShow a => Show (ShowVector a) where
   show = bitShow
@@ -77,36 +67,36 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
       Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
       rank1 v i === rank1 w i
   describe "select1 for Vector Word64 is equivalent to select1 for CsPoppy" $ do
-    xit "on empty bitvector" $ require $ withTests 1 $ property $ do
+    it "on empty bitvector" $ require $ withTests 1 $ property $ do
       let v = DVS.empty
       Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
       let i = 0
       select1 w i === select1 v i
-    xit "on one full zero basic block" $ require $ withTests 1 $ property $ do
+    it "on one full zero basic block" $ require $ withTests 1 $ property $ do
       let v = fromList [0, 0, 0, 0, 0, 0, 0, 0] :: DVS.Vector Word64
       Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
       select1 w 0 === select1 v 0
-    xit "on one basic block" $ requireProperty $ do
+    it "on one basic block" $ requireProperty $ do
       v <- forAll $ G.storableVector (R.linear 1 8) (G.word64 R.constantBounded)
       i <- forAll $ G.word64 (R.linear 0 (popCount1 v))
       Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
       select1 w i === select1 v i
-    xit "on two basic blocks" $ requireProperty $ do
+    it "on two basic blocks" $ requireProperty $ do
       v <- forAll $ G.storableVector (R.linear 9 16) (G.word64 R.constantBounded)
       i <- forAll $ G.word64 (R.linear 0 (popCount1 v))
       Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
       select1 w i === select1 v i
-    xit "on three basic blocks" $ requireProperty $ do
+    it "on three basic blocks" $ requireProperty $ do
       v <- forAll $ G.storableVector (R.linear 17 24) (G.word64 R.constantBounded)
       i <- forAll $ G.word64 (R.linear 0 (popCount1 v))
       Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
       select1 w i === select1 v i
   describe "Rank select over large buffer" $ do
-    xit "Rank works" $ requireProperty $ do
+    it "Rank works" $ requireProperty $ do
       let cs = fromJust (bitRead (take 4096 (cycle "10"))) :: DVS.Vector Word64
       let ps = makeCsPoppy cs
       (rank1 ps `map` [1 .. 4096]) === [(x - 1) `div` 2 + 1 | x <- [1 .. 4096]]
-    xit "Rank is consistent with pop count" $ requireProperty $ do
+    it "Rank is consistent with pop count" $ requireProperty $ do
       v         <- forAll $ G.storableVector (R.linear 0 1024) (G.word64 R.constantBounded)
       Nice rsbs <- forAll $ pure $ Nice (makeCsPoppy v)
       rank1 rsbs (bitLength rsbs) === popCount1 rsbs
@@ -117,11 +107,26 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
         Nice csPoppy  <- forAll $ pure $ Nice (makeCsPoppy v)
         s             <- forAll $ G.word64 (R.linear 1 pc)
         select1 csPoppy s === select1 v s
-  describe "Corpus" $ do
+    it "Rank select should match that of un-indexed implementation" $ requireProperty $ do
+      !xs   <- forAll $ G.list (R.linear 1 100) (G.word64 (R.linear 0 100))
+      !v    <- forAll $ pure (DVS.fromList (scanl (+) 0 xs))
+      !vpc  <- forAll $ pure (popCount1 v)
+      !r    <- forAll $ G.word64 (R.linear 0 (popCount1 v))
+      let !rsbs = makeCsPoppy v
+
+      when (vpc > 0 && r > 0) $ do
+        annotate $ "v :   " <> show v
+        annotate $ "vpc:  " <> show vpc
+        annotate $ "r :   " <> show r
+
+        let !p = select1 v r
+
+        select1 rsbs r === p
+  describe "Corpus generic" $ do
     describe "Shrunk Rank" $ do
       forM_ corpusFiles $ \corpusFile -> do
-        xit corpusFile $ do
-          fileV <- liftIO $ loadVector64 corpusFile
+        it corpusFile $ do
+          fileV <- liftIO $ mmapFromForeignRegion corpusFile
           requireProperty $ do
             let v = DVS.take 768 fileV
             Nice csPoppy  <- forAll $ pure $ Nice $ makeCsPoppy v
@@ -131,7 +136,7 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
     describe "Rank" $ do
       forM_ corpusFiles $ \corpusFile -> do
         it corpusFile $ do
-          v <- liftIO $ loadVector64 corpusFile
+          v <- liftIO $ mmapFromForeignRegion corpusFile
           let csPoppy = makeCsPoppy v
           let maxPos = fromIntegral $ DVS.length (csPoppyBits csPoppy)
           requireProperty $ do
@@ -140,7 +145,7 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
     describe "Select" $ do
       forM_ corpusFiles $ \corpusFile -> do
         it corpusFile $ do
-          fileV <- liftIO $ loadVector64 corpusFile
+          fileV <- liftIO $ mmapFromForeignRegion corpusFile
           let csPoppy = makeCsPoppy fileV
           let pc = popCount1 (csPoppyBits csPoppy)
           requireProperty $ do
@@ -150,10 +155,29 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
     describe "Select straw man" $ do
       forM_ corpusFiles $ \corpusFile -> do
         it corpusFile $ do
-          fileV <- liftIO $ loadVector64 corpusFile
+          fileV <- liftIO $ mmapFromForeignRegion corpusFile
           let csPoppy = makeCsPoppy fileV
           let pc = popCount1 (csPoppyBits csPoppy)
           requireProperty $ do
+            _ <- forAll $ pure $ corpusFile
             _ <- forAll $ pure $ csPoppyLayerS csPoppy
             s <- forAll $ G.word64 (R.linear 1 pc)
             select1 csPoppy s === select1 fileV s
+
+  describe "Corpus specific" $ do
+    describe "data/sample-000.idx" $ do
+      it "A select1" $ requireTest $ do
+        (va :: CsPoppy) :*: (vr :: Poppy512) <- liftIO $ mmapFromForeignRegion ("data/sample-000.idx")
+
+        actual <- safely $ select1 va 158209
+
+        actual === select1 vr 158209
+      it "Check new samples" $ requireTest $ do
+        vr :: Poppy512 <- liftIO $ mmapFromForeignRegion ("data/sample-000.idx")
+
+        let v = poppy512Bits vr
+        let pcv = popCount1 v
+        let samples = genCsSamples pcv v
+
+        forM_ (zip (DVS.toList samples) [1,8193..]) $ \(sample, i) -> do
+          select1 vr i === sample
