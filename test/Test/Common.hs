@@ -6,7 +6,6 @@ module Test.Common where
 import Control.Exception
 import Control.Monad.IO.Class
 import Data.List              (isSuffixOf)
-import GHC.Stack
 import Hedgehog
 
 import qualified System.Directory as IO
@@ -28,7 +27,7 @@ safely :: a -> PropertyT IO a
 safely a = do
   result <- liftIO $ ioFailOnException a
   case result of
-    Right a -> return a
+    Right b -> return b
     Left msg -> do
       annotate msg
       failure

@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns        #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module App.Commands.UnitTest
@@ -7,22 +8,17 @@ module App.Commands.UnitTest
 import App.Commands.Options.Type
 import Control.Lens
 import Control.Monad
-import Control.Monad.State
 import Data.Monoid                               ((<>))
 import Data.Word
-import HaskellWorks.Data.AtIndex
 import HaskellWorks.Data.Bits.PopCount.PopCount1
-import HaskellWorks.Data.RankSelect.Base.Rank1
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.CsPoppy
 import Options.Applicative
 
-import qualified App.Commands.Options.Lens            as L
-import qualified Data.Vector.Storable                 as DVS
-import qualified HaskellWorks.Data.FromForeignRegion  as IO
-import qualified HaskellWorks.Data.RankSelect.CsPoppy as CS
-import qualified System.IO                            as IO
-import qualified Data.Vector.Storable as DVS
+import qualified App.Commands.Options.Lens           as L
+import qualified Data.Vector.Storable                as DVS
+import qualified HaskellWorks.Data.FromForeignRegion as IO
+import qualified System.IO                           as IO
 
 runUnitTest :: UnitTestOptions -> IO ()
 runUnitTest opts = case opts ^. L.name of
@@ -34,7 +30,6 @@ runUnitTest opts = case opts ^. L.name of
           ]
     let r = 144
     let !rsbs = makeCsPoppy v
-
     let !p = select1 v r
 
     when (select1 rsbs r /= p) $ do
@@ -45,23 +40,24 @@ runUnitTest opts = case opts ^. L.name of
     let pc = popCount1 (csPoppyBits csPoppy)
     putStrLn $ "PopCount: " <> show pc
     let r = 21
-    
+
     let !p = select1 fileV r
-    
+
     when (select1 csPoppy r /= p) $ do
-      error "Failed unit test"      
+      error "Failed unit test"
   "select1 example 3" -> do
     fileV <- IO.mmapFromForeignRegion "data/example.ib"
     let csPoppy = makeCsPoppy fileV
     let pc = popCount1 (csPoppyBits csPoppy)
     putStrLn $ "PopCount: " <> show pc
     let r = 38
-    
+
     let !p = select1 fileV r
-    
+
     when (select1 csPoppy r /= p) $ do
-      error "Failed unit test"      
-    
+      error "Failed unit test"
+  xs -> IO.putStrLn $ "Invalid unit test" <> xs
+
 optsUnitTest :: Parser UnitTestOptions
 optsUnitTest = UnitTestOptions
   <$> strOption

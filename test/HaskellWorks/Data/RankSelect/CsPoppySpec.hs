@@ -1,11 +1,11 @@
 {-# OPTIONS_GHC -fno-warn-incomplete-patterns #-}
 
+{-# LANGUAGE BangPatterns               #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
 
 module HaskellWorks.Data.RankSelect.CsPoppySpec (spec) where
 
-import Control.Exception
 import Control.Monad
 import Control.Monad.IO.Class
 import Data.Maybe
@@ -107,7 +107,22 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
         Nice csPoppy  <- forAll $ pure $ Nice (makeCsPoppy v)
         s             <- forAll $ G.word64 (R.linear 1 pc)
         select1 csPoppy s === select1 v s
-  describe "Corpus" $ do
+    it "Rank select should match that of un-indexed implementation" $ requireProperty $ do
+      !xs   <- forAll $ G.list (R.linear 1 100) (G.word64 (R.linear 0 100))
+      !v    <- forAll $ pure (DVS.fromList (scanl (+) 0 xs))
+      !vpc  <- forAll $ pure (popCount1 v)
+      !r    <- forAll $ G.word64 (R.linear 0 (popCount1 v))
+      let !rsbs = makeCsPoppy v
+
+      when (vpc > 0 && r > 0) $ do
+        annotate $ "v :   " <> show v
+        annotate $ "vpc:  " <> show vpc
+        annotate $ "r :   " <> show r
+
+        let !p = select1 v r
+
+        select1 rsbs r === p
+  describe "Corpus generic" $ do
     describe "Shrunk Rank" $ do
       forM_ corpusFiles $ \corpusFile -> do
         it corpusFile $ do
@@ -148,7 +163,8 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
             _ <- forAll $ pure $ csPoppyLayerS csPoppy
             s <- forAll $ G.word64 (R.linear 1 pc)
             select1 csPoppy s === select1 fileV s
-  describe "unit tests" $ do
+
+  describe "Corpus specific" $ do
     describe "data/sample-000.csv.dix" $ do
       it "A select1" $ requireTest $ do
         (va :: CsPoppy) :*: (vr :: Poppy512) <- liftIO $ mmapFromForeignRegion ("data/sample-000.csv.idx")
