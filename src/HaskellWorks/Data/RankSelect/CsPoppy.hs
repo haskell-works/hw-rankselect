@@ -47,7 +47,6 @@ import HaskellWorks.Data.RankSelect.Base.Rank0
 import HaskellWorks.Data.RankSelect.Base.Rank1
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal
-import HaskellWorks.Data.Take
 import HaskellWorks.Data.Vector.AsVector64
 import Prelude                                         hiding (drop, length, pi, take)
 
@@ -102,11 +101,10 @@ makeCsPoppy v = CsPoppy
   , csPoppyLayerM = layerM
   , csPoppyLayerS = layerS
   }
-  where blocks  = DVS.constructN (((DVS.length v      + 8 - 1) `div` 8) + 1) genBlocks
+  where blocks  = makeCsPoppyBlocks1 v
         layerM  = DVS.constructN (((DVS.length blocks + 4 - 1) `div` 4) + 1) genLayer1
         layerMPopCount = getCsiTotal (CsInterleaved (lastOrZero layerM))
         layerS = genCsSamples layerMPopCount v
-        genBlocks u = let i = length u in popCount1 (take 8 (drop (i * 8) v))
         genLayer1 :: DVS.Vector Word64 -> Word64
         genLayer1 u =
           let i  = end u                          in

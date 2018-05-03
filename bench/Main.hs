@@ -6,15 +6,18 @@ module Main where
 import Control.Monad
 import Criterion.Main
 import Data.List
+import Data.Word
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.Positioning
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.CsPoppy
+import HaskellWorks.Data.RankSelect.CsPoppy.Internal
 import HaskellWorks.Data.RankSelect.Poppy512
 import System.Directory
 import System.Environment
 
+import qualified Data.Vector.Storable                  as DVS
 import qualified HaskellWorks.Data.RankSelect.CsPoppy  as CS
 import qualified HaskellWorks.Data.RankSelect.Poppy512 as P512
 
@@ -93,16 +96,25 @@ runCsPoppyBuild = do
     let !_ = select1 msbs 1
     return ()
 
+benchMakeCsPoppyBlocks1 :: IO [Benchmark]
+benchMakeCsPoppyBlocks1 = do
+  entries <- listDirectory "data"
+  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
+  return (mkBenchmark <$> files)
+  where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(v :: DVS.Vector Word64) -> bgroup filename
+          [ bench "makeCsPoppyBlocks1"  (whnf makeCsPoppyBlocks1 v)
+          ]
+
 runBenchmarks :: IO ()
 runBenchmarks = do
-  benchmarks <- (concat <$>) $ sequence
-    [ benchCsPoppyBuild
-    , benchCsPoppyRank1
-    , benchCsPoppySelect1
-    , benchPoppy512Build
-    , benchPoppy512Rank1
-    , benchPoppy512Select1
-    ]
+  benchmarks <- (concat <$>) $ sequence $ []
+    <> [benchCsPoppyBuild]
+    <> [benchCsPoppyRank1]
+    <> [benchCsPoppySelect1]
+    <> [benchPoppy512Build]
+    <> [benchPoppy512Rank1]
+    <> [benchPoppy512Select1]
+    <> [benchMakeCsPoppyBlocks1]
   when (null benchmarks) $ putStrLn "Warning: No benchmarks found"
   defaultMain benchmarks
 

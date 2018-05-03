@@ -17,7 +17,7 @@
       "taskName": "stack build",
       "isBuildCommand": true,
       "args": [
-        "echo START_STACK_BUILD && cd ${workspaceRoot} && stack build && echo END_STACK_BUILD "
+        "echo START_STACK_BUILD && cd ${workspaceRoot} && stack build --flag bits-extra:bmi2 --flag hw-rankselect-base:bmi2 --flag hw-rankselect:bmi2 && echo END_STACK_BUILD "
       ],
       "problemMatcher": {
         "owner": "haskell",
@@ -77,9 +77,9 @@
     },
     {
       "isTestCommand": true,
-      "taskName": "stack test --flag bits-extra:bmi2 --flag hw-sv:bmi2 --flag hw-rankselect-base:bmi2 --flag hw-rankselect:bmi2 --flag hw-excess:bmi2",
+      "taskName": "stack test",
       "args": [
-        "echo START_STACK_TEST && cd ${workspaceRoot} && stack test && echo END_STACK_TEST "
+        "echo START_STACK_TEST && cd ${workspaceRoot} && stack test --flag bits-extra:bmi2 --flag hw-rankselect-base:bmi2 --flag hw-rankselect:bmi2 && echo END_STACK_TEST "
       ],
       "problemMatcher": {
         "owner": "haskell",
@@ -100,7 +100,7 @@
       "isBackground": true,
       "taskName": "stack watch",
       "args": [
-        "echo START_STACK_WATCH && cd ${workspaceRoot} && stack build --test --no-run-tests --file-watch && echo END_STACK_WATCH "
+        "echo START_STACK_WATCH && cd ${workspaceRoot} && stack build --flag bits-extra:bmi2 --flag hw-rankselect-base:bmi2 --flag hw-rankselect:bmi2 --test --no-run-tests --file-watch && echo END_STACK_WATCH "
       ],
       "problemMatcher": {
         "owner": "haskell",
@@ -126,7 +126,7 @@
       "isBackground": true,
       "taskName": "stack watch & test",
       "args": [
-        "echo START_STACK_WATCH && cd ${workspaceRoot} && stack build --test --file-watch && echo END_STACK_WATCH "
+        "echo START_STACK_WATCH && cd ${workspaceRoot} && stack build --flag bits-extra:bmi2 --flag hw-rankselect-base:bmi2 --flag hw-rankselect:bmi2 --test --file-watch && echo END_STACK_WATCH "
       ],
       "problemMatcher": {
         "owner": "haskell",

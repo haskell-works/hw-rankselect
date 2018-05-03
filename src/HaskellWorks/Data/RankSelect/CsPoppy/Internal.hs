@@ -12,12 +12,16 @@ module HaskellWorks.Data.RankSelect.CsPoppy.Internal
     , putCsiA
     , putCsiB
     , putCsiC
+    , makeCsPoppyBlocks1
     ) where
 
 import Data.Word
 import Foreign.Ptr
 import Foreign.Storable
 import HaskellWorks.Data.Bits.BitWise
+import HaskellWorks.Data.Bits.PopCount.PopCount1
+
+import qualified Data.Vector.Storable as DVS
 
 newtype CsInterleaved = CsInterleaved { unCsInterleaved :: Word64 } deriving Eq
 
@@ -67,3 +71,8 @@ putCsiC v (CsInterleaved i) = CsInterleaved (((v .&.      0x3ff) .<. 52) .|. (i 
 
 instance Show CsInterleaved where
   showsPrec _ i = shows (getCsiX i, getCsiA i, getCsiB i, getCsiC i)
+
+makeCsPoppyBlocks1 :: DVS.Vector Word64 -> DVS.Vector Word64
+makeCsPoppyBlocks1 v = DVS.constructN (((DVS.length v + 8 - 1) `div` 8) + 1) genBlocks
+  where genBlocks :: DVS.Vector Word64 -> Word64
+        genBlocks u = let i = DVS.length u in popCount1 (DVS.take 8 (DVS.drop (i * 8) v))
