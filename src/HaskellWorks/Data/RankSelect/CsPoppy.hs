@@ -95,13 +95,14 @@ lastOrZero v | 0 < end v  = DVS.last v
 lastOrZero _ = 0
 {-# INLINE lastOrZero #-}
 
+-- TODO Try to get rid of indexOrZero call
 makeCsPoppy :: DVS.Vector Word64 -> CsPoppy
 makeCsPoppy v = CsPoppy
   { csPoppyBits   = v
   , csPoppyLayerM = layerM
   , csPoppyLayerS = layerS
   }
-  where blocks  = makeCsPoppyBlocks1 v
+  where blocks  = makeCsPoppyBlocks2 v
         layerM  = DVS.constructN (((DVS.length blocks + 4 - 1) `div` 4) + 1) genLayer1
         layerMPopCount = getCsiTotal (CsInterleaved (lastOrZero layerM))
         layerS = genCsSamples layerMPopCount v

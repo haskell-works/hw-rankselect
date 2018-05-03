@@ -1,4 +1,6 @@
 {-# OPTIONS_GHC-funbox-strict-fields #-}
+{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE Rank2Types #-}
 
 module HaskellWorks.Data.RankSelect.CsPoppy.Internal
     ( CsInterleaved(..)
@@ -13,6 +15,7 @@ module HaskellWorks.Data.RankSelect.CsPoppy.Internal
     , putCsiB
     , putCsiC
     , makeCsPoppyBlocks1
+    , makeCsPoppyBlocks2
     ) where
 
 import Data.Word
@@ -76,3 +79,19 @@ makeCsPoppyBlocks1 :: DVS.Vector Word64 -> DVS.Vector Word64
 makeCsPoppyBlocks1 v = DVS.constructN (((DVS.length v + 8 - 1) `div` 8) + 1) genBlocks
   where genBlocks :: DVS.Vector Word64 -> Word64
         genBlocks u = let i = DVS.length u in popCount1 (DVS.take 8 (DVS.drop (i * 8) v))
+
+makeCsPoppyBlocks2 :: DVS.Vector Word64 -> DVS.Vector Word64
+makeCsPoppyBlocks2 v = DVS.constructN (((DVS.length v + 8 - 1) `div` 8) + 1) genBlocks
+  where e = DVS.length v
+        genBlocks :: DVS.Vector Word64 -> Word64
+        genBlocks u = let i = DVS.length u in if
+          | (i + 1) * 8 <= e -> let j = i * 8 in
+              popCount1 (DVS.unsafeIndex v (j + 0)) +
+              popCount1 (DVS.unsafeIndex v (j + 1)) +
+              popCount1 (DVS.unsafeIndex v (j + 2)) +
+              popCount1 (DVS.unsafeIndex v (j + 3)) +
+              popCount1 (DVS.unsafeIndex v (j + 4)) +
+              popCount1 (DVS.unsafeIndex v (j + 5)) +
+              popCount1 (DVS.unsafeIndex v (j + 6)) +
+              popCount1 (DVS.unsafeIndex v (j + 7))
+          | otherwise -> popCount1 (DVS.take 8 (DVS.drop (i * 8) v))

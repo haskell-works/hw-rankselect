@@ -105,16 +105,26 @@ benchMakeCsPoppyBlocks1 = do
           [ bench "makeCsPoppyBlocks1"  (whnf makeCsPoppyBlocks1 v)
           ]
 
+benchMakeCsPoppyBlocks2 :: IO [Benchmark]
+benchMakeCsPoppyBlocks2 = do
+  entries <- listDirectory "data"
+  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
+  return (mkBenchmark <$> files)
+  where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(v :: DVS.Vector Word64) -> bgroup filename
+          [ bench "makeCsPoppyBlocks2"  (whnf makeCsPoppyBlocks2 v)
+          ]
+
 runBenchmarks :: IO ()
 runBenchmarks = do
   benchmarks <- (concat <$>) $ sequence $ []
-    <> [benchCsPoppyBuild]
-    <> [benchCsPoppyRank1]
-    <> [benchCsPoppySelect1]
-    <> [benchPoppy512Build]
-    <> [benchPoppy512Rank1]
-    <> [benchPoppy512Select1]
+    -- <> [benchCsPoppyBuild]
+    -- <> [benchCsPoppyRank1]
+    -- <> [benchCsPoppySelect1]
+    -- <> [benchPoppy512Build]
+    -- <> [benchPoppy512Rank1]
+    -- <> [benchPoppy512Select1]
     <> [benchMakeCsPoppyBlocks1]
+    <> [benchMakeCsPoppyBlocks2]
   when (null benchmarks) $ putStrLn "Warning: No benchmarks found"
   defaultMain benchmarks
 
