@@ -114,17 +114,45 @@ benchMakeCsPoppyBlocks2 = do
           [ bench "makeCsPoppyBlocks2"  (whnf makeCsPoppyBlocks2 v)
           ]
 
+benchMakeCsPoppyLayerM :: IO [Benchmark]
+benchMakeCsPoppyLayerM = do
+  entries <- listDirectory "data"
+  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
+  return (mkBenchmark <$> files)
+  where mkBenchmark filename = env (mkEnv filename) $ \(v :: DVS.Vector Word64) -> bgroup filename
+          [ bench "makeCsPoppyLayerM"  (whnf makeCsPoppyLayerM v)
+          ]
+        mkEnv filename = do
+          !v <- mmapFromForeignRegion filename
+          return (makeCsPoppyBlocks2 v)
+
+benchGenCsSamples :: IO [Benchmark]
+benchGenCsSamples = do
+  entries <- listDirectory "data"
+  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
+  return (mkBenchmark <$> files)
+  where mkBenchmark filename = env (mkEnv filename) $ \ ~(pc, v :: DVS.Vector Word64) -> bgroup filename
+          [ bench "makeCsPoppyLayerM"  (whnf (genCsSamples pc) v)
+          ]
+        mkEnv filename = do
+          !v <- mmapFromForeignRegion filename
+          let !blocks          = makeCsPoppyBlocks2 v
+          let !layerM          = makeCsPoppyLayerM blocks
+          return (getCsiTotal (CsInterleaved (lastOrZero layerM)), v)
+
 runBenchmarks :: IO ()
 runBenchmarks = do
   benchmarks <- (concat <$>) $ sequence $ []
-    -- <> [benchCsPoppyBuild]
-    -- <> [benchCsPoppyRank1]
-    -- <> [benchCsPoppySelect1]
-    -- <> [benchPoppy512Build]
-    -- <> [benchPoppy512Rank1]
-    -- <> [benchPoppy512Select1]
+    <> [benchCsPoppyBuild]
+    <> [benchCsPoppyRank1]
+    <> [benchCsPoppySelect1]
+    <> [benchPoppy512Build]
+    <> [benchPoppy512Rank1]
+    <> [benchPoppy512Select1]
     <> [benchMakeCsPoppyBlocks1]
     <> [benchMakeCsPoppyBlocks2]
+    <> [benchMakeCsPoppyLayerM]
+    <> [benchGenCsSamples]
   when (null benchmarks) $ putStrLn "Warning: No benchmarks found"
   defaultMain benchmarks
 
