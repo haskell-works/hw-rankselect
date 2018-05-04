@@ -161,7 +161,7 @@ genCsSamplesST pc v = do
           -- epc: Expectant pop count
 
           -- uw <- DVSM.read u ui
-          let vw = v DVS.! vi -- Source word
+          let vw = DVS.unsafeIndex v vi -- Source word
           let vwpc = popCount1 vw       -- Source word pop count
           let npc = vwpc + lpc          -- Next pop count
 
@@ -169,7 +169,7 @@ genCsSamplesST pc v = do
             then do -- Emit a position
               let dpc = epc - lpc
               let ewp = select1 vw dpc + fromIntegral vi * 64 -- Expectant word position
-              DVSM.write u ui ewp
+              DVSM.unsafeWrite u ui ewp
               go u (ui + 1) (vi + 1) vie npc (epc + sampleWidth)
             else do -- Don't emit a position this time
               go u ui (vi + 1) vie npc epc

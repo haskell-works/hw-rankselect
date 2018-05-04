@@ -132,7 +132,7 @@ benchGenCsSamples = do
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mkEnv filename) $ \ ~(pc, v :: DVS.Vector Word64) -> bgroup filename
-          [ bench "makeCsPoppyLayerM"  (whnf (genCsSamples pc) v)
+          [ bench "benchGenCsSamples"  (whnf (genCsSamples pc) v)
           ]
         mkEnv filename = do
           !v <- mmapFromForeignRegion filename
