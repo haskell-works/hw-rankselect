@@ -20,6 +20,7 @@ module HaskellWorks.Data.RankSelect.CsPoppy.Internal
     , makeCsPoppyBlocks1
     , makeCsPoppyBlocks2
     , makeCsPoppyLayerM
+    , makeCsPoppyLayerM2
     , genCsSamples
     ) where
 
@@ -124,6 +125,37 @@ makeCsPoppyLayerM blocks = DVS.constructN (((DVS.length blocks + 4 - 1) `div` 4)
           .|. ((na .<. 32) .&. 0x000003ff00000000)
           .|. ((nb .<. 42) .&. 0x000ffc0000000000)
           .|. ((nc .<. 52) .&. 0x3ff0000000000000))
+
+makeCsPoppyLayerM2 :: DVS.Vector Word64 -> DVS.Vector Word64
+makeCsPoppyLayerM2 blocks = DVS.constructN (((DVS.length blocks + 4 - 1) `div` 4) + 1) genLayer1
+  where genLayer1 :: DVS.Vector Word64 -> Word64
+        genLayer1 u = let ui = end u in if ui > 0 && ui * 4 + 4 < end blocks
+          then  let lx = DVS.unsafeIndex u      (fromIntegral (ui     - 1)) in
+                let la = DVS.unsafeIndex blocks (fromIntegral (ui * 4 - 4)) in
+                let lb = DVS.unsafeIndex blocks (fromIntegral (ui * 4 - 3)) in
+                let lc = DVS.unsafeIndex blocks (fromIntegral (ui * 4 - 2)) in
+                let ld = DVS.unsafeIndex blocks (fromIntegral (ui * 4 - 1)) in
+                let nx = lx + (la + lb + lc + ld)                           in
+                let na = DVS.unsafeIndex blocks (fromIntegral (ui * 4 + 0)) in
+                let nb = DVS.unsafeIndex blocks (fromIntegral (ui * 4 + 1)) in
+                let nc = DVS.unsafeIndex blocks (fromIntegral (ui * 4 + 2)) in
+                (   ( nx         .&. 0x00000000ffffffff)
+                .|. ((na .<. 32) .&. 0x000003ff00000000)
+                .|. ((nb .<. 42) .&. 0x000ffc0000000000)
+                .|. ((nc .<. 52) .&. 0x3ff0000000000000))
+          else  let lx = lastOrZero u                     in
+                let la = indexOrZero blocks (ui * 4 - 4)  in
+                let lb = indexOrZero blocks (ui * 4 - 3)  in
+                let lc = indexOrZero blocks (ui * 4 - 2)  in
+                let ld = indexOrZero blocks (ui * 4 - 1)  in
+                let nx = lx + (la + lb + lc + ld)         in
+                let na = indexOrZero blocks (ui * 4 + 0)  in
+                let nb = indexOrZero blocks (ui * 4 + 1)  in
+                let nc = indexOrZero blocks (ui * 4 + 2)  in
+                (   ( nx         .&. 0x00000000ffffffff)
+                .|. ((na .<. 32) .&. 0x000003ff00000000)
+                .|. ((nb .<. 42) .&. 0x000ffc0000000000)
+                .|. ((nc .<. 52) .&. 0x3ff0000000000000))
 
 indexOrZero :: DVS.Vector Word64 -> Position -> Word64
 indexOrZero _ i | i < 0     = 0

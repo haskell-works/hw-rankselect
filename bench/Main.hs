@@ -120,7 +120,8 @@ benchMakeCsPoppyLayerM = do
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mkEnv filename) $ \(v :: DVS.Vector Word64) -> bgroup filename
-          [ bench "makeCsPoppyLayerM"  (whnf makeCsPoppyLayerM v)
+          [ bench "makeCsPoppyLayerM"  (whnf makeCsPoppyLayerM  v)
+          , bench "makeCsPoppyLayerM2" (whnf makeCsPoppyLayerM2 v)
           ]
         mkEnv filename = do
           !v <- mmapFromForeignRegion filename
