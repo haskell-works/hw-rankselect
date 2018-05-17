@@ -4,11 +4,11 @@ packages:
 - '.'
 
 extra-deps:
-  - bits-extra-0.0.0.2
+  - bits-extra-0.0.1.0
   - hedgehog-0.5.3
   - hw-hspec-hedgehog-0.1.0.4
-  - hw-prim-0.5.0.4
-  - hw-rankselect-base-0.3.0.0
+  - hw-prim-0.6.0.0
+  - hw-rankselect-base-0.3.1.0
 
 flags: {}
 
