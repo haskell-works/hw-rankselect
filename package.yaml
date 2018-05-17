@@ -110,7 +110,7 @@ benchmarks:
     - criterion
     - directory
     - hw-bits >=0.4.0.0
-    - hw-prim >=0.4.0.0
+    - hw-prim >=0.6.0.0
     - hw-rankselect-base >=0.3.1.0
     - mmap
     - resourcet
