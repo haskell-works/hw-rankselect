@@ -20,7 +20,7 @@ import System.Directory
 
 runPoppy512SelectAll :: IO ()
 runPoppy512SelectAll = do
-  entries <- listDirectory "data"
+  entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   forM_ files $ \file -> do
     putStrLn $ "Loading cspoppy for " <> file
@@ -32,7 +32,7 @@ runPoppy512SelectAll = do
 
 runCsPoppySelectAll :: IO ()
 runCsPoppySelectAll = do
-  entries <- listDirectory "data"
+  entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   forM_ files $ \file -> do
     putStrLn $ "Loading cspoppy for " <> file

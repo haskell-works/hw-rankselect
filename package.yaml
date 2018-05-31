@@ -55,7 +55,7 @@ executables:
     - -msse4.2
     dependencies:
     - base >=4.7 && <5
-    - directory >= 1.2.5
+    - directory >= 1.2
     - hw-bits >=0.4.0.0
     - hw-prim >=0.4.0.0
     - hw-rankselect
@@ -89,7 +89,7 @@ tests:
     dependencies:
     - base >=4 && <5
     - QuickCheck
-    - directory >= 1.2.5
+    - directory >= 1.2
     - hedgehog
     - hspec
     - hw-bits >=0.4.0.0
@@ -124,7 +124,7 @@ benchmarks:
     - bytestring
     - conduit
     - criterion
-    - directory >= 1.2.5
+    - directory >= 1.2
     - hw-bits >=0.4.0.0
     - hw-prim >=0.6.0.0
     - hw-rankselect-base >=0.3.1.0

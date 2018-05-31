@@ -27,7 +27,7 @@ import qualified System.Directory          as IO
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
 
 entries :: [FilePath]
-entries = mfilter (".idx" `isSuffixOf`) <$> unsafePerformIO $ IO.listDirectory "data"
+entries = mfilter (".idx" `isSuffixOf`) <$> unsafePerformIO $ IO.getDirectoryContents "data"
 
 spec :: Spec
 spec = describe "HaskellWorks.Data.RankSelect.ValidateSpec" $ do

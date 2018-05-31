@@ -23,7 +23,7 @@ import qualified App.Commands.Options.Type as O
 runSelectAll :: O.SelectAllOptions -> IO ()
 runSelectAll opts = case opts ^. L.indexType of
   O.CsPoppy -> do
-    entries <- listDirectory "data"
+    entries <- getDirectoryContents "data"
     let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
     forM_ files $ \file -> do
       putStrLn $ "Loading cspoppy for " <> file
@@ -33,7 +33,7 @@ runSelectAll opts = case opts ^. L.indexType of
         return ()
       return ()
   O.Poppy512 -> do
-    entries <- listDirectory "data"
+    entries <- getDirectoryContents "data"
     let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
     forM_ files $ \file -> do
       putStrLn $ "Loading cspoppy for " <> file
