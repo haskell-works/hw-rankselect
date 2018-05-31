@@ -9,6 +9,7 @@ module HaskellWorks.Data.RankSelect.CsPoppySpec (spec) where
 import Control.Monad
 import Control.Monad.IO.Class
 import Data.Maybe
+import Data.Monoid ((<>))
 import Data.Word
 import GHC.Exts
 import HaskellWorks.Data.AtIndex
