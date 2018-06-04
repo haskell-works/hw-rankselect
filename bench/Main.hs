@@ -6,6 +6,7 @@ module Main where
 import Control.Monad
 import Criterion.Main
 import Data.List
+import Data.Monoid ((<>))
 import Data.Word
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
