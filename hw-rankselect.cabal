@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 63f2e8e7e16c6a4bd3a42543cb68150f5722de3c1edf8f0e03289a56181baee8
+-- hash: cb4e62d61fd9a2074956a2274579a9b4ea41e38c25420b65da58380015fccf07
 
 name:           hw-rankselect
 version:        0.12.0.2
@@ -22,6 +22,7 @@ cabal-version:  >= 1.10
 
 extra-source-files:
     data/README.md
+    data/sample-000.idx
     README.md
 
 source-repository head

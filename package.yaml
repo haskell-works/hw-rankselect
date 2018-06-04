@@ -13,6 +13,7 @@ tested-with: GHC == 8.4.2, GHC == 8.2.2, GHC == 8.0.2, GHC == 7.10.3
 extra-source-files:
 - README.md
 - data/README.md
+- data/sample-000.idx
 dependencies:
 - hw-rankselect-base >=0.2.0.0 && < 0.4
 - vector >= 0.12 && < 0.13
