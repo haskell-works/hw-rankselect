@@ -6,6 +6,7 @@ module Main where
 import Control.Monad
 import Criterion.Main
 import Data.List
+import Data.Monoid ((<>))
 import Data.Word
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
@@ -29,7 +30,7 @@ selectStep = 1000
 
 benchCsPoppyBuild :: IO [Benchmark]
 benchCsPoppyBuild = do
-  entries <- listDirectory "data"
+  entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \bitString -> bgroup filename
@@ -38,7 +39,7 @@ benchCsPoppyBuild = do
 
 benchCsPoppyRank1 :: IO [Benchmark]
 benchCsPoppyRank1 = do
-  entries <- listDirectory "data"
+  entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(v :: CsPoppy) -> bgroup filename
@@ -47,7 +48,7 @@ benchCsPoppyRank1 = do
 
 benchCsPoppySelect1 :: IO [Benchmark]
 benchCsPoppySelect1 = do
-  entries <- listDirectory "data"
+  entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(rsbs :: CsPoppy) -> bgroup filename
@@ -59,7 +60,7 @@ benchCsPoppySelect1 = do
 
 benchPoppy512Build :: IO [Benchmark]
 benchPoppy512Build = do
-  entries <- listDirectory "data"
+  entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \bitString -> bgroup filename
@@ -68,7 +69,7 @@ benchPoppy512Build = do
 
 benchPoppy512Rank1 :: IO [Benchmark]
 benchPoppy512Rank1 = do
-  entries <- listDirectory "data"
+  entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(rsbs :: Poppy512) -> bgroup filename
@@ -77,7 +78,7 @@ benchPoppy512Rank1 = do
 
 benchPoppy512Select1 :: IO [Benchmark]
 benchPoppy512Select1 = do
-  entries <- listDirectory "data"
+  entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(rsbs :: Poppy512) -> bgroup filename
@@ -89,7 +90,7 @@ benchPoppy512Select1 = do
 
 runCsPoppyBuild :: IO ()
 runCsPoppyBuild = do
-  entries <- listDirectory "data"
+  entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   forM_ files $ \file -> do
     msbs :: CsPoppy <- mmapFromForeignRegion file
@@ -98,7 +99,7 @@ runCsPoppyBuild = do
 
 benchMakeCsPoppyBlocks1 :: IO [Benchmark]
 benchMakeCsPoppyBlocks1 = do
-  entries <- listDirectory "data"
+  entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(v :: DVS.Vector Word64) -> bgroup filename
@@ -107,7 +108,7 @@ benchMakeCsPoppyBlocks1 = do
 
 benchMakeCsPoppyBlocks2 :: IO [Benchmark]
 benchMakeCsPoppyBlocks2 = do
-  entries <- listDirectory "data"
+  entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(v :: DVS.Vector Word64) -> bgroup filename
@@ -116,7 +117,7 @@ benchMakeCsPoppyBlocks2 = do
 
 benchMakeCsPoppyLayerM :: IO [Benchmark]
 benchMakeCsPoppyLayerM = do
-  entries <- listDirectory "data"
+  entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mkEnv filename) $ \(v :: DVS.Vector Word64) -> bgroup filename
@@ -129,7 +130,7 @@ benchMakeCsPoppyLayerM = do
 
 benchGenCsSamples :: IO [Benchmark]
 benchGenCsSamples = do
-  entries <- listDirectory "data"
+  entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mkEnv filename) $ \ ~(pc, v :: DVS.Vector Word64) -> bgroup filename

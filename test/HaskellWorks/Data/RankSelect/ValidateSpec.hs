@@ -6,6 +6,7 @@ module HaskellWorks.Data.RankSelect.ValidateSpec (spec) where
 import Control.Monad
 import Control.Monad.IO.Class
 import Data.List                                 (isSuffixOf)
+import Data.Monoid                               ((<>))
 import Data.Word
 import HaskellWorks.Data.AtIndex
 import HaskellWorks.Data.Bits.PopCount.PopCount1
@@ -26,7 +27,7 @@ import qualified System.Directory          as IO
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
 
 entries :: [FilePath]
-entries = mfilter (".idx" `isSuffixOf`) <$> unsafePerformIO $ IO.listDirectory "data"
+entries = mfilter (".idx" `isSuffixOf`) <$> unsafePerformIO $ IO.getDirectoryContents "data"
 
 spec :: Spec
 spec = describe "HaskellWorks.Data.RankSelect.ValidateSpec" $ do
