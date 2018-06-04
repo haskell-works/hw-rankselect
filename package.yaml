@@ -9,6 +9,7 @@ copyright: 2016 John Ky
 license: BSD3
 github: haskell-works/hw-rankselect
 homepage: http://github.com/haskell-works/hw-rankselect#readme
+tested-with: GHC == 8.4.2, GHC == 8.2.2, GHC == 8.0.2, GHC == 7.10.3
 extra-source-files:
 - README.md
 - data/README.md
