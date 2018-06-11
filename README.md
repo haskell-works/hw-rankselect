@@ -1,5 +1,6 @@
 # hw-rankselect
 [![CircleCI](https://circleci.com/gh/haskell-works/hw-rankselect.svg?style=svg)](https://circleci.com/gh/haskell-works/hw-rankselect)
+[![Travis](https://travis-ci.org/haskell-works/hw-rankselect.svg?branch=master)](https://travis-ci.org/haskell-works/hw-rankselect)
 
 Efficient `rank` and `select` operations on large bit-vectors based on the paper
 "Space-Efficient, High-Performance Rank & Select Structures on Uncompressed Bit
