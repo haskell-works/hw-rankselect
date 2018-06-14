@@ -2,10 +2,10 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cb4e62d61fd9a2074956a2274579a9b4ea41e38c25420b65da58380015fccf07
+-- hash: 1a884e08d826a4ac01f16811763a63e54433817022a52322a43feb446d2b9e13
 
 name:           hw-rankselect
-version:        0.12.0.2
+version:        0.12.0.3
 synopsis:       Rank-select
 description:    Please see README.md
 category:       Data, Conduit
