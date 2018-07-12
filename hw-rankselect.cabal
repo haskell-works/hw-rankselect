@@ -1,8 +1,8 @@
--- This file has been generated from package.yaml by hpack version 0.27.0.
+-- This file has been generated from package.yaml by hpack version 0.28.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1a884e08d826a4ac01f16811763a63e54433817022a52322a43feb446d2b9e13
+-- hash: 0d2d5853f27b14a8c4da4d513c7e5ace4c86d87525829984d0f4b16833fe81c1
 
 name:           hw-rankselect
 version:        0.12.0.3
@@ -19,7 +19,6 @@ license-file:   LICENSE
 tested-with:    GHC == 8.4.2, GHC == 8.2.2, GHC == 8.0.2, GHC == 7.10.3
 build-type:     Simple
 cabal-version:  >= 1.10
-
 extra-source-files:
     data/README.md
     data/sample-000.idx
