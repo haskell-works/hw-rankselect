@@ -2,7 +2,7 @@ name: hw-rankselect
 version: '0.12.0.3'
 synopsis: Rank-select
 description: Please see README.md
-category: Data, Conduit
+category: Data, Bit, Succinct Data Structures, Data Structures
 author: John Ky
 maintainer: newhoggy@gmail.com
 copyright: 2016 John Ky
