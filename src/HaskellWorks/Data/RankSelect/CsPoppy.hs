@@ -230,7 +230,7 @@ instance Enclose CsPoppy where
   {-# INLINE enclose #-}
 
 instance Rank0 CsPoppy where
-  rank0 rsbs p = p - rank0 rsbs p
+  rank0 rsbs p = p - rank1 rsbs p
   {-# INLINE rank0 #-}
 
 instance BalancedParens CsPoppy where
