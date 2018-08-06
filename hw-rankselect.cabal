@@ -2,13 +2,13 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0d2d5853f27b14a8c4da4d513c7e5ace4c86d87525829984d0f4b16833fe81c1
+-- hash: 5bd924ae23f7db2860eb9a0fcd67538525bba410155aedd33f7ac3a4f48acdd8
 
 name:           hw-rankselect
 version:        0.12.0.3
 synopsis:       Rank-select
 description:    Please see README.md
-category:       Data, Conduit
+category:       Data, Bit, Succinct Data Structures, Data Structures
 homepage:       http://github.com/haskell-works/hw-rankselect#readme
 bug-reports:    https://github.com/haskell-works/hw-rankselect/issues
 author:         John Ky
@@ -54,7 +54,7 @@ library
   if (flag(bmi2)) && (impl(ghc >=8.4.1))
     ghc-options: -mbmi2 -msse4.2
     cpp-options: -DBMI2_ENABLED
-  if (impl(ghc >=8.0.1))
+  if (impl(ghc >= 8.0.1))
     ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   default-language: Haskell2010
 
@@ -88,7 +88,7 @@ executable hw-rankselect
   if (flag(bmi2)) && (impl(ghc >=8.4.1))
     ghc-options: -mbmi2 -msse4.2
     cpp-options: -DBMI2_ENABLED
-  if (impl(ghc >=8.0.1))
+  if (impl(ghc >= 8.0.1))
     ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   default-language: Haskell2010
 
@@ -146,7 +146,7 @@ benchmark bench
       base >=4 && <5
     , bytestring >=0.10 && <0.11
     , conduit >=1.2 && <1.4
-    , criterion >=1.1 && <1.5
+    , criterion >=1.1 && <1.6
     , directory >=1.2 && <1.5
     , hw-bits >=0.4.0.0 && <0.8
     , hw-prim >=0.6.0.0 && <0.7
@@ -158,6 +158,6 @@ benchmark bench
   if (flag(bmi2)) && (impl(ghc >=8.4.1))
     ghc-options: -mbmi2 -msse4.2
     cpp-options: -DBMI2_ENABLED
-  if (impl(ghc >=8.0.1))
+  if (impl(ghc                >= 8.0.1))
     ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   default-language: Haskell2010
