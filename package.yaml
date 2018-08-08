@@ -1,5 +1,5 @@
 name: hw-rankselect
-version: '0.12.0.3'
+version: '0.12.0.4'
 synopsis: Rank-select
 description: Please see README.md
 category: Data, Bit, Succinct Data Structures, Data Structures
