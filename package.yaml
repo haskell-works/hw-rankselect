@@ -10,13 +10,16 @@ license: BSD3
 github: haskell-works/hw-rankselect
 homepage: http://github.com/haskell-works/hw-rankselect#readme
 tested-with: GHC == 8.4.2, GHC == 8.2.2, GHC == 8.0.2, GHC == 7.10.3
+
 extra-source-files:
 - README.md
 - data/README.md
 - data/sample-000.idx
+
 dependencies:
 - hw-rankselect-base    >= 0.2.0.0    && < 0.4
 - vector                >= 0.12       && < 0.13
+- hw-prim               >= 0.6        && < 0.8
 
 library:
   source-dirs: src
@@ -33,7 +36,6 @@ library:
   - deepseq             >= 1.4        && < 1.5
   - hw-balancedparens   >= 0.1.0.0    && < 0.3
   - hw-bits             >= 0.6.0.0    && < 0.8
-  - hw-prim             >= 0.6        && < 0.7
   when:
   - condition: (impl(ghc >= 8.0.1))
     ghc-options:
@@ -59,7 +61,6 @@ executables:
     - base                  >= 4.7        && < 5
     - directory             >= 1.2        && < 1.4
     - hw-bits               >= 0.4.0.0    && < 0.8
-    - hw-prim               >= 0.4.0.0    && < 0.7
     - hw-rankselect
     - lens                  >= 4          && < 5
     - mmap                  >= 0.5        && < 0.6
@@ -97,7 +98,6 @@ tests:
     - hw-bits             >= 0.4.0.0    && < 0.8
     - hw-hedgehog         >= 0.1.0.1    && < 0.2
     - hw-hspec-hedgehog   >= 0.1        && < 0.2
-    - hw-prim             >= 0.5.0.4    && < 0.7
     - hw-rankselect
     - mmap                >= 0.5        && < 0.6
     - transformers        >= 0.4        && < 0.6
@@ -126,7 +126,6 @@ benchmarks:
     - criterion             >= 1.1        && < 1.6
     - directory             >= 1.2        && < 1.5
     - hw-bits               >= 0.4.0.0    && < 0.8
-    - hw-prim               >= 0.6.0.0    && < 0.7
     - hw-rankselect
     - hw-rankselect-base    >= 0.3.1.0    && < 0.4
     - mmap                  >= 0.5        && < 0.6
