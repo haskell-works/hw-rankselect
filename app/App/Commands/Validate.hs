@@ -1,14 +1,16 @@
 {-# LANGUAGE BangPatterns        #-}
+{-# LANGUAGE DataKinds           #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 
 module App.Commands.Validate
   ( cmdValidate
   ) where
 
-import App.Commands.Options.Type
 import Control.Lens
 import Control.Monad
 import Control.Monad.State
+import Data.Generics.Product.Any
 import Data.Monoid                               ((<>))
 import Data.Word
 import HaskellWorks.Data.AtIndex
@@ -17,24 +19,28 @@ import HaskellWorks.Data.RankSelect.Base.Rank1
 import HaskellWorks.Data.RankSelect.Base.Select1
 import Options.Applicative
 
-import qualified App.Commands.Options.Lens            as L
+import qualified App.Commands.Options.Type            as Z
 import qualified Data.Vector.Storable                 as DVS
 import qualified HaskellWorks.Data.FromForeignRegion  as IO
 import qualified HaskellWorks.Data.RankSelect.CsPoppy as CS
 import qualified System.IO                            as IO
 
-runValidate :: ValidateOptions -> IO ()
-runValidate opts = case opts ^. L.indexType of
-  CsPoppy  -> do
-    !(v :: DVS.Vector Word64) <- IO.mmapFromForeignRegion (opts ^. L.file)
+{-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
+{-# ANN module ("HLint: ignore Redundant do"        :: String) #-}
+{-# ANN module ("HLint: ignore Redundant return"    :: String) #-}
+
+runValidate :: Z.ValidateOptions -> IO ()
+runValidate opts = case opts ^. the @"indexType" of
+  Z.CsPoppy  -> do
+    !(v :: DVS.Vector Word64) <- IO.mmapFromForeignRegion (opts ^. the @"file")
 
     let !csIndex = CS.makeCsPoppy v
 
-    (_, final) <- flip runStateT emptyValidateState $
+    (_, final) <- flip runStateT Z.emptyValidateState $
       forM_ [0 .. fromIntegral (DVS.length v - 1)] $ \i -> do
         let w = v !!! i
         let wPopCount = popCount1 w
-        lastPopCount <- use L.cumulativePopCount
+        lastPopCount <- use (the @"cumulativePopCount")
 
         forM_ [0 .. 64] $ \pw -> do
           let r = rank1 w pw + lastPopCount
@@ -59,19 +65,19 @@ runValidate opts = case opts ^. L.indexType of
             return ()
           return ()
 
-        L.cumulativePopCount += wPopCount
+        the @"cumulativePopCount" += wPopCount
 
         return ()
 
-    IO.putStrLn $ "PopCounts validated: " <> show (final ^. L.cumulativePopCount)
+    IO.putStrLn $ "PopCounts validated: " <> show (final ^. the @"cumulativePopCount")
 
     return ()
-  Poppy512 -> do
+  Z.Poppy512 -> do
     putStrLn "Not implemented"
     return ()
 
-optsValidate :: Parser ValidateOptions
-optsValidate = ValidateOptions
+optsValidate :: Parser Z.ValidateOptions
+optsValidate = Z.ValidateOptions
   <$> option auto
       (   long "index-type"
       <>  help "Index type"

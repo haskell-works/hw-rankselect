@@ -60,6 +60,7 @@ executables:
     dependencies:
     - base                  >= 4.7        && < 5
     - directory             >= 1.2        && < 1.4
+    - generic-lens          >= 1.0.0.0    && < 1.2
     - hw-bits               >= 0.4.0.0    && < 0.8
     - hw-rankselect
     - lens                  >= 4          && < 5

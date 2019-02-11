@@ -1,5 +1,7 @@
 {-# LANGUAGE BangPatterns        #-}
+{-# LANGUAGE DataKinds           #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications    #-}
 
 module App.Commands.SelectAll
   ( cmdSelectAll
@@ -7,6 +9,7 @@ module App.Commands.SelectAll
 
 import Control.Lens
 import Control.Monad
+import Data.Generics.Product.Any
 import Data.List
 import Data.Monoid                               ((<>))
 import HaskellWorks.Data.Bits.PopCount.PopCount1
@@ -17,12 +20,15 @@ import HaskellWorks.Data.RankSelect.Poppy512
 import Options.Applicative                       hiding (columns)
 import System.Directory
 
-import qualified App.Commands.Options.Lens as L
-import qualified App.Commands.Options.Type as O
+import qualified App.Commands.Options.Type as Z
 
-runSelectAll :: O.SelectAllOptions -> IO ()
-runSelectAll opts = case opts ^. L.indexType of
-  O.CsPoppy -> do
+{-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
+{-# ANN module ("HLint: ignore Redundant do"        :: String) #-}
+{-# ANN module ("HLint: ignore Redundant return"    :: String) #-}
+
+runSelectAll :: Z.SelectAllOptions -> IO ()
+runSelectAll opts = case opts ^. the @"indexType" of
+  Z.CsPoppy -> do
     entries <- getDirectoryContents "data"
     let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
     forM_ files $ \file -> do
@@ -32,7 +38,7 @@ runSelectAll opts = case opts ^. L.indexType of
         let !_ = select1 v i
         return ()
       return ()
-  O.Poppy512 -> do
+  Z.Poppy512 -> do
     entries <- getDirectoryContents "data"
     let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
     forM_ files $ \file -> do
@@ -43,8 +49,8 @@ runSelectAll opts = case opts ^. L.indexType of
         return ()
       return ()
 
-optsSelectAll :: Parser O.SelectAllOptions
-optsSelectAll = O.SelectAllOptions
+optsSelectAll :: Parser Z.SelectAllOptions
+optsSelectAll = Z.SelectAllOptions
   <$> option auto
       (   long "index-type"
       <>  help "Index type"

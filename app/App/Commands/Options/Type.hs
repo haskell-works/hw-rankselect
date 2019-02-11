@@ -1,29 +1,33 @@
+{-# LANGUAGE DeriveGeneric         #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+
 module App.Commands.Options.Type where
 
 import Data.Word
+import GHC.Generics
 
-data IndexType = CsPoppy | Poppy512 deriving (Eq, Read, Show)
+data IndexType = CsPoppy | Poppy512 deriving (Eq, Read, Show, Generic)
 
-data BuildOptions = BuildOptions
-  { _buildOptionsIndexType :: IndexType
-  } deriving (Eq, Show)
+newtype BuildOptions = BuildOptions
+  { indexType :: IndexType
+  } deriving (Eq, Show, Generic)
 
-data SelectAllOptions = SelectAllOptions
-  { _selectAllOptionsIndexType :: IndexType
-  } deriving (Eq, Show)
+newtype SelectAllOptions = SelectAllOptions
+  { indexType :: IndexType
+  } deriving (Eq, Show, Generic)
 
 newtype UnitTestOptions = UnitTestOptions
-  { _unitTestOptionsName :: String
-  } deriving (Eq, Show)
+  { name :: String
+  } deriving (Eq, Show, Generic)
 
 data ValidateOptions = ValidateOptions
-  { _validateOptionsIndexType :: IndexType
-  , _validateOptionsFile      :: FilePath
-  } deriving (Eq, Show)
+  { indexType :: IndexType
+  , file      :: FilePath
+  } deriving (Eq, Show, Generic)
 
-data ValidateState = ValidateState
-  { _validateStateCumulativePopCount :: Word64
-  } deriving (Eq, Show)
+newtype ValidateState = ValidateState
+  { cumulativePopCount :: Word64
+  } deriving (Eq, Show, Generic)
 
 emptyValidateState :: ValidateState
 emptyValidateState = ValidateState 0
