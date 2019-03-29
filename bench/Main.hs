@@ -97,8 +97,8 @@ runCsPoppyBuild = do
     let !_ = select1 msbs 1
     return ()
 
-benchMakeCsPoppyBlocks2 :: IO [Benchmark]
-benchMakeCsPoppyBlocks2 = do
+benchMakeCsPoppyBlocks :: IO [Benchmark]
+benchMakeCsPoppyBlocks = do
   entries <- getDirectoryContents "data"
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
@@ -142,7 +142,7 @@ runBenchmarks = do
     <> [benchPoppy512Build]
     <> [benchPoppy512Rank1]
     <> [benchPoppy512Select1]
-    <> [benchMakeCsPoppyBlocks2]
+    <> [benchMakeCsPoppyBlocks]
     <> [benchMakeCsPoppyLayerM]
     <> [benchGenCsSamples]
   when (null benchmarks) $ putStrLn "Warning: No benchmarks found"
