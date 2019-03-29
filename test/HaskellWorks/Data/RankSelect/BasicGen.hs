@@ -58,14 +58,14 @@ genRank1UpTo16Spec _ = describe ("Generically up to 16 bits for " ++ show (typeO
     _ <- forAll $ pure bs
     fmap (rank1 bs) [0..16] === [0, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6]
 
-genSelect0UpTo8Spec :: forall s. (Typeable s, BitRead s, Select0 s, Show s) => s -> Spec
+genSelect0UpTo8Spec :: forall s. Typeable s => s -> Spec
 genSelect0UpTo8Spec _ = describe ("Generically up to 8 bits for " ++ show (typeOf (undefined :: s))) $ do
   it "select0 10010010 over [0..5] should be 023568" $ requireProperty $ do
     let bs = fromJust $ bitRead "10010010" :: Word8
     _ <- forAll $ pure bs
     fmap (select0 bs) [0..5] === [0, 2, 3, 5, 6, 8]
 
-genSelect0UpTo16Spec :: forall s. (Typeable s, BitRead s, Select0 s, Show s) => s -> Spec
+genSelect0UpTo16Spec :: forall s. Typeable s => s -> Spec
 genSelect0UpTo16Spec _ = describe ("Generically up to 16 bits for " ++ show (typeOf (undefined :: s))) $ do
   it "select0 11011010 00 over [0..5]" $ requireProperty $ do
     let bs = fromJust $ bitRead "1101101 000" :: [Bool]
