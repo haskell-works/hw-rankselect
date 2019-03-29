@@ -21,7 +21,7 @@ module HaskellWorks.Data.RankSelect.CsPoppy
     ) where
 
 import Control.DeepSeq
-import Data.Monoid                                     ((<>))
+import Data.Monoid                                                 ((<>))
 import Data.Word
 import GHC.Generics
 import HaskellWorks.Data.AtIndex
@@ -46,8 +46,9 @@ import HaskellWorks.Data.RankSelect.Base.Rank0
 import HaskellWorks.Data.RankSelect.Base.Rank1
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal
+import HaskellWorks.Data.RankSelect.CsPoppy.Internal.CsInterleaved
 import HaskellWorks.Data.Vector.AsVector64
-import Prelude                                         hiding (drop, length, pi, take)
+import Prelude                                                     hiding (drop, length, pi, take)
 
 import qualified Data.Vector.Storable as DVS
 

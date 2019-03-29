@@ -6,9 +6,10 @@ import Data.Word
 import HaskellWorks.Data.Bits.BitWise
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal
+import HaskellWorks.Data.RankSelect.CsPoppy.Internal.CsInterleaved
 import HaskellWorks.Hspec.Hedgehog
 import Hedgehog
-import Prelude                                       hiding (length)
+import Prelude                                                     hiding (length)
 import Test.Hspec
 
 import qualified Data.Vector.Storable as DVS

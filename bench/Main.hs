@@ -6,7 +6,7 @@ module Main where
 import Control.Monad
 import Criterion.Main
 import Data.List
-import Data.Monoid                                   ((<>))
+import Data.Monoid                                                 ((<>))
 import Data.Word
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
@@ -14,6 +14,7 @@ import HaskellWorks.Data.Positioning
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.CsPoppy
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal
+import HaskellWorks.Data.RankSelect.CsPoppy.Internal.CsInterleaved
 import HaskellWorks.Data.RankSelect.Poppy512
 import System.Directory
 import System.Environment
