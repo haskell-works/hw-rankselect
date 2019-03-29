@@ -6,7 +6,7 @@ module Main where
 import Control.Monad
 import Criterion.Main
 import Data.List
-import Data.Monoid ((<>))
+import Data.Monoid                                   ((<>))
 import Data.Word
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
@@ -97,15 +97,6 @@ runCsPoppyBuild = do
     let !_ = select1 msbs 1
     return ()
 
-benchMakeCsPoppyBlocks1 :: IO [Benchmark]
-benchMakeCsPoppyBlocks1 = do
-  entries <- getDirectoryContents "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
-  return (mkBenchmark <$> files)
-  where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(v :: DVS.Vector Word64) -> bgroup filename
-          [ bench "makeCsPoppyBlocks1"  (whnf makeCsPoppyBlocks1 v)
-          ]
-
 benchMakeCsPoppyBlocks2 :: IO [Benchmark]
 benchMakeCsPoppyBlocks2 = do
   entries <- getDirectoryContents "data"
@@ -151,7 +142,6 @@ runBenchmarks = do
     <> [benchPoppy512Build]
     <> [benchPoppy512Rank1]
     <> [benchPoppy512Select1]
-    <> [benchMakeCsPoppyBlocks1]
     <> [benchMakeCsPoppyBlocks2]
     <> [benchMakeCsPoppyLayerM]
     <> [benchGenCsSamples]
