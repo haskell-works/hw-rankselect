@@ -203,6 +203,5 @@ genCsSamplesST pc v = do
               let ewp = select1 vw dpc + fromIntegral vi * 64 -- Expectant word position
               DVSM.unsafeWrite u ui ewp
               go u (ui + 1) (vi + 1) vie npc (epc + sampleWidth)
-            else do -- Don't emit a position this time
-              go u ui (vi + 1) vie npc epc
+            else go u ui (vi + 1) vie npc epc -- Don't emit a position this time
         go u ui _ _ _ _ = return (DVSM.take ui u)
