@@ -9,7 +9,7 @@ module HaskellWorks.Data.RankSelect.CsPoppySpec (spec) where
 import Control.Monad
 import Control.Monad.IO.Class
 import Data.Maybe
-import Data.Monoid ((<>))
+import Data.Monoid                                          ((<>))
 import Data.Word
 import GHC.Exts
 import HaskellWorks.Data.AtIndex
@@ -22,11 +22,12 @@ import HaskellWorks.Data.Product
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.BasicGen
 import HaskellWorks.Data.RankSelect.CsPoppy
+import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1
 import HaskellWorks.Data.RankSelect.Poppy512
 import HaskellWorks.Data.Take
 import HaskellWorks.Hspec.Hedgehog
 import Hedgehog
-import Prelude                                   hiding (length, take)
+import Prelude                                              hiding (length, take)
 import Test.Common
 import Test.Hspec
 
@@ -161,7 +162,7 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
           let pc = popCount1 (csPoppyBits csPoppy)
           requireProperty $ do
             _ <- forAll $ pure $ corpusFile
-            _ <- forAll $ pure $ csPoppyLayerS csPoppy
+            _ <- forAll $ pure $ csPoppyLayerS (csPoppyIndex1 csPoppy)
             s <- forAll $ G.word64 (R.linear 1 pc)
             select1 csPoppy s === select1 fileV s
 
