@@ -86,7 +86,9 @@ script:
 
   # build & run tests, build benchmarks
   - cabal new-build -w ${HC} ${TEST} ${BENCH} all
-  - if [ "x$TEST" = "x--enable-tests" ]; then travis_wait cabal new-test -w ${HC} ${TEST} ${BENCH} all; fi
+  - if [ "x$TEST" = "x--enable-tests" ]; then
+      travis_wait 20 cabal new-test -w ${HC} ${TEST} ${BENCH} all;
+    fi
 
   # cabal check
   - (cd hw-rankselect-* && cabal check)
