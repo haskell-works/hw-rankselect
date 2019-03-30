@@ -13,7 +13,7 @@ import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.Positioning
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.CsPoppy
-import HaskellWorks.Data.RankSelect.CsPoppy.Internal
+import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.CsInterleaved
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Reference
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Vector

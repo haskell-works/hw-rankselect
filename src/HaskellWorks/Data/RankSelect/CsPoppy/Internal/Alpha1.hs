@@ -3,7 +3,7 @@
 {-# LANGUAGE Rank2Types          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module HaskellWorks.Data.RankSelect.CsPoppy.Internal
+module HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1
     ( makeCsPoppyBlocks
     , makeCsPoppyLayerM2
     , genCsSamples
