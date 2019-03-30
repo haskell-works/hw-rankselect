@@ -1,25 +1,47 @@
 {-# OPTIONS_GHC-funbox-strict-fields #-}
+{-# LANGUAGE DeriveAnyClass      #-}
+{-# LANGUAGE DeriveGeneric       #-}
 {-# LANGUAGE MultiWayIf          #-}
 {-# LANGUAGE Rank2Types          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1
-    ( makeCsPoppyBlocks
+    ( CsPoppyIndex(..)
+    , makeCsPoppyIndex
+    , makeCsPoppyBlocks
     , makeCsPoppyLayerM2
     , genCsSamples
     ) where
 
+import Control.DeepSeq
 import Data.Word
+import GHC.Generics
 import HaskellWorks.Data.AtIndex
 import HaskellWorks.Data.Bits.BitWise
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.Positioning
 import HaskellWorks.Data.RankSelect.Base.Select1
+import HaskellWorks.Data.RankSelect.CsPoppy.Internal.CsInterleaved
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Vector
 
 import qualified Control.Monad.ST             as ST
 import qualified Data.Vector.Storable         as DVS
 import qualified Data.Vector.Storable.Mutable as DVSM
+
+data CsPoppyIndex = CsPoppyIndex
+  { csPoppyLayerM :: !(DVS.Vector Word64)
+  , csPoppyLayerS :: !(DVS.Vector Word64) -- Sampling lookup of each 8192 1-bit
+  } deriving (Eq, Show, NFData, Generic)
+
+makeCsPoppyIndex :: DVS.Vector Word64 -> CsPoppyIndex
+makeCsPoppyIndex v = CsPoppyIndex
+  { csPoppyLayerM = layerM
+  , csPoppyLayerS = layerS
+  }
+  where blocks          = makeCsPoppyBlocks v
+        layerM          = makeCsPoppyLayerM2 blocks
+        layerMPopCount  = getCsiTotal (CsInterleaved (lastOrZero layerM))
+        layerS          = genCsSamples layerMPopCount v
 
 makeCsPoppyBlocks :: DVS.Vector Word64 -> DVS.Vector Word64
 makeCsPoppyBlocks v = DVS.constructN (((DVS.length v + 8 - 1) `div` 8) + 1) genBlocks

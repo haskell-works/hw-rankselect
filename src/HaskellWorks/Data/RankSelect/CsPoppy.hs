@@ -57,8 +57,7 @@ newtype Nice a = Nice a deriving Eq
 
 data CsPoppy = CsPoppy
   { csPoppyBits   :: !(DVS.Vector Word64)
-  , csPoppyLayerM :: !(DVS.Vector Word64)
-  , csPoppyLayerS :: !(DVS.Vector Word64) -- Sampling lookup of each 8192 1-bit
+  , csPoppyIndex1 :: !CsPoppyIndex
   } deriving (Eq, Show, NFData, Generic)
 
 instance FromForeignRegion CsPoppy where
@@ -67,8 +66,10 @@ instance FromForeignRegion CsPoppy where
 instance Show (Nice CsPoppy) where
   showsPrec _ (Nice rsbs) = showString "CsPoppy "
     <> showString "{ csPoppyBits = "   <> shows (bitShow <$> DVS.toList (csPoppyBits     rsbs))
-    <> showString ", csPoppyLayer0 = " <> shows (CsInterleaved <$> DVS.toList (csPoppyLayerM rsbs))
-    <> showString ", csPoppyLayerS = " <> shows (csPoppyLayerS rsbs)
+    <> showString ", csPoppyIndex1 = CsPoppyIndex"
+    <> showString "{ csPoppyLayerM = " <> shows (CsInterleaved <$> DVS.toList (csPoppyLayerM (csPoppyIndex1 rsbs)))
+    <> showString ", csPoppyLayerS = " <> shows (csPoppyLayerS (csPoppyIndex1 rsbs))
+    <> showString " }"
     <> showString " }"
 
 instance AsVector64 CsPoppy where
@@ -80,20 +81,15 @@ instance BitLength CsPoppy where
   {-# INLINE bitLength #-}
 
 instance PopCount1 CsPoppy where
-  popCount1 v = getCsiTotal (CsInterleaved (lastOrZero (csPoppyLayerM v)))
+  popCount1 v = getCsiTotal (CsInterleaved (lastOrZero (csPoppyLayerM (csPoppyIndex1 v))))
   {-# INLINE popCount1 #-}
 
 -- TODO Try to get rid of indexOrZero call
 makeCsPoppy :: DVS.Vector Word64 -> CsPoppy
 makeCsPoppy v = CsPoppy
   { csPoppyBits   = v
-  , csPoppyLayerM = layerM
-  , csPoppyLayerS = layerS
+  , csPoppyIndex1 = makeCsPoppyIndex v
   }
-  where blocks          = makeCsPoppyBlocks v
-        layerM          = makeCsPoppyLayerM2 blocks
-        layerMPopCount  = getCsiTotal (CsInterleaved (lastOrZero layerM))
-        layerS          = genCsSamples layerMPopCount v
 
 instance TestBit CsPoppy where
   (.?.) = (.?.) . csPoppyBits
@@ -103,7 +99,7 @@ instance BitRead CsPoppy where
   bitRead = fmap makeCsPoppy . bitRead
 
 instance Rank1 CsPoppy where
-  rank1 (CsPoppy !v !layerM !_) p = rankPrior + rankInBasicBlock
+  rank1 (CsPoppy !v (CsPoppyIndex !layerM !_)) p = rankPrior + rankInBasicBlock
     where mw  = layerM !!! toPosition (p `div` 2048)
           mx  =  mw .&. 0x00000000ffffffff
           ma  = (mw .&. 0x000003ff00000000) .>. 32
@@ -129,7 +125,7 @@ binarySearchPBounds p v = loop
 {-# INLINE binarySearchPBounds #-}
 
 layerMPositions :: CsPoppy -> [Word64]
-layerMPositions (CsPoppy _ v _) = DVS.toList v >>= expand
+layerMPositions (CsPoppy _ (CsPoppyIndex v _)) = DVS.toList v >>= expand
   where expand mw = [nx, na, nb, nc]
           where mx  =  mw .&. 0x00000000ffffffff          :: Word64
                 ma  = (mw .&. 0x000003ff00000000) .>. 32  :: Word64
@@ -184,7 +180,7 @@ lookupLayerMFrom2 i j r v =
 
 instance Select1 CsPoppy where
   select1 _                             r | r == 0  = 0
-  select1 (CsPoppy !v !layerM !layerS)  r           =
+  select1 (CsPoppy !v (CsPoppyIndex !layerM !layerS))  r           =
     let !si                 = (r - 1) `div` 8192                              in
     let !spi                = layerS !!! fromIntegral si                      in
     let vBitSize = fromIntegral (DVS.length v) * 64                           in
