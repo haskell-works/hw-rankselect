@@ -75,6 +75,7 @@ library
       HaskellWorks.Data.RankSelect.CsPoppy
       HaskellWorks.Data.RankSelect.CsPoppy.Internal
       HaskellWorks.Data.RankSelect.CsPoppy.Internal.Vector
+      HaskellWorks.Data.RankSelect.CsPoppy.Internal.CsInterleaved
       HaskellWorks.Data.RankSelect.Poppy512
   other-modules:    Paths_hw_rankselect
   autogen-modules:  Paths_hw_rankselect
