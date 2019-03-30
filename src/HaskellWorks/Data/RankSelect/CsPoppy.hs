@@ -14,7 +14,6 @@ module HaskellWorks.Data.RankSelect.CsPoppy
     , Nice(..)
     , Rank1(..)
     , makeCsPoppy
-    , genCsSamples
     , layerMPositions
     , lookupLayerMFrom1
     , lookupLayerMFrom2
@@ -45,19 +44,21 @@ import HaskellWorks.Data.Positioning
 import HaskellWorks.Data.RankSelect.Base.Rank0
 import HaskellWorks.Data.RankSelect.Base.Rank1
 import HaskellWorks.Data.RankSelect.Base.Select1
-import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.CsInterleaved
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Vector
 import HaskellWorks.Data.Vector.AsVector64
 import Prelude                                                     hiding (drop, length, pi, take)
 
-import qualified Data.Vector.Storable as DVS
+import qualified Data.Vector.Storable                                 as DVS
+import qualified HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha0 as A0
+import qualified HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1 as A1
 
 newtype Nice a = Nice a deriving Eq
 
 data CsPoppy = CsPoppy
   { csPoppyBits   :: !(DVS.Vector Word64)
-  , csPoppyIndex1 :: !CsPoppyIndex
+  , csPoppyIndex0 :: !A0.CsPoppyIndex
+  , csPoppyIndex1 :: !A1.CsPoppyIndex
   } deriving (Eq, Show, NFData, Generic)
 
 instance FromForeignRegion CsPoppy where
@@ -67,8 +68,8 @@ instance Show (Nice CsPoppy) where
   showsPrec _ (Nice rsbs) = showString "CsPoppy "
     <> showString "{ csPoppyBits = "   <> shows (bitShow <$> DVS.toList (csPoppyBits     rsbs))
     <> showString ", csPoppyIndex1 = CsPoppyIndex"
-    <> showString "{ csPoppyLayerM = " <> shows (CsInterleaved <$> DVS.toList (csPoppyLayerM (csPoppyIndex1 rsbs)))
-    <> showString ", csPoppyLayerS = " <> shows (csPoppyLayerS (csPoppyIndex1 rsbs))
+    <> showString "{ csPoppyLayerM = " <> shows (CsInterleaved <$> DVS.toList (A1.csPoppyLayerM (csPoppyIndex1 rsbs)))
+    <> showString ", csPoppyLayerS = " <> shows (A1.csPoppyLayerS (csPoppyIndex1 rsbs))
     <> showString " }"
     <> showString " }"
 
@@ -81,14 +82,15 @@ instance BitLength CsPoppy where
   {-# INLINE bitLength #-}
 
 instance PopCount1 CsPoppy where
-  popCount1 v = getCsiTotal (CsInterleaved (lastOrZero (csPoppyLayerM (csPoppyIndex1 v))))
+  popCount1 v = getCsiTotal (CsInterleaved (lastOrZero (A1.csPoppyLayerM (csPoppyIndex1 v))))
   {-# INLINE popCount1 #-}
 
 -- TODO Try to get rid of indexOrZero call
 makeCsPoppy :: DVS.Vector Word64 -> CsPoppy
 makeCsPoppy v = CsPoppy
   { csPoppyBits   = v
-  , csPoppyIndex1 = makeCsPoppyIndex v
+  , csPoppyIndex0 = A0.makeCsPoppyIndex v
+  , csPoppyIndex1 = A1.makeCsPoppyIndex v
   }
 
 instance TestBit CsPoppy where
@@ -99,7 +101,7 @@ instance BitRead CsPoppy where
   bitRead = fmap makeCsPoppy . bitRead
 
 instance Rank1 CsPoppy where
-  rank1 (CsPoppy !v (CsPoppyIndex !layerM !_)) p = rankPrior + rankInBasicBlock
+  rank1 (CsPoppy !v _ (A1.CsPoppyIndex !layerM !_)) p = rankPrior + rankInBasicBlock
     where mw  = layerM !!! toPosition (p `div` 2048)
           mx  =  mw .&. 0x00000000ffffffff
           ma  = (mw .&. 0x000003ff00000000) .>. 32
@@ -125,7 +127,7 @@ binarySearchPBounds p v = loop
 {-# INLINE binarySearchPBounds #-}
 
 layerMPositions :: CsPoppy -> [Word64]
-layerMPositions (CsPoppy _ (CsPoppyIndex v _)) = DVS.toList v >>= expand
+layerMPositions (CsPoppy _ _ (A1.CsPoppyIndex v _)) = DVS.toList v >>= expand
   where expand mw = [nx, na, nb, nc]
           where mx  =  mw .&. 0x00000000ffffffff          :: Word64
                 ma  = (mw .&. 0x000003ff00000000) .>. 32  :: Word64
@@ -180,7 +182,7 @@ lookupLayerMFrom2 i j r v =
 
 instance Select1 CsPoppy where
   select1 _                             r | r == 0  = 0
-  select1 (CsPoppy !v (CsPoppyIndex !layerM !layerS))  r           =
+  select1 (CsPoppy !v _ (A1.CsPoppyIndex !layerM !layerS))  r           =
     let !si                 = (r - 1) `div` 8192                              in
     let !spi                = layerS !!! fromIntegral si                      in
     let vBitSize = fromIntegral (DVS.length v) * 64                           in
