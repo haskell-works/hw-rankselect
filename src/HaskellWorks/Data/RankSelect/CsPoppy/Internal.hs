@@ -7,7 +7,6 @@ module HaskellWorks.Data.RankSelect.CsPoppy.Internal
     ( indexOrZero
     , lastOrZero
     , makeCsPoppyBlocks
-    , makeCsPoppyLayerM
     , makeCsPoppyLayerM2
     , genCsSamples
     ) where
@@ -39,25 +38,6 @@ makeCsPoppyBlocks v = DVS.constructN (((DVS.length v + 8 - 1) `div` 8) + 1) genB
               popCount1 (DVS.unsafeIndex v (j + 6)) +
               popCount1 (DVS.unsafeIndex v (j + 7))
           | otherwise -> popCount1 (DVS.take 8 (DVS.drop (i * 8) v))
-
-makeCsPoppyLayerM :: DVS.Vector Word64 -> DVS.Vector Word64
-makeCsPoppyLayerM blocks = DVS.constructN (((DVS.length blocks + 4 - 1) `div` 4) + 1) genLayer1
-  where genLayer1 :: DVS.Vector Word64 -> Word64
-        genLayer1 u =
-          let i  = end u                          in
-          let lx = lastOrZero u                   in
-          let la = indexOrZero blocks (i * 4 - 4) in
-          let lb = indexOrZero blocks (i * 4 - 3) in
-          let lc = indexOrZero blocks (i * 4 - 2) in
-          let ld = indexOrZero blocks (i * 4 - 1) in
-          let nx = lx + (la + lb + lc + ld)       in
-          let na = indexOrZero blocks (i * 4 + 0) in
-          let nb = indexOrZero blocks (i * 4 + 1) in
-          let nc = indexOrZero blocks (i * 4 + 2) in
-          (   ( nx         .&. 0x00000000ffffffff)
-          .|. ((na .<. 32) .&. 0x000003ff00000000)
-          .|. ((nb .<. 42) .&. 0x000ffc0000000000)
-          .|. ((nc .<. 52) .&. 0x3ff0000000000000))
 
 makeCsPoppyLayerM2 :: DVS.Vector Word64 -> DVS.Vector Word64
 makeCsPoppyLayerM2 blocks = DVS.constructN (((DVS.length blocks + 4 - 1) `div` 4) + 1) genLayer1
