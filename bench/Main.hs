@@ -103,7 +103,7 @@ benchMakeCsPoppyBlocks = do
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(v :: DVS.Vector Word64) -> bgroup filename
-          [ bench "makeCsPoppyBlocks2"  (whnf makeCsPoppyBlocks2 v)
+          [ bench "makeCsPoppyBlocks"  (whnf makeCsPoppyBlocks v)
           ]
 
 benchMakeCsPoppyLayerM :: IO [Benchmark]
@@ -117,7 +117,7 @@ benchMakeCsPoppyLayerM = do
           ]
         mkEnv filename = do
           !v <- mmapFromForeignRegion filename
-          return (makeCsPoppyBlocks2 v)
+          return (makeCsPoppyBlocks v)
 
 benchGenCsSamples :: IO [Benchmark]
 benchGenCsSamples = do
@@ -129,7 +129,7 @@ benchGenCsSamples = do
           ]
         mkEnv filename = do
           !v <- mmapFromForeignRegion filename
-          let !blocks          = makeCsPoppyBlocks2 v
+          let !blocks          = makeCsPoppyBlocks v
           let !layerM          = makeCsPoppyLayerM blocks
           return (getCsiTotal (CsInterleaved (lastOrZero layerM)), v)
 
