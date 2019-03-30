@@ -88,7 +88,7 @@ makeCsPoppy v = CsPoppy
   , csPoppyLayerM = layerM
   , csPoppyLayerS = layerS
   }
-  where blocks          = makeCsPoppyBlocks2 v
+  where blocks          = makeCsPoppyBlocks v
         layerM          = makeCsPoppyLayerM2 blocks
         layerMPopCount  = getCsiTotal (CsInterleaved (lastOrZero layerM))
         layerS          = genCsSamples layerMPopCount v

@@ -17,7 +17,7 @@ module HaskellWorks.Data.RankSelect.CsPoppy.Internal
     , putCsiC
     , indexOrZero
     , lastOrZero
-    , makeCsPoppyBlocks2
+    , makeCsPoppyBlocks
     , makeCsPoppyLayerM
     , makeCsPoppyLayerM2
     , genCsSamples
@@ -85,8 +85,8 @@ putCsiC v (CsInterleaved i) = CsInterleaved (((v .&.      0x3ff) .<. 52) .|. (i 
 instance Show CsInterleaved where
   showsPrec _ i = shows (getCsiX i, getCsiA i, getCsiB i, getCsiC i)
 
-makeCsPoppyBlocks2 :: DVS.Vector Word64 -> DVS.Vector Word64
-makeCsPoppyBlocks2 v = DVS.constructN (((DVS.length v + 8 - 1) `div` 8) + 1) genBlocks
+makeCsPoppyBlocks :: DVS.Vector Word64 -> DVS.Vector Word64
+makeCsPoppyBlocks v = DVS.constructN (((DVS.length v + 8 - 1) `div` 8) + 1) genBlocks
   where e = DVS.length v
         genBlocks :: DVS.Vector Word64 -> Word64
         genBlocks u = let i = DVS.length u in if

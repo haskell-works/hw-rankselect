@@ -48,10 +48,10 @@ spec = describe "HaskellWorks.Data.RankSelect.CsInterleavedSpec" $ do
       getCsiA (putCsiA va (CsInterleaved 0)) === (va .&. 0x3ff)
       getCsiB (putCsiB vb (CsInterleaved 0)) === (vb .&. 0x3ff)
       getCsiC (putCsiC vc (CsInterleaved 0)) === (vc .&. 0x3ff)
-  describe "makeCsPoppyBlocks2" $ do
+  describe "makeCsPoppyBlocks" $ do
     it "must behave like makeCsPoppyBlocks1" $ requireProperty $ do
       xs <- forAll $ G.list (R.linear 0 1000) (G.word64 R.constantBounded)
       v  <- forAll $ pure $ DVS.fromList xs
-      a  <- forAll $ pure $ makeCsPoppyBlocks2   v
+      a  <- forAll $ pure $ makeCsPoppyBlocks    v
       e  <- forAll $ pure $ makeCsPoppyBlocksRef v
       a === e
