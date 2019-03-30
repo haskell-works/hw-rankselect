@@ -16,6 +16,7 @@ import HaskellWorks.Data.RankSelect.CsPoppy
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.CsInterleaved
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Reference
+import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Vector
 import HaskellWorks.Data.RankSelect.Poppy512
 import System.Directory
 import System.Environment

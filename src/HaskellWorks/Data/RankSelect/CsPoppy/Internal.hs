@@ -4,9 +4,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module HaskellWorks.Data.RankSelect.CsPoppy.Internal
-    ( indexOrZero
-    , lastOrZero
-    , makeCsPoppyBlocks
+    ( makeCsPoppyBlocks
     , makeCsPoppyLayerM2
     , genCsSamples
     ) where
