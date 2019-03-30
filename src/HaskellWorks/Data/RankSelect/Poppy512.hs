@@ -26,6 +26,7 @@ import HaskellWorks.Data.BalancedParens.OpenAt
 import HaskellWorks.Data.Bits.BitLength
 import HaskellWorks.Data.Bits.BitRead
 import HaskellWorks.Data.Bits.BitWise
+import HaskellWorks.Data.Bits.PopCount.PopCount0
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.Positioning
@@ -46,6 +47,10 @@ data Poppy512 = Poppy512
 
 instance FromForeignRegion Poppy512 where
   fromForeignRegion = makePoppy512 . fromForeignRegion
+
+instance PopCount0 Poppy512 where
+  popCount0 = popCount0 . poppy512Bits
+  {-# INLINE popCount0 #-}
 
 instance PopCount1 Poppy512 where
   popCount1 = popCount1 . poppy512Bits

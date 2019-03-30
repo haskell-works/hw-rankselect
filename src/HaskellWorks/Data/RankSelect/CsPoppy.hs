@@ -14,8 +14,6 @@ module HaskellWorks.Data.RankSelect.CsPoppy
     , Nice(..)
     , Rank1(..)
     , makeCsPoppy
-    , genCsSamples
-    , layerMPositions
     , lookupLayerMFrom1
     , lookupLayerMFrom2
     ) where
@@ -38,26 +36,31 @@ import HaskellWorks.Data.Bits.BitLength
 import HaskellWorks.Data.Bits.BitRead
 import HaskellWorks.Data.Bits.BitShow
 import HaskellWorks.Data.Bits.BitWise
+import HaskellWorks.Data.Bits.PopCount.PopCount0
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.Drop
 import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.Positioning
 import HaskellWorks.Data.RankSelect.Base.Rank0
 import HaskellWorks.Data.RankSelect.Base.Rank1
+import HaskellWorks.Data.RankSelect.Base.Select0
 import HaskellWorks.Data.RankSelect.Base.Select1
-import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.CsInterleaved
+import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Lookup
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Vector
 import HaskellWorks.Data.Vector.AsVector64
 import Prelude                                                     hiding (drop, length, pi, take)
 
-import qualified Data.Vector.Storable as DVS
+import qualified Data.Vector.Storable                                 as DVS
+import qualified HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha0 as A0
+import qualified HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1 as A1
 
 newtype Nice a = Nice a deriving Eq
 
 data CsPoppy = CsPoppy
   { csPoppyBits   :: !(DVS.Vector Word64)
-  , csPoppyIndex1 :: !CsPoppyIndex
+  , csPoppyIndex0 :: !A0.CsPoppyIndex
+  , csPoppyIndex1 :: !A1.CsPoppyIndex
   } deriving (Eq, Show, NFData, Generic)
 
 instance FromForeignRegion CsPoppy where
@@ -67,8 +70,8 @@ instance Show (Nice CsPoppy) where
   showsPrec _ (Nice rsbs) = showString "CsPoppy "
     <> showString "{ csPoppyBits = "   <> shows (bitShow <$> DVS.toList (csPoppyBits     rsbs))
     <> showString ", csPoppyIndex1 = CsPoppyIndex"
-    <> showString "{ csPoppyLayerM = " <> shows (CsInterleaved <$> DVS.toList (csPoppyLayerM (csPoppyIndex1 rsbs)))
-    <> showString ", csPoppyLayerS = " <> shows (csPoppyLayerS (csPoppyIndex1 rsbs))
+    <> showString "{ csPoppyLayerM = " <> shows (CsInterleaved <$> DVS.toList (A1.csPoppyLayerM (csPoppyIndex1 rsbs)))
+    <> showString ", csPoppyLayerS = " <> shows (A1.csPoppyLayerS (csPoppyIndex1 rsbs))
     <> showString " }"
     <> showString " }"
 
@@ -80,15 +83,20 @@ instance BitLength CsPoppy where
   bitLength = bitLength . csPoppyBits
   {-# INLINE bitLength #-}
 
+instance PopCount0 CsPoppy where
+  popCount0 v = getCsiTotal (CsInterleaved (lastOrZero (A0.csPoppyLayerM (csPoppyIndex0 v))))
+  {-# INLINE popCount0 #-}
+
 instance PopCount1 CsPoppy where
-  popCount1 v = getCsiTotal (CsInterleaved (lastOrZero (csPoppyLayerM (csPoppyIndex1 v))))
+  popCount1 v = getCsiTotal (CsInterleaved (lastOrZero (A1.csPoppyLayerM (csPoppyIndex1 v))))
   {-# INLINE popCount1 #-}
 
 -- TODO Try to get rid of indexOrZero call
 makeCsPoppy :: DVS.Vector Word64 -> CsPoppy
 makeCsPoppy v = CsPoppy
   { csPoppyBits   = v
-  , csPoppyIndex1 = makeCsPoppyIndex v
+  , csPoppyIndex0 = A0.makeCsPoppyIndex v
+  , csPoppyIndex1 = A1.makeCsPoppyIndex v
   }
 
 instance TestBit CsPoppy where
@@ -98,8 +106,12 @@ instance TestBit CsPoppy where
 instance BitRead CsPoppy where
   bitRead = fmap makeCsPoppy . bitRead
 
+instance Rank0 CsPoppy where
+  rank0 rsbs p = p - rank1 rsbs p
+  {-# INLINE rank0 #-}
+
 instance Rank1 CsPoppy where
-  rank1 (CsPoppy !v (CsPoppyIndex !layerM !_)) p = rankPrior + rankInBasicBlock
+  rank1 (CsPoppy !v _ (A1.CsPoppyIndex !layerM !_)) p = rankPrior + rankInBasicBlock
     where mw  = layerM !!! toPosition (p `div` 2048)
           mx  =  mw .&. 0x00000000ffffffff
           ma  = (mw .&. 0x000003ff00000000) .>. 32
@@ -115,72 +127,26 @@ instance Rank1 CsPoppy where
           rankInBasicBlock  = rank1 (DVS.drop (fromIntegral (p `div` 512) * 8) v) (p `mod` 512)
   {-# INLINE rank1 #-}
 
-binarySearchPBounds :: (Word64 -> Bool) -> (DVS.Vector Word64) -> Word64 -> Word64 -> Word64
-binarySearchPBounds p v = loop
-  where loop :: Word64 -> Word64 -> Word64
-        loop !l !u
-          | u <= l    = l
-          | otherwise = let e = v !!! fromIntegral k in if p e then loop l k else loop (k + 1) u
-          where k = (u + l) .>. 1
-{-# INLINE binarySearchPBounds #-}
+instance Select0 CsPoppy where
+  select0 _                             r | r == 0  = 0
+  select0 (CsPoppy !v (A0.CsPoppyIndex !layerM !layerS) _)  r           =
+    let !si                 = (r - 1) `div` 8192                              in
+    let !spi                = layerS !!! fromIntegral si                      in
+    let vBitSize = fromIntegral (DVS.length v) * 64                           in
+    let !spj                = atIndexOr vBitSize layerS (fromIntegral si + 1) in
+    let !mi                 = spi `div` (512 * 4)                             in
+    let !mj                 = spj `div` (512 * 4)                             in
+    -- let !(!bbr, !bbi)     = lookupLayerMFrom1 mi (mj + 1) r layerM            in
+    let !(!bbr, !bbi)     = lookupLayerMFrom2 mi (mj + 1) r layerM            in
+    let !block              = DVS.take 8 (drop (bbi * 8) v)                   in
+    let !q                  = r - bbr                                         in
 
-layerMPositions :: CsPoppy -> [Word64]
-layerMPositions (CsPoppy _ (CsPoppyIndex v _)) = DVS.toList v >>= expand
-  where expand mw = [nx, na, nb, nc]
-          where mx  =  mw .&. 0x00000000ffffffff          :: Word64
-                ma  = (mw .&. 0x000003ff00000000) .>. 32  :: Word64
-                mb  = (mw .&. 0x000ffc0000000000) .>. 42  :: Word64
-                mc  = (mw .&. 0x3ff0000000000000) .>. 52  :: Word64
-                nx  = mx                                  :: Word64
-                na  = nx + ma                             :: Word64
-                nb  = na + mb                             :: Word64
-                nc  = nb + mc                             :: Word64
-
-lookupLayerMXFrom :: Word64 -> Word64 -> Word64 -> DVS.Vector Word64 -> Word64
-lookupLayerMXFrom prev i r v | i < length v =
-  let mw  = v !!! fromIntegral i                      :: Word64
-      mx  =      ( mw .&. 0x00000000ffffffff        ) :: Word64
-  in if r <= mx
-    then prev
-    else lookupLayerMXFrom i (i + 1) r v
-lookupLayerMXFrom prev _ _ _ = prev
-{-# INLINE lookupLayerMXFrom #-}
-
-lookupLayerMFrom1 :: Word64 -> Word64 -> Word64 -> DVS.Vector Word64 -> (Word64, Word64)
-lookupLayerMFrom1 i _ r v
-  | r <= mx   = error "This shouldn't happen"
-  | r <= ma   = (mx, j * 4    )
-  | r <= mb   = (ma, j * 4 + 1)
-  | r <= mc   = (mb, j * 4 + 2)
-  | otherwise = (mc, j * 4 + 3)
-  where j   = lookupLayerMXFrom 0 i r v
-        mw  = v !!! fromIntegral j                      :: Word64
-        mx  =      ( mw .&. 0x00000000ffffffff        ) :: Word64
-        ma  = mx + ((mw .&. 0x000003ff00000000) .>. 32) :: Word64
-        mb  = ma + ((mw .&. 0x000ffc0000000000) .>. 42) :: Word64
-        mc  = mb + ((mw .&. 0x3ff0000000000000) .>. 52) :: Word64
-{-# INLINE lookupLayerMFrom1 #-}
-
-lookupLayerMFrom2 :: Word64 -> Word64 -> Word64 -> DVS.Vector Word64 -> (Word64, Word64)
-lookupLayerMFrom2 i j r v =
-  let cmp w = (r - 1) < (w .&. 0xffffffff)
-      !k  = (binarySearchPBounds cmp v i j - 1) `max` 0
-      !mw = v !!! fromIntegral k                      :: Word64
-      !mx =      ( mw .&. 0x00000000ffffffff        ) :: Word64
-      !ma = mx + ((mw .&. 0x000003ff00000000) .>. 32) :: Word64
-      !mb = ma + ((mw .&. 0x000ffc0000000000) .>. 42) :: Word64
-      !mc = mb + ((mw .&. 0x3ff0000000000000) .>. 52) :: Word64
-  in if
-    | r <= mx   -> (0 , 0        )
-    | r <= ma   -> (mx, k * 4    )
-    | r <= mb   -> (ma, k * 4 + 1)
-    | r <= mc   -> (mb, k * 4 + 2)
-    | otherwise -> (mc, k * 4 + 3)
-{-# INLINE lookupLayerMFrom2 #-}
+    select0 block q + bbi * 512
+  {-# INLINE select0 #-}
 
 instance Select1 CsPoppy where
   select1 _                             r | r == 0  = 0
-  select1 (CsPoppy !v (CsPoppyIndex !layerM !layerS))  r           =
+  select1 (CsPoppy !v _ (A1.CsPoppyIndex !layerM !layerS))  r           =
     let !si                 = (r - 1) `div` 8192                              in
     let !spi                = layerS !!! fromIntegral si                      in
     let vBitSize = fromIntegral (DVS.length v) * 64                           in
@@ -226,10 +192,6 @@ instance FindCloseN CsPoppy where
 instance Enclose CsPoppy where
   enclose = enclose . csPoppyBits
   {-# INLINE enclose #-}
-
-instance Rank0 CsPoppy where
-  rank0 rsbs p = p - rank1 rsbs p
-  {-# INLINE rank0 #-}
 
 instance BalancedParens CsPoppy where
   firstChild  = firstChild  . csPoppyBits

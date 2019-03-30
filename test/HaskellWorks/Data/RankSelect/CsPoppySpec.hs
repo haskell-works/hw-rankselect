@@ -8,33 +8,38 @@ module HaskellWorks.Data.RankSelect.CsPoppySpec (spec) where
 
 import Control.Monad
 import Control.Monad.IO.Class
+import Data.Function
 import Data.Maybe
-import Data.Monoid                                          ((<>))
+import Data.Monoid                               ((<>))
 import Data.Word
 import GHC.Exts
 import HaskellWorks.Data.AtIndex
 import HaskellWorks.Data.Bits.BitLength
 import HaskellWorks.Data.Bits.BitRead
 import HaskellWorks.Data.Bits.BitShow
+import HaskellWorks.Data.Bits.PopCount.PopCount0
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.Product
+import HaskellWorks.Data.RankSelect.Base.Rank0
+import HaskellWorks.Data.RankSelect.Base.Rank1
+import HaskellWorks.Data.RankSelect.Base.Select0
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.BasicGen
 import HaskellWorks.Data.RankSelect.CsPoppy
-import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1
 import HaskellWorks.Data.RankSelect.Poppy512
 import HaskellWorks.Data.Take
 import HaskellWorks.Hspec.Hedgehog
 import Hedgehog
-import Prelude                                              hiding (length, take)
+import Prelude                                   hiding (length, take)
 import Test.Common
 import Test.Hspec
 
-import qualified Data.Vector.Storable      as DVS
-import qualified HaskellWorks.Hedgehog.Gen as G
-import qualified Hedgehog.Gen              as G
-import qualified Hedgehog.Range            as R
+import qualified Data.Vector.Storable                                 as DVS
+import qualified HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1 as A1
+import qualified HaskellWorks.Hedgehog.Gen                            as G
+import qualified Hedgehog.Gen                                         as G
+import qualified Hedgehog.Range                                       as R
 
 {-# ANN module ("HLint: ignore Redundant do" :: String) #-}
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
@@ -68,6 +73,27 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
       i <- forAll $ G.word64 (R.linear 0 (length v * 8))
       Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
       rank1 v i === rank1 w i
+  describe "rank0 for Vector Word64 is equivalent to rank0 for CsPoppy" $ do
+    it "on empty bitvector" $ require $ withTests 1 $ property $ do
+      let v = DVS.empty
+      Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
+      let i = 0
+      rank0 v i === rank0 w i
+    it "on one basic block" $ requireProperty $ do
+      v       <- forAll $ G.storableVector (R.linear 1 8) (G.word64 R.constantBounded)
+      i       <- forAll $ G.word64 (R.linear 0 (length v * 8))
+      Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
+      rank0 v i === rank0 w i
+    it "on two basic blocks" $ requireProperty $ do
+      v <- forAll $ G.storableVector (R.linear 9 16) (G.word64 R.constantBounded)
+      i <- forAll $ G.word64 (R.linear 0 (length v * 8))
+      Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
+      rank0 v i === rank0 w i
+    it "on three basic blocks" $ requireProperty $ do
+      v <- forAll $ G.storableVector (R.linear 17 24) (G.word64 R.constantBounded)
+      i <- forAll $ G.word64 (R.linear 0 (length v * 8))
+      Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
+      rank0 v i === rank0 w i
   describe "select1 for Vector Word64 is equivalent to select1 for CsPoppy" $ do
     it "on empty bitvector" $ require $ withTests 1 $ property $ do
       let v = DVS.empty
@@ -93,6 +119,31 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
       i <- forAll $ G.word64 (R.linear 0 (popCount1 v))
       Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
       select1 w i === select1 v i
+  describe "select0 for Vector Word64 is equivalent to select0 for CsPoppy" $ do
+    it "on empty bitvector" $ require $ withTests 1 $ property $ do
+      let v = DVS.empty
+      Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
+      let i = 0
+      select0 w i === select0 v i
+    it "on one full zero basic block" $ require $ withTests 1 $ property $ do
+      let v = fromList [0, 0, 0, 0, 0, 0, 0, 0] :: DVS.Vector Word64
+      Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
+      select0 w 0 === select0 v 0
+    it "on one basic block" $ requireProperty $ do
+      v <- forAll $ G.storableVector (R.linear 1 8) (G.word64 R.constantBounded)
+      i <- forAll $ G.word64 (R.linear 0 (popCount0 v))
+      Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
+      select0 w i === select0 v i
+    it "on two basic blocks" $ requireProperty $ do
+      v <- forAll $ G.storableVector (R.linear 9 16) (G.word64 R.constantBounded)
+      i <- forAll $ G.word64 (R.linear 0 (popCount0 v))
+      Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
+      select0 w i === select0 v i
+    it "on three basic blocks" $ requireProperty $ do
+      v <- forAll $ G.storableVector (R.linear 17 24) (G.word64 R.constantBounded)
+      i <- forAll $ G.word64 (R.linear 0 (popCount0 v))
+      Nice w  <- forAll $ pure $ Nice $ makeCsPoppy v
+      select0 w i === select0 v i
   describe "Rank select over large buffer" $ do
     it "Rank works" $ requireProperty $ do
       let cs = fromJust (bitRead (take 4096 (cycle "10"))) :: DVS.Vector Word64
@@ -162,24 +213,42 @@ spec = describe "HaskellWorks.Data.RankSelect.CsPoppySpec" $ do
           let pc = popCount1 (csPoppyBits csPoppy)
           requireProperty $ do
             _ <- forAll $ pure $ corpusFile
-            _ <- forAll $ pure $ csPoppyLayerS (csPoppyIndex1 csPoppy)
+            _ <- forAll $ pure $ A1.csPoppyLayerS (csPoppyIndex1 csPoppy)
             s <- forAll $ G.word64 (R.linear 1 pc)
             select1 csPoppy s === select1 fileV s
 
-  describe "Corpus specific" $ do
+  describe "Corpus specific" $
     describe "data/sample-000.idx" $ do
+      it "A popCount0" $ requireTest $ do
+        (va :: CsPoppy) :*: (vr :: Poppy512) <- liftIO $ mmapFromForeignRegion "data/sample-000.idx"
+
+        actual <- safely $ popCount0 va
+
+        actual === popCount0 vr
+      it "A popCount1" $ requireTest $ do
+        (va :: CsPoppy) :*: (vr :: Poppy512) <- liftIO $ mmapFromForeignRegion "data/sample-000.idx"
+
+        actual <- safely $ popCount1 va
+
+        actual === popCount1 vr
       it "A select1" $ requireTest $ do
-        (va :: CsPoppy) :*: (vr :: Poppy512) <- liftIO $ mmapFromForeignRegion ("data/sample-000.idx")
+        (va :: CsPoppy) :*: (vr :: Poppy512) <- liftIO $ mmapFromForeignRegion "data/sample-000.idx"
 
-        actual <- safely $ select1 va 158209
+        actual <- safely $ select1 va 176670
 
-        actual === select1 vr 158209
+        actual === select1 vr 176670
+      it "A select0" $ requireTest $ do
+        (va :: CsPoppy) :*: (vr :: Poppy512) <- liftIO $ mmapFromForeignRegion "data/sample-000.idx"
+
+        actual <- safely $ select0 va 1302306
+
+        actual === select0 vr 1302306
       it "Check new samples" $ requireTest $ do
-        vr :: Poppy512 <- liftIO $ mmapFromForeignRegion ("data/sample-000.idx")
+        vr :: Poppy512 <- liftIO $ mmapFromForeignRegion "data/sample-000.idx"
 
         let v = poppy512Bits vr
         let pcv = popCount1 v
-        let samples = genCsSamples pcv v
+        let samples = A1.genCsSamples pcv v
 
         forM_ (zip (DVS.toList samples) [1,8193..]) $ \(sample, i) -> do
           select1 vr i === sample
