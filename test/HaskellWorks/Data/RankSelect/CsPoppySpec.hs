@@ -10,7 +10,7 @@ import Control.Monad
 import Control.Monad.IO.Class
 import Data.Function
 import Data.Maybe
-import Data.Monoid                               ((<>))
+import Data.Monoid                                        ((<>))
 import Data.Word
 import GHC.Exts
 import HaskellWorks.Data.AtIndex
@@ -27,11 +27,12 @@ import HaskellWorks.Data.RankSelect.Base.Select0
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.BasicGen
 import HaskellWorks.Data.RankSelect.CsPoppy
+import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Nice
 import HaskellWorks.Data.RankSelect.Poppy512
 import HaskellWorks.Data.Take
 import HaskellWorks.Hspec.Hedgehog
 import Hedgehog
-import Prelude                                   hiding (length, take)
+import Prelude                                            hiding (length, take)
 import Test.Common
 import Test.Hspec
 

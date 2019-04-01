@@ -11,6 +11,7 @@ import Data.Word
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.Positioning
+import HaskellWorks.Data.RankSelect.Base.Rank1
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.CsPoppy
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1
@@ -46,7 +47,7 @@ benchCsPoppyRank1 = do
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(v :: CsPoppy) -> bgroup filename
-          [ bench "CsPoppy Rank1"  (whnf (CS.rank1 v) 100)
+          [ bench "CsPoppy Rank1"  (whnf (rank1 v) 100)
           ]
 
 benchCsPoppySelect1 :: IO [Benchmark]
@@ -76,7 +77,7 @@ benchPoppy512Rank1 = do
   let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
   return (mkBenchmark <$> files)
   where mkBenchmark filename = env (mmapFromForeignRegion filename) $ \(rsbs :: Poppy512) -> bgroup filename
-          [ bench "Poppy512 Rank1"  (whnf (CS.rank1 rsbs) 100)
+          [ bench "Poppy512 Rank1"  (whnf (rank1 rsbs) 100)
           ]
 
 benchPoppy512Select1 :: IO [Benchmark]
