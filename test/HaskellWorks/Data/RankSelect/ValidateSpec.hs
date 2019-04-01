@@ -11,6 +11,7 @@ import Data.Word
 import HaskellWorks.Data.AtIndex
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
+import HaskellWorks.Data.RankSelect.Base.Rank1
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.CsPoppy
 import HaskellWorks.Hspec.Hedgehog

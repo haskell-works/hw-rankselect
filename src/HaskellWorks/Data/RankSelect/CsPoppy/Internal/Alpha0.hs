@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC-funbox-strict-fields #-}
+{-# LANGUAGE BangPatterns        #-}
 {-# LANGUAGE DeriveAnyClass      #-}
 {-# LANGUAGE DeriveGeneric       #-}
 {-# LANGUAGE MultiWayIf          #-}
@@ -11,6 +12,8 @@ module HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha0
     , makeCsPoppyBlocks
     , makeCsPoppyLayerM2
     , genCsSamples
+    , rank0On
+    , select0On
     ) where
 
 import Control.DeepSeq
@@ -20,10 +23,15 @@ import HaskellWorks.Data.AtIndex
 import HaskellWorks.Data.Bits.BitWise
 import HaskellWorks.Data.Bits.PopCount.PopCount0
 import HaskellWorks.Data.Bits.PopCount.PopCount1
+import HaskellWorks.Data.Drop
 import HaskellWorks.Data.Positioning
+import HaskellWorks.Data.RankSelect.Base.Rank0
 import HaskellWorks.Data.RankSelect.Base.Select0
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.CsInterleaved
+import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Lookup
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Vector
+
+import Prelude hiding (drop)
 
 import qualified Control.Monad.ST             as ST
 import qualified Data.Vector.Storable         as DVS
@@ -128,3 +136,36 @@ genCsSamplesST pc vv = do
               go u (ui + 1) (vi + 1) vie npc (epc + sampleWidth)
             else go u ui (vi + 1) vie npc epc -- Don't emit a position this time
         go u ui _ _ _ _ = return (DVSM.take ui u)
+
+rank0On :: DVS.Vector Word64 -> CsPoppyIndex -> Count -> Count
+rank0On v (CsPoppyIndex layerM _) p = rankPrior + rankInBasicBlock
+  where mw  = layerM !!! toPosition (p `div` 2048)
+        mx  =  mw .&. 0x00000000ffffffff
+        ma  = (mw .&. 0x000003ff00000000) .>. 32
+        mb  = (mw .&. 0x000ffc0000000000) .>. 42
+        mc  = (mw .&. 0x3ff0000000000000) .>. 52
+        q   = (p `div` 512) `mod` 4 -- quarter
+        mi  | q == 0    = mx
+            | q == 1    = mx + ma
+            | q == 2    = mx + ma + mb
+            | q == 3    = mx + ma + mb + mc
+            | otherwise = error "Invalid interleaved entry index"
+        rankPrior         = mi :: Count
+        rankInBasicBlock  = rank0 (DVS.drop (fromIntegral (p `div` 512) * 8) v) (p `mod` 512)
+{-# INLINE rank0On #-}
+
+select0On :: DVS.Vector Word64 -> CsPoppyIndex -> Count -> Count
+select0On _ _ r | r == 0  = 0
+select0On v (CsPoppyIndex !layerM !layerS) r =
+  let !si                 = (r - 1) `div` 8192                              in
+  let !spi                = layerS !!! fromIntegral si                      in
+  let vBitSize            = fromIntegral (DVS.length v) * 64                in
+  let !spj                = atIndexOr vBitSize layerS (fromIntegral si + 1) in
+  let !mi                 = spi `div` (512 * 4)                             in
+  let !mj                 = spj `div` (512 * 4)                             in
+  let !(!bbr, !bbi)       = lookupLayerMFrom2 mi (mj + 1) r layerM          in
+  let !block              = DVS.take 8 (drop (bbi * 8) v)                   in
+  let !q                  = r - bbr                                         in
+
+  select0 block q + bbi * 512
+{-# INLINE select0On #-}

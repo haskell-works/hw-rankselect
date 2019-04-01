@@ -9,8 +9,8 @@
 {-# LANGUAGE Rank2Types          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module HaskellWorks.Data.RankSelect.CsPoppy
-    ( CsPoppy(..)
+module HaskellWorks.Data.RankSelect.CsPoppy1
+    ( CsPoppy1(..)
     , makeCsPoppy
     ) where
 
@@ -29,12 +29,10 @@ import HaskellWorks.Data.BalancedParens.OpenAt
 import HaskellWorks.Data.Bits.BitLength
 import HaskellWorks.Data.Bits.BitRead
 import HaskellWorks.Data.Bits.BitWise
-import HaskellWorks.Data.Bits.PopCount.PopCount0
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.RankSelect.Base.Rank0
 import HaskellWorks.Data.RankSelect.Base.Rank1
-import HaskellWorks.Data.RankSelect.Base.Select0
 import HaskellWorks.Data.RankSelect.Base.Select1
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.CsInterleaved
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.Vector
@@ -42,100 +40,89 @@ import HaskellWorks.Data.Vector.AsVector64
 import Prelude                                                     hiding (drop, length, pi, take)
 
 import qualified Data.Vector.Storable                                 as DVS
-import qualified HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha0 as A0
 import qualified HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1 as A1
 
-data CsPoppy = CsPoppy
-  { csPoppyBits   :: !(DVS.Vector Word64)
-  , csPoppyIndex0 :: !A0.CsPoppyIndex
-  , csPoppyIndex1 :: !A1.CsPoppyIndex
+data CsPoppy1 = CsPoppy1
+  { csPoppy1Bits   :: !(DVS.Vector Word64)
+  , csPoppy1Index1 :: !A1.CsPoppyIndex
   } deriving (Eq, Show, NFData, Generic)
 
-instance FromForeignRegion CsPoppy where
+instance FromForeignRegion CsPoppy1 where
   fromForeignRegion = makeCsPoppy . fromForeignRegion
 
-instance AsVector64 CsPoppy where
-  asVector64 = asVector64 . csPoppyBits
+instance AsVector64 CsPoppy1 where
+  asVector64 = asVector64 . csPoppy1Bits
   {-# INLINE asVector64 #-}
 
-instance BitLength CsPoppy where
-  bitLength = bitLength . csPoppyBits
+instance BitLength CsPoppy1 where
+  bitLength = bitLength . csPoppy1Bits
   {-# INLINE bitLength #-}
 
-instance PopCount0 CsPoppy where
-  popCount0 v = getCsiTotal (CsInterleaved (lastOrZero (A0.csPoppyLayerM (csPoppyIndex0 v))))
-  {-# INLINE popCount0 #-}
-
-instance PopCount1 CsPoppy where
-  popCount1 v = getCsiTotal (CsInterleaved (lastOrZero (A1.csPoppyLayerM (csPoppyIndex1 v))))
+instance PopCount1 CsPoppy1 where
+  popCount1 v = getCsiTotal (CsInterleaved (lastOrZero (A1.csPoppyLayerM (csPoppy1Index1 v))))
   {-# INLINE popCount1 #-}
 
-makeCsPoppy :: DVS.Vector Word64 -> CsPoppy
-makeCsPoppy v = CsPoppy
-  { csPoppyBits   = v
-  , csPoppyIndex0 = A0.makeCsPoppyIndex v
-  , csPoppyIndex1 = A1.makeCsPoppyIndex v
+makeCsPoppy :: DVS.Vector Word64 -> CsPoppy1
+makeCsPoppy v = CsPoppy1
+  { csPoppy1Bits   = v
+  , csPoppy1Index1 = A1.makeCsPoppyIndex v
   }
 
-instance TestBit CsPoppy where
-  (.?.) = (.?.) . csPoppyBits
+instance TestBit CsPoppy1 where
+  (.?.) = (.?.) . csPoppy1Bits
   {-# INLINE (.?.) #-}
 
-instance BitRead CsPoppy where
+instance BitRead CsPoppy1 where
   bitRead = fmap makeCsPoppy . bitRead
 
-instance Rank0 CsPoppy where
-  rank0 (CsPoppy !v i _) = A0.rank0On v i
+instance Rank0 CsPoppy1 where
+  rank0 rsbs p = p - rank1 rsbs p
   {-# INLINE rank0 #-}
 
-instance Rank1 CsPoppy where
-  rank1 (CsPoppy !v _ i) = A1.rank1On v i
+instance Rank1 CsPoppy1 where
+  rank1 (CsPoppy1 !v i) = A1.rank1On v i
   {-# INLINE rank1 #-}
 
-instance Select0 CsPoppy where
-  select0 (CsPoppy !v i _) = A0.select0On v i
-  {-# INLINE select0 #-}
-
-instance Select1 CsPoppy where
-  select1 (CsPoppy !v _ i) = A1.select1On v i
+instance Select1 CsPoppy1 where
+  select1 (CsPoppy1 !v i) = A1.select1On v i
   {-# INLINE select1 #-}
 
-instance OpenAt CsPoppy where
-  openAt = openAt . csPoppyBits
+instance OpenAt CsPoppy1 where
+  openAt = openAt . csPoppy1Bits
   {-# INLINE openAt #-}
 
-instance CloseAt CsPoppy where
-  closeAt = closeAt . csPoppyBits
+instance CloseAt CsPoppy1 where
+  closeAt = closeAt . csPoppy1Bits
   {-# INLINE closeAt #-}
 
-instance NewCloseAt CsPoppy where
-  newCloseAt = newCloseAt . csPoppyBits
+instance NewCloseAt CsPoppy1 where
+  newCloseAt = newCloseAt . csPoppy1Bits
   {-# INLINE newCloseAt #-}
 
-instance FindOpenN CsPoppy where
-  findOpenN = findOpenN . csPoppyBits
+instance FindOpenN CsPoppy1 where
+  findOpenN = findOpenN . csPoppy1Bits
   {-# INLINE findOpenN #-}
 
-instance FindOpen CsPoppy where
-  findOpen = findOpen . csPoppyBits
+instance FindOpen CsPoppy1 where
+  findOpen = findOpen . csPoppy1Bits
   {-# INLINE findOpen #-}
 
-instance FindClose CsPoppy where
-  findClose = findClose . csPoppyBits
+instance FindClose CsPoppy1 where
+  findClose = findClose . csPoppy1Bits
   {-# INLINE findClose #-}
 
-instance FindCloseN CsPoppy where
-  findCloseN = findCloseN . csPoppyBits
+instance FindCloseN CsPoppy1 where
+  findCloseN = findCloseN . csPoppy1Bits
   {-# INLINE findCloseN #-}
 
-instance Enclose CsPoppy where
-  enclose = enclose . csPoppyBits
+instance Enclose CsPoppy1 where
+  enclose = enclose . csPoppy1Bits
   {-# INLINE enclose #-}
 
-instance BalancedParens CsPoppy where
-  firstChild  = firstChild  . csPoppyBits
-  nextSibling = nextSibling . csPoppyBits
-  parent      = parent      . csPoppyBits
+instance BalancedParens CsPoppy1 where
+  firstChild  = firstChild  . csPoppy1Bits
+  nextSibling = nextSibling . csPoppy1Bits
+  parent      = parent      . csPoppy1Bits
   {-# INLINE firstChild  #-}
   {-# INLINE nextSibling #-}
   {-# INLINE parent      #-}
