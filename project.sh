@@ -11,7 +11,7 @@ case "$cmd" in
     cabal new-install \
       --symlink-bindir=$HOME/.local/bin \
       -j8 --overwrite-policy=always --disable-documentation \
-      exe:hw-json
+      exe:hw-rankselect
       $CABAL_FLAGS "$@"
     ;;
 
