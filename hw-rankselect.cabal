@@ -41,6 +41,7 @@ common hedgehog             { build-depends: hedgehog             >= 1.0        
 common hspec                { build-depends: hspec                >= 2.4        && < 2.6    }
 common hw-balancedparens    { build-depends: hw-balancedparens    >= 0.2.2.0    && < 0.3    }
 common hw-bits              { build-depends: hw-bits              >= 0.4.0.0    && < 0.8    }
+common hw-fingertree        { build-depends: hw-fingertree        >= 0.1.1.0    && < 1.2    }
 common hw-hedgehog          { build-depends: hw-hedgehog          >= 0.1.0.1    && < 0.2    }
 common hw-hspec-hedgehog    { build-depends: hw-hspec-hedgehog    >= 0.1        && < 0.2    }
 common hw-prim              { build-depends: hw-prim              >= 0.6.2.23   && < 0.7    }
@@ -53,7 +54,7 @@ common resourcet            { build-depends: resourcet            >= 1.1        
 common transformers         { build-depends: transformers         >= 0.4        && < 0.6    }
 common vector               { build-depends: vector               >= 0.12       && < 0.13   }
 
-common common
+common config
   default-language: Haskell2010
   if (impl(ghc >= 8.0.1))
     ghc-options: -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
@@ -63,15 +64,16 @@ common common
   ghc-options:   -O2 -Wall -msse4.2
 
 library
-  import:   base
-          , common
+  import:   base, config
           , deepseq
           , hw-balancedparens
           , hw-bits
+          , hw-fingertree
           , hw-prim
           , hw-rankselect-base
           , vector
   exposed-modules:
+      HaskellWorks.Data.RankSelect.BitSeq
       HaskellWorks.Data.RankSelect.CsPoppy
       HaskellWorks.Data.RankSelect.CsPoppy0
       HaskellWorks.Data.RankSelect.CsPoppy1
@@ -82,14 +84,30 @@ library
       HaskellWorks.Data.RankSelect.CsPoppy.Internal.Nice
       HaskellWorks.Data.RankSelect.CsPoppy.Internal.Reference
       HaskellWorks.Data.RankSelect.CsPoppy.Internal.Vector
+      HaskellWorks.Data.RankSelect.Internal.BitSeq
+      HaskellWorks.Data.RankSelect.Internal.List
+      HaskellWorks.Data.RankSelect.Internal.Word
       HaskellWorks.Data.RankSelect.Poppy512
   other-modules:    Paths_hw_rankselect
   autogen-modules:  Paths_hw_rankselect
   hs-source-dirs:   src
 
+library hw-rankselect-gen
+  import:   base, config
+          , deepseq
+          , hedgehog
+          , hspec
+          , hw-prim
+          , vector
+  exposed-modules:
+    HaskellWorks.Data.RankSelect.Gen
+    Paths_hw_rankselect
+  build-depends:      hw-rankselect
+  hs-source-dirs:     gen
+  autogen-modules:    Paths_hw_rankselect
+
 executable hw-rankselect
-  import:   base
-          , common
+  import:   base, config
           , directory
           , generic-lens
           , hw-bits
@@ -116,8 +134,7 @@ executable hw-rankselect
   ghc-options:        -threaded -rtsopts -with-rtsopts=-N
 
 test-suite hw-rankselect-test
-  import:   base
-          , common
+  import:   base, config
           , QuickCheck
           , directory
           , hedgehog
@@ -136,6 +153,7 @@ test-suite hw-rankselect-test
   other-modules:
       HaskellWorks.Data.RankSelect.BasicGen
       HaskellWorks.Data.RankSelect.BinarySearchSpec
+      HaskellWorks.Data.RankSelect.BitSeqSpec
       HaskellWorks.Data.RankSelect.CsPoppy.InternalSpec
       HaskellWorks.Data.RankSelect.CsPoppySpec
       HaskellWorks.Data.RankSelect.Gen
@@ -152,8 +170,7 @@ test-suite hw-rankselect-test
   ghc-options:        -threaded -rtsopts -with-rtsopts=-N
 
 benchmark bench
-  import:   base
-          , common
+  import:   base, config
           , bytestring        
           , conduit
           , criterion
