@@ -1,7 +1,7 @@
 cabal-version:  2.2
 
 name:           hw-rankselect
-version:        0.13.0.0
+version:        0.13.1.0
 synopsis:       Rank-select
 description:    Please see README.md
 category:       Data, Bit, Succinct Data Structures, Data Structures
