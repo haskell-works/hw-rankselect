@@ -17,7 +17,6 @@ import System.Directory
 
 import qualified App.Commands.Options.Type                            as Z
 import qualified HaskellWorks.Data.RankSelect.CsPoppy                 as CS
-import qualified HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha0 as A0
 import qualified HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1 as A1
 import qualified HaskellWorks.Data.RankSelect.Poppy512                as P512
 
