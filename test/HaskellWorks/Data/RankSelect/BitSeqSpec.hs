@@ -98,22 +98,49 @@ spec = describe "HaskellWorks.Data.RankSelect.Internal.BitSeqSpec" $ do
     ps        <- forAll $ pure $ BS.fromBools bs
 
     BS.toBools (ps |> b) === BS.toBools ps <> [b]
-  it "select1" $ requireTest $ do
-    n         <- forAll $ G.count (R.linear 0 1000)
-    bools     <- forAll $ G.list (R.singleton (fromIntegral n)) G.bool
-    bs        <- forAll $ pure $ BS.fromBools bools
-    i         <- forAll $ G.count (R.linear 0 n)
+  describe "one bitseq" $ do
+    it "select1" $ requireTest $ do
+      n         <- forAll $ G.count (R.linear 0 1000)
+      bools     <- forAll $ G.list (R.singleton (fromIntegral n)) G.bool
+      bs        <- forAll $ pure $ BS.fromBools bools
+      i         <- forAll $ G.count (R.linear 0 n)
 
-    select1 bools i === select1 bs i
-  it "rank1" $ requireTest $ do
-    n         <- forAll $ G.count (R.linear 0 1000)
-    bools     <- forAll $ G.list (R.singleton (fromIntegral n)) G.bool
-    bs        <- forAll $ pure $ BS.fromBools bools
-    i         <- forAll $ G.count (R.linear 0 (popCount1 bools))
+      select1 bools i === select1 bs i
+    it "rank1" $ requireTest $ do
+      n         <- forAll $ G.count (R.linear 0 1000)
+      bools     <- forAll $ G.list (R.singleton (fromIntegral n)) G.bool
+      bs        <- forAll $ pure $ BS.fromBools bools
+      i         <- forAll $ G.count (R.linear 0 (popCount1 bools))
 
-    rank1 bools i === rank1 bs i
-  it "popCount1" $ requireTest $ do
-    bools     <- forAll $ G.list (R.linear 0 1000) G.bool
-    bs        <- forAll $ pure $ BS.fromBools bools
+      rank1 bools i === rank1 bs i
+    it "popCount1" $ requireTest $ do
+      bools     <- forAll $ G.list (R.linear 0 1000) G.bool
+      bs        <- forAll $ pure $ BS.fromBools bools
 
-    popCount1 bools === popCount1 bs
+      popCount1 bools === popCount1 bs
+  describe "concatenated bitseq" $ do
+    it "select1" $ requireTest $ do
+      n         <- forAll $ G.count (R.linear 0 1000)
+      bools1    <- forAll $ G.list (R.singleton (fromIntegral n)) G.bool
+      bools2    <- forAll $ G.list (R.singleton (fromIntegral n)) G.bool
+      bs1       <- forAll $ pure $ BS.fromBools bools1
+      bs2       <- forAll $ pure $ BS.fromBools bools2
+      i         <- forAll $ G.count (R.linear 0 n)
+
+      select1 (bools1 <> bools2) i === select1 (bs1 <> bs2) i
+    it "rank1" $ requireTest $ do
+      n         <- forAll $ G.count (R.linear 0 1000)
+      bools1    <- forAll $ G.list (R.singleton (fromIntegral n)) G.bool
+      bools2    <- forAll $ G.list (R.singleton (fromIntegral n)) G.bool
+      bs1       <- forAll $ pure $ BS.fromBools bools1
+      bs2       <- forAll $ pure $ BS.fromBools bools2
+      i         <- forAll $ G.count (R.linear 0 (popCount1 (bools1 <> bools2)))
+
+      rank1 (bools1 <> bools2) i === rank1 (bs1 <> bs2) i
+    it "popCount1" $ requireTest $ do
+      bools1    <- forAll $ G.list (R.linear 0 1000) G.bool
+      bools2    <- forAll $ G.list (R.linear 0 1000) G.bool
+      bs1       <- forAll $ pure $ BS.fromBools bools1
+      bs2       <- forAll $ pure $ BS.fromBools bools2
+
+      popCount1 (bools1 <> bools2) === popCount1 (bs1 <> bs2)
