@@ -28,7 +28,7 @@ flag bmi2
   manual: False
   default: False
 
-common base                 { build-depends: base                 >= 4          && < 5      }
+common base                 { build-depends: base                 >= 4.11       && < 5      }
 
 common QuickCheck           { build-depends: QuickCheck           >= 2.10       && < 2.14   }
 common bytestring           { build-depends: bytestring           >= 0.10       && < 0.11   }
