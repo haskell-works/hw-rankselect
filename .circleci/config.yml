@@ -9,6 +9,12 @@ workflows:
   multiple-ghc-build:
     jobs:
       - haskell/build-with-binary-cache:
+          name: GHC 8.2.2
+          executor: haskell/ghc-8_2_2
+          context: haskell-ci
+          binary-cache-uri: ${BINARY_CACHE_URI-"http://hw-binary-cache-us-west-2-a.s3-website-us-west-2.amazonaws.com/archive"}
+
+      - haskell/build-with-binary-cache:
           name: GHC 8.4.4
           executor: haskell/ghc-8_4_4
           context: haskell-ci
@@ -30,6 +36,7 @@ workflows:
           name: GitHub Release
           context: haskell-ci
           requires:
+            - GHC 8.2.2
             - GHC 8.4.4
             - GHC 8.6.5
             - GHC 8.8.1

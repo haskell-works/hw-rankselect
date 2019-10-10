@@ -65,6 +65,7 @@ instance Semigroup Measure where
 
 instance Monoid Measure where
   mempty = Measure 0 0
+  mappend = (<>)
 
 instance FT.Measured Measure Elem where
   measure (Elem w size) = Measure
