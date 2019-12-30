@@ -104,10 +104,8 @@ library hw-rankselect-gen
                       , hw-prim
                       , vector
   exposed-modules:      HaskellWorks.Data.RankSelect.Gen
-                        Paths_hw_rankselect
   build-depends:        hw-rankselect
   hs-source-dirs:       gen
-  autogen-modules:      Paths_hw_rankselect
 
 executable hw-rankselect
   import:               base, config
@@ -129,8 +127,6 @@ executable hw-rankselect
                         App.Commands.SelectAll
                         App.Commands.UnitTest
                         App.Commands.Validate
-                        Paths_hw_rankselect
-  autogen-modules:      Paths_hw_rankselect
   hs-source-dirs:       app
   default-extensions:   OverloadedStrings TupleSections
   ghc-options:          -threaded -rtsopts -with-rtsopts=-N
@@ -164,8 +160,6 @@ test-suite hw-rankselect-test
                         HaskellWorks.Data.RankSelect.SpecCommon
                         HaskellWorks.Data.RankSelect.ValidateSpec
                         Test.Common
-                        Paths_hw_rankselect
-  autogen-modules:      Paths_hw_rankselect
   hs-source-dirs:       test
   build-tool-depends:   hspec-discover:hspec-discover
   ghc-options:          -threaded -rtsopts -with-rtsopts=-N
@@ -185,8 +179,6 @@ benchmark bench
   build-depends:        hw-rankselect
   type:                 exitcode-stdio-1.0
   main-is:              Main.hs
-  autogen-modules:      Paths_hw_rankselect
-  other-modules:        Paths_hw_rankselect
   hs-source-dirs:       bench
   ghc-options:          -threaded -rtsopts -with-rtsopts=-N
 
