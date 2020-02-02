@@ -65,7 +65,8 @@ makePoppy512 v = Poppy512
   { poppy512Bits  = v
   , poppy512Index = DVS.constructN (((DVS.length v + 7) `div` 8) + 1) gen512Index
   }
-  where gen512Index u = let indexN = DVS.length u - 1 in
+  where gen512Index :: DVS.Vector Word64 -> Word64
+        gen512Index u = let indexN = DVS.length u - 1 in
           if indexN == -1
             then 0
             else popCount1 (DVS.take 8 (DVS.drop (indexN * 8) v)) + DVS.last u

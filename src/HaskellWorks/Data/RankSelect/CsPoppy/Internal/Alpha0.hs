@@ -53,10 +53,10 @@ makeCsPoppyIndex vv = CsPoppyIndex
         layerS          = genCsSamples layerMPopCount vv
 
 makeCsPoppyBlocks :: DVS.Vector Word64 -> DVS.Vector Word64
-makeCsPoppyBlocks vv = DVS.constructN (((DVS.length vv + 8 - 1) `div` 8) + 1) genBlocks
+makeCsPoppyBlocks vv = DVS.generate (((DVS.length vv + 8 - 1) `div` 8) + 1) genBlocks
   where e = DVS.length vv
-        genBlocks :: DVS.Vector Word64 -> Word64
-        genBlocks u = let i = DVS.length u in if
+        genBlocks :: Int -> Word64
+        genBlocks u = let i = fromIntegral u in if
           | (i + 1) * 8 <= e -> let j = i * 8 in
               popCount0 (DVS.unsafeIndex vv (j + 0)) +
               popCount0 (DVS.unsafeIndex vv (j + 1)) +
@@ -77,7 +77,7 @@ makeCsPoppyLayerM2 blocksv = DVS.constructN (((DVS.length blocksv + 4 - 1) `div`
                 let lb = DVS.unsafeIndex blocksv (fromIntegral (ui * 4 - 3)) in
                 let lc = DVS.unsafeIndex blocksv (fromIntegral (ui * 4 - 2)) in
                 let ld = DVS.unsafeIndex blocksv (fromIntegral (ui * 4 - 1)) in
-                let nx = lx + (la + lb + lc + ld)                           in
+                let nx = lx + (la + lb + lc + ld)                            in
                 let na = DVS.unsafeIndex blocksv (fromIntegral (ui * 4 + 0)) in
                 let nb = DVS.unsafeIndex blocksv (fromIntegral (ui * 4 + 1)) in
                 let nc = DVS.unsafeIndex blocksv (fromIntegral (ui * 4 + 2)) in
@@ -85,7 +85,7 @@ makeCsPoppyLayerM2 blocksv = DVS.constructN (((DVS.length blocksv + 4 - 1) `div`
                 .|. ((na .<. 32) .&. 0x000003ff00000000)
                 .|. ((nb .<. 42) .&. 0x000ffc0000000000)
                 .|. ((nc .<. 52) .&. 0x3ff0000000000000))
-          else  let lx = lastOrZero u                     in
+          else  let lx = lastOrZero u                      in
                 let la = indexOrZero blocksv (ui * 4 - 4)  in
                 let lb = indexOrZero blocksv (ui * 4 - 3)  in
                 let lc = indexOrZero blocksv (ui * 4 - 2)  in
