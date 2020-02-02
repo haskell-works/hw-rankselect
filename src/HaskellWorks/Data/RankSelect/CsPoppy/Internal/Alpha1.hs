@@ -53,10 +53,10 @@ makeCsPoppyIndex v = CsPoppyIndex
         layerS          = genCsSamples layerMPopCount v
 
 makeCsPoppyBlocks :: DVS.Vector Word64 -> DVS.Vector Word64
-makeCsPoppyBlocks v = DVS.constructN (((DVS.length v + 8 - 1) `div` 8) + 1) genBlocks
+makeCsPoppyBlocks v = DVS.generate (((DVS.length v + 8 - 1) `div` 8) + 1) genBlocks
   where e = DVS.length v
-        genBlocks :: DVS.Vector Word64 -> Word64
-        genBlocks u = let i = DVS.length u in if
+        genBlocks :: Int -> Word64
+        genBlocks u = let i = fromIntegral u in if
           | (i + 1) * 8 <= e -> let j = i * 8 in
               popCount1 (DVS.unsafeIndex v (j + 0)) +
               popCount1 (DVS.unsafeIndex v (j + 1)) +

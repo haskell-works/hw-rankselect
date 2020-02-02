@@ -20,9 +20,9 @@ import qualified Hedgehog.Range       as R
 {-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
 
 makeCsPoppyBlocksRef :: DVS.Vector Word64 -> DVS.Vector Word64
-makeCsPoppyBlocksRef v = DVS.constructN (((DVS.length v + 8 - 1) `div` 8) + 1) genBlocks
-  where genBlocks :: DVS.Vector Word64 -> Word64
-        genBlocks u = let i = DVS.length u in popCount1 (DVS.take 8 (DVS.drop (i * 8) v))
+makeCsPoppyBlocksRef v = DVS.generate (((DVS.length v + 8 - 1) `div` 8) + 1) genBlocks
+  where genBlocks :: Int -> Word64
+        genBlocks u = let i = fromIntegral u in popCount1 (DVS.take 8 (DVS.drop (i * 8) v))
 
 spec :: Spec
 spec = describe "HaskellWorks.Data.RankSelect.CsInterleavedSpec" $ do
