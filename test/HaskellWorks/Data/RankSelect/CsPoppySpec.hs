@@ -10,7 +10,6 @@ import Control.Monad
 import Control.Monad.IO.Class
 import Data.Function
 import Data.Maybe
-import Data.Monoid                                        ((<>))
 import Data.Word
 import GHC.Exts
 import HaskellWorks.Data.AtIndex

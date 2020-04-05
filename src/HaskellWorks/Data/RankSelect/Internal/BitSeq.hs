@@ -20,8 +20,6 @@ module HaskellWorks.Data.RankSelect.Internal.BitSeq
   ) where
 
 import Control.DeepSeq
-import Data.Monoid                               (Monoid)
-import Data.Semigroup                            (Semigroup (..))
 import Data.Word
 import GHC.Generics
 import HaskellWorks.Data.Bits.BitWise

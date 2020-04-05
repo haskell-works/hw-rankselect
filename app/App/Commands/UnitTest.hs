@@ -10,7 +10,6 @@ module App.Commands.UnitTest
 import Control.Lens
 import Control.Monad
 import Data.Generics.Product.Any
-import Data.Monoid                               ((<>))
 import Data.Word
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.RankSelect.Base.Select1

@@ -6,7 +6,6 @@ module HaskellWorks.Data.RankSelect.ValidateSpec (spec) where
 import Control.Monad
 import Control.Monad.IO.Class
 import Data.List                                 (isSuffixOf)
-import Data.Monoid                               ((<>))
 import Data.Word
 import HaskellWorks.Data.AtIndex
 import HaskellWorks.Data.Bits.PopCount.PopCount1

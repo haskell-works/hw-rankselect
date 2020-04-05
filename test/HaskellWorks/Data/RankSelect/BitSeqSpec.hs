@@ -4,7 +4,6 @@
 
 module HaskellWorks.Data.RankSelect.BitSeqSpec where
 
-import Data.Semigroup                            ((<>))
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.RankSelect.Base.Rank1
 import HaskellWorks.Data.RankSelect.Base.Select1
