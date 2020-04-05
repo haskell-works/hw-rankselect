@@ -2,7 +2,6 @@
 
 module HaskellWorks.Data.RankSelect.CsPoppy.Internal.Nice where
 
-import Data.Semigroup                                              ((<>))
 import HaskellWorks.Data.Bits.BitShow
 import HaskellWorks.Data.RankSelect.CsPoppy
 import HaskellWorks.Data.RankSelect.CsPoppy.Internal.CsInterleaved

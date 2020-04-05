@@ -20,7 +20,6 @@ module HaskellWorks.Data.RankSelect.BitSeq
 
 import Data.Coerce
 import Data.Foldable
-import Data.Monoid
 import Data.Word
 import HaskellWorks.Data.Bits.BitWise
 import HaskellWorks.Data.FingerTree                 (ViewL (..), ViewR (..), (<|), (><), (|>))

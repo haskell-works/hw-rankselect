@@ -11,7 +11,6 @@ import Control.Lens
 import Control.Monad
 import Control.Monad.State
 import Data.Generics.Product.Any
-import Data.Monoid                               ((<>))
 import Data.Word
 import HaskellWorks.Data.AtIndex
 import HaskellWorks.Data.Bits.PopCount.PopCount1

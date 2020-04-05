@@ -6,7 +6,6 @@ module Main where
 import App.Commands
 import Control.Monad
 import Data.List
-import Data.Monoid                               ((<>))
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.RankSelect.Base.Select1
