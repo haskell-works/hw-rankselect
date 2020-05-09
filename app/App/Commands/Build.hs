@@ -19,9 +19,9 @@ import qualified HaskellWorks.Data.RankSelect.CsPoppy                 as CS
 import qualified HaskellWorks.Data.RankSelect.CsPoppy.Internal.Alpha1 as A1
 import qualified HaskellWorks.Data.RankSelect.Poppy512                as P512
 
-{-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
-{-# ANN module ("HLint: ignore Redundant do"        :: String) #-}
-{-# ANN module ("HLint: ignore Redundant return"    :: String) #-}
+{- HLINT ignore "Redundant do"        -}
+{- HLINT ignore "Reduce duplication"  -}
+{- HLINT ignore "Redundant bracket"   -}
 
 runBuild :: Z.BuildOptions -> IO ()
 runBuild opts = case opts ^. the @"indexType" of

@@ -21,9 +21,9 @@ import System.Directory
 
 import qualified App.Commands.Options.Type as Z
 
-{-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
-{-# ANN module ("HLint: ignore Redundant do"        :: String) #-}
-{-# ANN module ("HLint: ignore Redundant return"    :: String) #-}
+{- HLINT ignore "Redundant do"        -}
+{- HLINT ignore "Reduce duplication"  -}
+{- HLINT ignore "Redundant bracket"   -}
 
 runSelectAll :: Z.SelectAllOptions -> IO ()
 runSelectAll opts = case opts ^. the @"indexType" of

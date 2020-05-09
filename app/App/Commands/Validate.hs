@@ -24,9 +24,9 @@ import qualified HaskellWorks.Data.FromForeignRegion  as IO
 import qualified HaskellWorks.Data.RankSelect.CsPoppy as CS
 import qualified System.IO                            as IO
 
-{-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
-{-# ANN module ("HLint: ignore Redundant do"        :: String) #-}
-{-# ANN module ("HLint: ignore Redundant return"    :: String) #-}
+{- HLINT ignore "Redundant do"        -}
+{- HLINT ignore "Reduce duplication"  -}
+{- HLINT ignore "Redundant bracket"   -}
 
 runValidate :: Z.ValidateOptions -> IO ()
 runValidate opts = case opts ^. the @"indexType" of
