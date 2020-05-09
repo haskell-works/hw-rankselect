@@ -21,8 +21,8 @@ import qualified Data.Vector.Storable                as DVS
 import qualified HaskellWorks.Data.FromForeignRegion as IO
 import qualified System.IO                           as IO
 
-{-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
-{-# ANN module ("HLint: ignore Redundant do"        :: String) #-}
+{- HLINT ignore "Redundant do"        -}
+{- HLINT ignore "Reduce duplication"  -}
 
 runUnitTest :: Z.UnitTestOptions -> IO ()
 runUnitTest opts = case opts ^. the @"name" of

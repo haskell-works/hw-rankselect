@@ -13,8 +13,8 @@ import Test.Hspec
 
 import qualified Data.Vector.Storable as DVS
 
-{-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
-{-# ANN module ("HLint: ignore Redundant do"        :: String) #-}
+{- HLINT ignore "Redundant do"        -}
+{- HLINT ignore "Reduce duplication"  -}
 
 spec :: Spec
 spec = describe "HaskellWorks.Data.RankSelect.BinarySearchSpec" $ do

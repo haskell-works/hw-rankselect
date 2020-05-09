@@ -16,8 +16,8 @@ import qualified Data.Vector.Storable as DVS
 import qualified Hedgehog.Gen         as G
 import qualified Hedgehog.Range       as R
 
-{-# ANN module ("HLint: ignore Redundant do"        :: String) #-}
-{-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
+{- HLINT ignore "Redundant do"        -}
+{- HLINT ignore "Reduce duplication"  -}
 
 makeCsPoppyBlocksRef :: DVS.Vector Word64 -> DVS.Vector Word64
 makeCsPoppyBlocksRef v = DVS.generate (((DVS.length v + 8 - 1) `div` 8) + 1) genBlocks

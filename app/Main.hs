@@ -14,8 +14,8 @@ import HaskellWorks.Data.RankSelect.Poppy512
 import Options.Applicative
 import System.Directory
 
-{-# ANN module ("HLint: ignore Redundant do" :: String) #-}
-{-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
+{- HLINT ignore "Redundant do"        -}
+{- HLINT ignore "Reduce duplication"  -}
 
 runPoppy512SelectAll :: IO ()
 runPoppy512SelectAll = do

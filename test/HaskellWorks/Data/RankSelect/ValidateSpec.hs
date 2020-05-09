@@ -24,7 +24,7 @@ import qualified Hedgehog.Gen              as G
 import qualified Hedgehog.Range            as R
 import qualified System.Directory          as IO
 
-{-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
+{- HLINT ignore "Reduce duplication"  -}
 
 entries :: [FilePath]
 entries = mfilter (".idx" `isSuffixOf`) <$> unsafePerformIO $ IO.getDirectoryContents "data"

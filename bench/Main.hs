@@ -25,8 +25,8 @@ import qualified Data.Vector.Storable                  as DVS
 import qualified HaskellWorks.Data.RankSelect.CsPoppy  as CS
 import qualified HaskellWorks.Data.RankSelect.Poppy512 as P512
 
-{-# ANN module ("HLint: ignore Redundant do" :: String) #-}
-{-# ANN module ("HLint: ignore Reduce duplication"  :: String) #-}
+{- HLINT ignore "Redundant do"        -}
+{- HLINT ignore "Reduce duplication"  -}
 
 selectStep :: Count
 selectStep = 1000
