@@ -5,7 +5,6 @@ module Main where
 
 import App.Commands
 import Control.Monad
-import Data.List
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.RankSelect.Base.Select1
@@ -14,13 +13,15 @@ import HaskellWorks.Data.RankSelect.Poppy512
 import Options.Applicative
 import System.Directory
 
+import qualified Data.List as L
+
 {- HLINT ignore "Redundant do"        -}
 {- HLINT ignore "Reduce duplication"  -}
 
 runPoppy512SelectAll :: IO ()
 runPoppy512SelectAll = do
   entries <- getDirectoryContents "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
+  let files = ("data/" ++) <$> (".ib" `L.isSuffixOf`) `filter` entries
   forM_ files $ \file -> do
     putStrLn $ "Loading cspoppy for " <> file
     v :: Poppy512 <- mmapFromForeignRegion file
@@ -32,7 +33,7 @@ runPoppy512SelectAll = do
 runCsPoppySelectAll :: IO ()
 runCsPoppySelectAll = do
   entries <- getDirectoryContents "data"
-  let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
+  let files = ("data/" ++) <$> (".ib" `L.isSuffixOf`) `filter` entries
   forM_ files $ \file -> do
     putStrLn $ "Loading cspoppy for " <> file
     v :: CsPoppy <- mmapFromForeignRegion file

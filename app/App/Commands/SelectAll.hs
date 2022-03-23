@@ -10,7 +10,6 @@ module App.Commands.SelectAll
 import Control.Lens
 import Control.Monad
 import Data.Generics.Product.Any
-import Data.List
 import HaskellWorks.Data.Bits.PopCount.PopCount1
 import HaskellWorks.Data.FromForeignRegion
 import HaskellWorks.Data.RankSelect.Base.Select1
@@ -20,6 +19,7 @@ import Options.Applicative                       hiding (columns)
 import System.Directory
 
 import qualified App.Commands.Options.Type as Z
+import qualified Data.List                 as L
 
 {- HLINT ignore "Redundant do"        -}
 {- HLINT ignore "Reduce duplication"  -}
@@ -29,7 +29,7 @@ runSelectAll :: Z.SelectAllOptions -> IO ()
 runSelectAll opts = case opts ^. the @"indexType" of
   Z.CsPoppy -> do
     entries <- getDirectoryContents "data"
-    let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
+    let files = ("data/" ++) <$> (".ib" `L.isSuffixOf`) `filter` entries
     forM_ files $ \file -> do
       putStrLn $ "Loading cspoppy for " <> file
       v :: CsPoppy <- mmapFromForeignRegion file
@@ -39,7 +39,7 @@ runSelectAll opts = case opts ^. the @"indexType" of
       return ()
   Z.Poppy512 -> do
     entries <- getDirectoryContents "data"
-    let files = ("data/" ++) <$> (".ib" `isSuffixOf`) `filter` entries
+    let files = ("data/" ++) <$> (".ib" `L.isSuffixOf`) `filter` entries
     forM_ files $ \file -> do
       putStrLn $ "Loading cspoppy for " <> file
       v :: Poppy512 <- mmapFromForeignRegion file
