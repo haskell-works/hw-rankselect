@@ -85,8 +85,8 @@ instance HW.Cons BitSeq where
 instance HW.Snoc BitSeq where
   snoc (BitSeq ft) b = BitSeq $ case FT.viewr ft of
     lt :> Elem w nw -> if nw >= 0 && nw < 64
-      then Elem (w .|. (bw .<. nw)) (nw + 1) <| lt
-      else Elem bw 1                         <| lt
+      then lt |> Elem (w .|. (bw .<. nw)) (nw + 1)
+      else ft |> Elem bw 1
     FT.EmptyR        -> FT.singleton (Elem bw 1)
     where bw = if b then 1 else 0
 
