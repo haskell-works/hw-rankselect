@@ -99,6 +99,9 @@ instance Semigroup BitSeq where
       FT.EmptyL -> tr
     FT.EmptyR -> FT.empty
 
+instance Monoid BitSeq where
+  mempty = BitSeq mempty
+
 instance Select1 BitSeq where
   select1 (BitSeq ft) n = case FT.split (atPopCountBelow n) ft of
     (lt, _) -> case FT.viewr lt of
