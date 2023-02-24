@@ -115,7 +115,7 @@ instance Rank1 BitSeq where
   rank1 bs n = let (lt, _) = splitAt n bs in popCount1 lt
 
 instance PopCount1 BitSeq where
-  popCount1 (BitSeq ft) = measureBitCount (FT.measure ft :: Measure)
+  popCount1 (BitSeq ft) = measurePopCount (FT.measure ft :: Measure)
 
 (|>#) :: BitSeqFt -> Elem -> BitSeqFt
 (|>#) ft e@(Elem _ wn) = if wn > 0 then ft |> e else ft
